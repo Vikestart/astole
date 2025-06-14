@@ -63,7 +63,9 @@
 <meta charset="UTF-8">
 <title><?php echo $site_title; ?></title>
 <link rel="shortcut icon" href="../favicon.ico" type="image/x-icon">
-<link rel="stylesheet" href="styles/admin.css?v=<?php echo date("mdHis") ?>">
-<script defer src="../font-awesome/fontawesome-all.min.js"></script>
+<link rel="stylesheet" href="assets/adm.css?v=<?php echo date("mdHis") ?>">
+<script defer src="../assets/font-awesome/fontawesome.min.js"></script>
+<script defer src="../assets/font-awesome/solid.min.js"></script>
+<script defer src="../assets/font-awesome/brands.min.js"></script>
 </head>
 <body>

@@ -36,13 +36,13 @@
 	<main id="page-default">
 
 		<section>
-			<?php if (!$user_isnew && $userdata->row['user_role'] === 'admin' && $user_role !== 'admin') { echo "<a class='btn btn-red btn-r' href='process-user.php?a=del&u=$user_id'><i class='fas fa-user-slash' data-fa-transform='up-1'></i>Delete User</a>"; } ?>
-			<h1 class="h1_underscore"><i class="fas fa-<?php echo ($user_isnew) ? "user-plus" : "user-edit"; ?>"></i><?php echo ($user_isnew) ? "New User" : "Edit User: " . $user_name; ?></h1>
+			<?php if (!$user_isnew && $userdata->row['user_role'] === 'admin' && $user_role !== 'admin') { echo "<a class='btn btn-red btn-r' href='process-user.php?a=del&u=$user_id'><i class='fa-solid fa-user-slash' data-fa-transform='up-1'></i>Delete User</a>"; } ?>
+			<h1 class="h1_underscore"><i class="fa-solid fa-<?php echo ($user_isnew) ? "user-plus" : "user-edit"; ?>"></i><?php echo ($user_isnew) ? "New User" : "Edit User: " . $user_name; ?></h1>
 
 			<?php if ($userdata->row['user_role'] === 'admin') { ?>
 			<form action="process-user.php?a=edit" method="POST" class="form-default" autocomplete="off">
 
-				<?php if (isset($msgtxt)) { echo "<div class='msgbox msgbox-$msgtype' data-expire='$msgexpire'><i class='fas fa-$msgicon'></i><span>" . $msgtxt . "</span></div>"; } ?>
+				<?php if (isset($msgtxt)) { echo "<div class='msgbox msgbox-$msgtype' data-expire='$msgexpire'><i class='fa-solid fa-$msgicon'></i><span>" . $msgtxt . "</span></div>"; } ?>
 
 				<input name="user_name" class="form-field" type="text" minlength="3" maxlength="30" placeholder="Username" autocomplete="off" value="<?php if (!$user_isnew) echo $user_name; ?>" required />
 				<input name="user_pass" class="form-field" type="password" minlength="8" maxlength="25" placeholder="Password" autocomplete="off" value="" <?php if ($user_isnew) echo 'required '; ?> />
@@ -55,7 +55,7 @@
 				</select>
 			<?php } ?>
 				<input name="action" value="<?php echo ($user_isnew) ? "newuser" : "edituser"; ?>" type="hidden" />
-				<button class="form-submit" type="submit"><i class="fas fa-<?php echo ($user_isnew) ? "paper-plane" : "edit"; ?>"></i><?php echo ($user_isnew) ? "Submit" : "Save changes"; ?></button>
+				<button class="form-submit" type="submit"><i class="fa-solid fa-<?php echo ($user_isnew) ? "paper-plane" : "edit"; ?>"></i><?php echo ($user_isnew) ? "Submit" : "Save changes"; ?></button>
 
 			</form>
 		<?php } else { ?>

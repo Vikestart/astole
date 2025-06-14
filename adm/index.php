@@ -11,8 +11,9 @@
 	<main id="page-default">
 
 		<section>
-			<a class="btn btn-red btn-r btn-desktop" href="logout.php"><i class="fas fa-sign-out-alt" data-fa-transform="up-1"></i>Sign out</a>
-			<h1 class="h1_underscore"><i class="fas fa-shield-check"></i>Welcome, <?php echo $userdata->row['user_uid']; ?></h1>
+			<a class="btn btn-red btn-r btn-desktop" href="logout.php"><i class="fa-solid fa-sign-out-alt" data-fa-transform="up-1"></i>Sign out</a>
+			<a class="btn btn-r btn-desktop" href="/" target="_blank"><i class="fa-solid fa-eye"></i>Go to website</a>
+			<h1 class="h1_underscore"><i class="fa-solid fa-shield-check"></i>Welcome, <?php echo $userdata->row['user_uid']; ?></h1>
 			<p>Your last login was <strong><?php echo $userdata->row['user_lastseen']; /*format("F j, o \a\\t H:i T")*/ ?></strong>.</p>
 			<p>Your current role is: <strong><?php echo ucwords($userdata->row['user_role']); ?></strong>.</p>
 			<p>Your IP is: <strong><?php echo $userdata->row['user_ip']; ?></strong>.</p>
@@ -26,7 +27,7 @@
 		</section>
 
 		<section>
-			<a class="btn btn-green btn-r" href="edit-page.php?t=new"><i class="fas fa-plus" data-fa-transform="up-1"></i>New Page</a>
+			<a class="btn btn-green btn-r" href="edit-page.php?t=new"><i class="fa-solid fa-plus" data-fa-transform="up-1"></i>New Page</a>
 			<h1 class="h1_underscore"><i class="fas fa-clock" data-fa-transform="down-1"></i>Recently updated</h1>
 			<?php
 				if ($updatedpages->result->num_rows > 0) {

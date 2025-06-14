@@ -9,8 +9,10 @@ require "db.php";
 <meta charset="UTF-8">
 <title>Aleksander Støle</title>
 <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
-<link rel="stylesheet" href="styles/main.css?v=<?php echo date("mdHis") ?>">
-<script defer src="font-awesome/fontawesome-all.min.js"></script>
+<link rel="stylesheet" href="/assets/main.css?v=<?php echo date("mdHis") ?>">
+<script defer src="/assets/font-awesome/fontawesome.min.js"></script>
+<script defer src="/assets/font-awesome/solid.min.js"></script>
+<script defer src="/assets/font-awesome/brands.min.js"></script>
 </head>
 <body>
 		<header>
@@ -21,10 +23,10 @@ require "db.php";
 			<nav>
 				<ol>
 					<li class="logo"><a class="logo" href="index.php">aleksander støle</a></li>
-					<li><a class="menu-item" href="index.php"><i class="fas fa-home-lg"></i>Home</a></li>
-					<li><a class="menu-item" href="page.php?p=4"><i class="fas fa-file-user"></i>CV</a></li>
-					<li><a class="menu-item" href="page.php?p=5"><i class="fas fa-project-diagram"></i>Projects</a></li>
-					<li><a class="menu-item" href="page.php?p=1"><i class="fas fa-envelope-open-text"></i>Contact</a></li>
+					<li><a class="menu-item" href="index.php"><i class="fa-solid fa-house"></i>Home</a></li>
+					<li><a class="menu-item" href="page.php?p=4"><i class="fa-solid fa-file-user"></i>CV</a></li>
+					<li><a class="menu-item" href="page.php?p=5"><i class="fa-solid fa-project-diagram"></i>Projects</a></li>
+					<li><a class="menu-item" href="page.php?p=1"><i class="fa-solid fa-envelope-open-text"></i>Contact</a></li>
 				</ol>
 			</nav>
 		</header>

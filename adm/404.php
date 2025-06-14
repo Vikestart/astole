@@ -7,7 +7,7 @@
 	<main id="page-default">
 
 		<section>
-			<h1 class="h1_underscore"><i class="fas fa-bug"></i>Page not found</h1>
+			<h1 class="h1_underscore"><i class="fa-solid fa-bug"></i>Page not found</h1>
 			<p>The requested page was not found.</p>
 			<p>Please recheck the URL that was used.</p>
 			</div>

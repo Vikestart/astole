@@ -6,11 +6,11 @@
   </div>
   <nav>
     <ol>
-      <li><a href="index.php"><i class="fas fa-window-restore"></i>Overview</a></li>
-      <li><a href="pages.php"><i class="fas fa-layer-group"></i>Pages</a></li>
-      <li><a href="users.php"><i class="fas fa-users"></i>Users</a></li>
-      <li><a href="settings.php"><i class="fas fa-cog"></i>Settings</a></li>
-      <li><a href="profile.php"><i class="fas fa-user-circle"></i><?php echo $userdata->row['user_uid']; ?></a></li>
+      <li><a href="index.php"><i class="fa-solid fa-window-restore"></i>Overview</a></li>
+      <li><a href="pages.php"><i class="fa-solid fa-layer-group"></i>Pages</a></li>
+      <li><a href="users.php"><i class="fa-solid fa-users"></i>Users</a></li>
+      <li><a href="settings.php"><i class="fa-solid fa-cog"></i>Settings</a></li>
+      <li><a href="profile.php"><i class="fa-solid fa-user-circle"></i><?php echo $userdata->row['user_uid']; ?></a></li>
     </ol>
   </nav>
 </header>
