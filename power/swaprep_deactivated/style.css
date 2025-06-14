@@ -1,0 +1,30 @@
+@import url("/style.css");
+/* Brand Search */
+#brandseearch { width:100%;height:74px;display:none;border-bottom:2px solid #c7592f; }
+#brandseearch > div { width:100%;height:72px;display:flex;position:relative; }
+#brandseearch > div > span[contenteditable] { background-color:#92523a;width:100%;height:72px;display:inline-block;overflow:hidden;float:left;white-space:nowrap;line-height:72px;color:#fff;font-size:28px;font-family:"Roboto", "Helvetica Neue", Helvetica, Arial, sans-serif;padding:0 25px; }
+#brandseearch > div > span[contenteditable]:focus { background-color:#a75231; }
+#brandseearch > div > span[contenteditable]:empty:before { content:attr(data-placeholder);width:0;position:relative;z-index:1;display:inline-block;pointer-events:none;white-space:nowrap;color:#ecd1c7; }
+#brandseearch > div > div { background-color:#c7592f;width:82px;height:72px;display:inline-block;cursor:default;float:left;line-height:68px;color:#f7cbba;font-size:36px;text-align:center; }
+/* Brands List */
+#brandslist { background-color:#1d2225;width:100%;display:none;color:#fff;font-size:18px;font-family:"Roboto","Helvetica Neue", Helvetica, Arial, sans-serif;padding:35px 40px 30px;margin-bottom:40px; }
+#brandslist > div.brand { margin-bottom:40px; }
+#brandslist > div.brand > span.brand_title { display:block;cursor:default;line-height:42px;color:#e45f2d;font-size:42px;font-family:"Gotham-Bold", "Helvetica Neue", Helvetica, Arial, sans-serif;text-transform:uppercase;padding:0 0 5px;border-bottom:0; }
+#brandslist > div.brand > div.brand_routines { background-color:#34434a;display:flex;cursor:default;clear:both;padding:15px; }
+#brandslist > div.brand > div.brand_routines:first-of-type { border-top:2px solid #e45f2d; }
+#brandslist > div.brand > div.brand_routines:nth-of-type(even) { background-color:#283338; }
+#brandslist > div.brand > div.brand_routines:hover { background-color:#465861;color:#fff; }
+#brandslist > div.brand > div.brand_routines > div { width:32%;display:inline-block; }
+#brandslist > div.brand > div.brand_routines > div:first-of-type { color:#ffed00; }
+#brandslist > div.brand > div.brand_routines > div:last-of-type { width:68%; }
+#brandslist > div.brand > div.brand_routines > div:empty { width:0%; }
+#brandslist > div.brand > div.brand_routines > div:empty + div { width:100%; }
+#brandslist > p { cursor:default;color:#ccc;font-size:20px;margin-bottom:30px; }
+#brandslist > p:last-of-type { margin-bottom:0; }
+#brandslist > p a { cursor:pointer;color:#72d1fd;text-decoration:none; }
+#brandslist > p a:hover { color:#fff;text-decoration:underline; }
+@media only screen and (max-width:540px) {
+	#brandslist { font-size:14px;padding:20px 5px 5px; }
+	#brandslist > div.brand > span.brand_title { line-height:32px;font-size:32px; }
+	#brandslist > p { font-size:16px;padding:0 15px 15px; }
+}

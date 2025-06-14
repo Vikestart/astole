@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="description" content="Klargjøringsskjema for PCer, nettbrett og mobiler">
+<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+<meta name="robots" content="noindex,nofollow"/>
+<meta charset="UTF-8">
+<title>Klargjøringsskjema | POWER Support App</title>
+<link rel="shortcut icon" href="../favicon-16x16.ico" type="image/x-icon">
+<link rel="stylesheet" href="style.css?v1.1">
+<link rel="stylesheet" href="print.css?v1.2">
+<script defer src="../font-awesome/fontawesome-all.min.js"></script>
+</head>
+<body leftmargin="0" topmargin=0" rightmargin="0" bottommargin="0" marginwidth="0" marginheight=0">
+	<div id="ieblock"><span class="fa-stack fa-lg"><i class="fab fa-internet-explorer fa-stack-1x"></i><i class="fa fa-ban fa-stack-2x text-danger"></i></span><div>Utdatert nettleser!</div><p>Internet Explorer er en utdatert nettleser og støttes ikke av denne siden.<br><br>Bruk en nyere og bedre nettleser, som Google Chrome, Microsoft Edge eller Firefox.</p><div class="browserdownload"><i class="fab fa-chrome"></i><a href="https://www.google.com/chrome/" target="_blank">Last ned Google Chrome</a></div><div class="browserdownload"><i class="fab fa-firefox"></i><a href="https://www.mozilla.org/nb-NO/firefox/new/" target="_blank">Last ned Firefox</a></div></div>
+	<div id="mobileblock"><span class="fa-stack fa-lg"><i class="fas fa-mobile-alt fa-stack-1x"></i><i class="fa fa-ban fa-stack-2x text-danger"></i></span><div>For liten skjerm</div><p>Klargjøringsskjemaet er designet for å brukes på enheter med store skjermer. Mobiler og nettbrett er ikke kompatible med dette skjemaet.<br><br><a href="https://power.astole.no">Tilbake til forsiden.</a></p></div>
+	<div id="main">
+		<header class="nomargin">
+			<div id="header_inner">
+				<a id="logo" href="/"></a>
+				<span id="pagetitle">Klargjøringsskjema</span>
+				<div id="print_headerinfo"><span><strong>Selger:</strong> <span id="employee"></span></span><span id="createdtime"></span></div>
+			</div>
+		</header>
+		<div id="content">
+
+			<div id="form_loading">
+				<div id="loading_title">Laster inn skjema</div>
+				<object id="svg1" class="loading_icon" data="../loading.svg" type="image/svg+xml"></object>
+			</div>
+
+			<div id="form">
+
+				<div id="form_stepindicator">
+					<div id="form_stepindicator_employee" class="activestep"></div>
+					<div id="form_stepindicator_basics"></div>
+					<div id="form_stepindicator_advanced"></div>
+					<div id="form_stepindicator_time"></div>
+				</div>
+
+				<!--<fieldset id="formdonation"><legend><i class="fas fa-comment-dollar" style="--fa-secondary-opacity: 1;"></i>Donasjoner</legend><p>Serveren til denne nettsiden koster penger å leie og driftes utelukkende på donasjoner. Vennligst vurder å hjelpe til med kostnadene ved å donere en valgfri sum. Bruk følgende link: <a href="https://www.paypal.me/vikestart" target="_blank">[PayPal link]</a></p></fieldset>-->
+
+				<div id="form_employee" class="form_centered form_paddingtopminor">
+					<fieldset class="fieldset_big">
+						<legend><i class="fas fa-user-tie"></i>Signering</legend>
+						<span contenteditable="true" spellcheck="false" class="input input_big input_required" data-name="employee" data-type="firstname" data-tooltip="Navnet til deg som fyller ut dette skjemaet" data-maxlength="18" data-placeholder="Ansattnavn" data-autofocus></span>
+					</fieldset>
+				</div>
+
+				<div id="form_basics">
+					<fieldset>
+						<legend><i class="fas fa-address-card" data-fa-transform="down-1"></i>Kundedata</legend>
+						<span class="input_scanicon" data-tooltip="Du kan bruke strekkodeleser."><i class="fad fa-barcode-scan"></i></span><span contenteditable="true" spellcheck="false" class="input input_required input_scannable" data-name="elguide" data-tooltip="11 siffer, uten mellomrom. Velg mellom bilagsnr eller ordrenr. Du kan skanne strekkode på bilag med strekkodeleser." data-maxlength="15" data-placeholder="Bilagsnummer" data-autofocus></span>
+						<span contenteditable="true" spellcheck="false" class="input input_required" data-name="fullname" data-type="fullname" data-tooltip="Fornavn og etternavn til den som skal bruke enheten." data-maxlength="35" data-placeholder="Navn"></span>
+						<span contenteditable="true" spellcheck="false" class="input input_required input_short" data-name="phone" data-type="number" data-tooltip="Telefonnummer som vi kan kontakte kunden på underveis." data-minlength="8" data-maxlength="8" data-placeholder="Telefonnummer"></span>
+						<span contenteditable="true" spellcheck="false" class="input input_short" data-name="bdate" data-type="number" data-tooltip="DDMMÅÅÅÅ. Nødvendig dersom det skal opprettes nye kontoer." data-minlength="8" data-maxlength="8" data-placeholder="Fødselsdato"></span>
+					</fieldset>
+
+					<fieldset id="devicetype" class="fancyradiobuttons fancyradiobuttons_bigicons fancyradiobuttons_fixedbtnwidth" name="devicetype">
+						<legend><i class="fas fa-cubes" data-fa-transform="up-1"></i>Plattform</legend>
+						<label class="label_required"><input type="radio" name="device" value="Datamaskin"><i class="fas fa-laptop"></i>Datamaskin</label>
+						<label class="label_required"><input type="radio" name="device" value="Smarttelefon"><i class="fas fa-mobile-android-alt"></i>Smarttelefon</label>
+						<label class="label_required"><input type="radio" name="device" value="Knappetelefon"><i class="fas fa-calculator" data-fa-transform="up-1"></i>Knappetelefon</label>
+						<label class="label_required"><input type="radio" name="device" value="Nettbrett"><i class="fas fa-tablet-android-alt"></i>Nettbrett</label>
+					</fieldset>
+
+					<fieldset id="operatingsystem" class="fancyradiobuttons fancyradiobuttons_bigicons fancyradiobuttons_fixedbtnwidth fieldset_disabled" name="operatingsystem">
+						<legend><i class="fas fa-code-branch" data-fa-transform="up-1"></i>Merke</legend>
+						<span id="operatingsystem_placeholder" class="fieldset_placeholder">Velg plattform først</span>
+						<label class="label_required label_hidden"><input type="radio" name="os" value="notapplicable">N/A</label>
+						<label class="label_required label_hidden"><input type="radio" name="os" value="Acer">Acer</label>
+						<label class="label_required label_hidden"><input type="radio" name="os" value="Alcatel">Alcatel</label>
+						<label class="label_required label_hidden"><input type="radio" name="os" value="Apple">Apple</label>
+						<label class="label_required label_hidden"><input type="radio" name="os" value="ASUS">ASUS</label>
+						<label class="label_required label_hidden"><input type="radio" name="os" value="CAT">CAT</label>
+						<label class="label_required label_hidden"><input type="radio" name="os" value="Cepter">Cepter</label>
+						<label class="label_required label_hidden"><input type="radio" name="os" value="Dell">Dell</label>
+						<label class="label_required label_hidden"><input type="radio" name="os" value="Doro">Doro</label>
+						<label class="label_required label_hidden"><input type="radio" name="os" value="Honor">Honor</label>
+						<label class="label_required label_hidden"><input type="radio" name="os" value="HP">HP</label>
+						<label class="label_required label_hidden"><input type="radio" name="os" value="HTC">HTC</label>
+						<label class="label_required label_hidden"><input type="radio" name="os" value="Huawei">Huawei</label>
+						<label class="label_required label_hidden"><input type="radio" name="os" value="Kurio">Kurio</label>
+						<label class="label_required label_hidden"><input type="radio" name="os" value="Lenovo">Lenovo</label>
+						<label class="label_required label_hidden"><input type="radio" name="os" value="LG">LG</label>
+						<label class="label_required label_hidden"><input type="radio" name="os" value="Medion">Medion</label>
+						<label class="label_required label_hidden"><input type="radio" name="os" value="Microsoft">Microsoft</label>
+						<label class="label_required label_hidden"><input type="radio" name="os" value="Motorola">Motorola</label>
+						<label class="label_required label_hidden"><input type="radio" name="os" value="MSI">MSI</label>
+						<label class="label_required label_hidden"><input type="radio" name="os" value="Nokia">Nokia</label>
+						<label class="label_required label_hidden"><input type="radio" name="os" value="Samsung">Samsung</label>
+						<label class="label_required label_hidden"><input type="radio" name="os" value="Sony">Sony</label>
+						<label class="label_required label_hidden"><input type="radio" name="os" value="Toshiba">Toshiba</label>
+						<label class="label_required label_hidden"><input type="radio" name="os" value="ZTE">ZTE</label>
+					</fieldset>
+				</div>
+
+				<div id="form_advanced">
+
+					<fieldset name="login">
+						<legend><i class="fas fa-unlock-alt" data-fa-transform="up-1"></i>Innlogging på enheten</legend>
+						<span contenteditable="true" spellcheck="false" class="input input_required" data-name="username" data-maxlength="30" data-placeholder="Ønsket brukernavn" data-autofocus></span>
+						<span contenteditable="true" spellcheck="false" class="input input_hidden" data-name="password" data-maxlength="30" data-placeholder="Ønsket passord"></span>
+						<span contenteditable="true" spellcheck="false" class="input input_required input_hidden" data-name="password_mac" data-tooltip="For Macbooks er det påkrevd å ha et passord på brukeren." data-minlength="3" data-maxlength="30" data-placeholder="Ønsket passord"></span>
+					</fieldset>
+
+					<fieldset name="pincodes">
+						<legend><i class="fas fa-unlock-alt" data-fa-transform="up-1"></i>Låsekoder</legend>
+						<p>Dersom SIM-kortet eller den gamle enheten er låst med kode, fylles de kodene inn her.</p>
+						<span contenteditable="true" spellcheck="false" class="input" data-name="simpin" data-type="number" data-minlength="4" data-maxlength="6" data-placeholder="SIM-kode" data-autofocus></span>
+						<select name="pinorpattern">
+							<option value="screenlocktype_none" selected>Telefonen har ingen lås</option>
+							<option value="screenlocktype_pin">Telefonen har skjermlåskode</option>
+							<option value="screenlocktype_pattern">Telefonen har mønster</option>
+						</select>
+						<span contenteditable="true" spellcheck="false" class="input input_required input_hidden" data-name="lockpin" data-minlength="4" data-maxlength="10" data-placeholder="Skjermlåskode"></span>
+						<img src="/img/icon-arrow.png" style="display:none"/>
+						<div id="patternHolder7" class="pattern-holder input_hidden"></div>
+					</fieldset>
+
+					<fieldset id="emailsetup" name="emailsetup">
+						<legend><i class="fas fa-envelope-open"></i>E-post</legend>
+						<p id="emaildescription" class="label_subtext">Vi kan legge til epost-kontoen til kunden i Outlook eller et annet epost-program.</p>
+						<select id="emailaccount" name="emailaccount" data-togglemain>
+							<option value="0" selected>Hopp over</option>
+							<option value="existing">Bruk eksisterende e-postadresse</option>
+							<option value="new">Opprett ny e-postadresse</option>
+							<option value="later">Info kommer senere</option>
+						</select>
+						<span contenteditable="true" spellcheck="false" class="input input_required input_hidden" data-name="email" data-type="email" data-maxlength="50" data-placeholder="E-post" data-toggledmain></span>
+						<span contenteditable="true" spellcheck="false" class="input input_required input_hidden" data-name="emailpassword" data-type="password" data-tooltip="Må som regel inneholde både bokstaver og tall, med minst en stor bokstav." data-minlength="8" data-maxlength="40" data-placeholder="Passord" data-placeholder2="Ønsket passord" data-toggledmain></span>
+					</fieldset>
+
+					<fieldset name="appleid">
+						<legend><i class="fab fa-app-store-ios" data-fa-transform="grow-1"></i>Apple-ID</legend>
+						<div class="accountcopy"><span>Kopier konto fra<i class="fas fa-chevron-down"></i></span></div>
+						<p class="label_subtext">En Apple-ID er nødvendig for å få full tilgang til alle funksjoner. Dette feltet er påkrevd.</p>
+						<select name="appleidaccount" data-togglemain data-toggleaccount>
+							<option value="existing" selected>Bruk eksisterende Apple-ID</option>
+							<option value="new_mail">Opprett ny konto med ny @icloud.com-adresse</option>
+							<option value="new">Opprett ny konto med kundens egen e-post</option>
+						</select>
+						<span contenteditable="true" spellcheck="false" class="input input_required" data-name="appleiduser" data-type="email" data-maxlength="50" data-placeholder="Bruker" data-user data-toggledmain></span>
+						<span contenteditable="true" spellcheck="false" class="input input_required" data-name="appleidpassword" data-type="password" data-tooltip="Må som regel inneholde både bokstaver og tall, med minst en stor bokstav." data-minlength="8" data-maxlength="40" data-placeholder="Passord" data-placeholder2="Ønsket passord" data-password data-toggledmain></span>
+						<div class="input_newline"></div>
+						<select name="appleid_question1" class="dynamicmaxselect input_hidden input_printnomargin" data-toggledaccount_new required>
+							<option value="0" disabled selected>Sikkerhetsspørsmål 1</option>
+							<option value="3">Hva het bestevennen din da du var tenåring?</option>
+							<option value="4">Hva het det første kjæledyret ditt?</option>
+							<option value="5">Hva var den første matretten du lærte?</option>
+							<option value="6">Hvilken film var den første du så på kino?</option>
+							<option value="7">Hvor reiste du den første gangen du fløy?</option>
+							<option value="8">Hva het favorittlæreren din på barneskolen?</option>
+						</select>
+						<span contenteditable="true" spellcheck="false" class="input input_notitle input_required input_hidden input_printnomargin" data-name="appleid_answer1" data-maxlength="30" data-placeholder="Svar" data-toggledaccount_new></span>
+						<div class="input_newline"></div>
+						<select name="appleid_question2" class="dynamicmaxselect input_hidden input_printnomargin" data-toggledaccount_new required>
+							<option value="0" disabled selected>Sikkerhetsspørsmål 2</option>
+							<option value="3">Hva er drømmejobben din?</option>
+							<option value="4">Hva er favorittbarneboken din?</option>
+							<option value="5">Hva var modellen på ditt første kjøretøy?</option>
+							<option value="6">Hva var kallenavnet ditt i barndommen?</option>
+							<option value="7">Hvem var din favorittskuespiller på skolen?</option>
+							<option value="8">Hvem var ditt favorittband eller favorittsanger på skolen?</option>
+						</select>
+						<span contenteditable="true" spellcheck="false" class="input input_notitle input_required input_hidden input_printnomargin" data-name="appleid_answer2" data-maxlength="30" data-placeholder="Svar" data-toggledaccount_new></span>
+						<div class="input_newline"></div>
+						<select name="appleid_question3" class="dynamicmaxselect input_hidden" data-toggledaccount_new required>
+							<option value="0" disabled selected>Sikkerhetsspørsmål 3</option>
+							<option value="3">I hvilken by møtte foreldrene dine hverandre?</option>
+							<option value="4">Hva het den første sjefen din?</option>
+							<option value="5">Hva het gaten der du vokste opp?</option>
+							<option value="6">Hva heter den første stranden du besøkte?</option>
+							<option value="7">Hva var det første albumet du kjøpte?</option>
+							<option value="8">Hva er favorittlaget ditt?</option>
+						</select>
+						<span contenteditable="true" spellcheck="false" class="input input_notitle input_required input_hidden" data-name="appleid_answer3" data-maxlength="30" data-placeholder="Svar" data-toggledaccount_new></span>
+					</fieldset>
+
+					<fieldset name="google">
+						<legend><i class="fab fa-google-play"></i>Google-konto</legend>
+						<div class="accountcopy"><span>Kopier konto fra<i class="fas fa-chevron-down"></i></span></div>
+						<p class="label_subtext">En Google-konto er nødvendig for å laste ned apper. Dette feltet er påkrevd.</p>
+						<select name="googleaccount" data-togglemain data-toggleaccount>
+							<option value="existing" selected>Bruk eksisterende Google-konto</option>
+							<option value="new_mail">Opprett ny konto med ny @gmail.com-adresse</option>
+							<option value="new">Opprett ny konto med kundens egen e-post</option>
+						</select>
+						<span contenteditable="true" spellcheck="false" class="input input_required" data-name="googleuser" data-type="email" data-maxlength="50" data-placeholder="Bruker" data-user data-toggledmain></span>
+						<span contenteditable="true" spellcheck="false" class="input input_required" data-name="googlepassword" data-type="password" data-tooltip="Må som regel inneholde både bokstaver og tall, med minst en stor bokstav." data-minlength="8" data-maxlength="40" data-placeholder="Passord" data-placeholder2="Ønsket passord" data-password data-toggledmain></span>
+					</fieldset>
+
+					<fieldset name="huawei">
+						<legend><i class="fas fa-user-circle"></i>Huawei-ID</legend>
+						<div class="accountcopy"><span>Kopier konto fra<i class="fas fa-chevron-down"></i></span></div>
+						<p class="label_subtext">Kreves blant annet for å aktivere utvidet garanti og andre fordeler.</p>
+						<select name="huaweiaccount" data-togglemain data-toggleaccount>
+							<option value="0" selected>Hopp over</option>
+							<option value="existing">Bruk eksisterende Huawei-ID</option>
+							<option value="new">Opprett ny konto med kundens egen e-post</option>
+							<option value="later">Info kommer senere</option>
+						</select>
+						<span contenteditable="true" spellcheck="false" class="input input_required input_hidden" data-name="huaweiuser" data-type="email" data-maxlength="50" data-placeholder="Bruker" data-user data-toggledmain></span>
+						<span contenteditable="true" spellcheck="false" class="input input_required input_hidden" data-name="huaweipass" data-type="password" data-tooltip="Må som regel inneholde både bokstaver og tall, med minst en stor bokstav." data-minlength="8" data-maxlength="40" data-placeholder="Passord" data-placeholder2="Ønsket passord" data-password data-toggledmain></span>
+					</fieldset>
+
+					<fieldset name="samsung">
+						<legend><i class="fas fa-user-circle"></i>Samsung-konto</legend>
+						<div class="accountcopy"><span>Kopier konto fra<i class="fas fa-chevron-down"></i></span></div>
+						<p class="label_subtext">Gir tilgang til mange ekstra funksjoner og fordeler.</p>
+						<select name="samsungaccount" data-togglemain data-toggleaccount>
+							<option value="0" selected>Hopp over</option>
+							<option value="existing">Bruk eksisterende Samsung Account</option>
+							<option value="new">Opprett ny konto med kundens egen e-post</option>
+							<option value="later">Info kommer senere</option>
+						</select>
+						<span contenteditable="true" spellcheck="false" class="input input_required input_hidden" data-name="samsunguser" data-type="email" data-maxlength="50" data-placeholder="Bruker" data-user data-toggledmain></span>
+						<span contenteditable="true" spellcheck="false" class="input input_required input_hidden" data-name="samsungpass" data-type="password" data-tooltip="Må som regel inneholde både bokstaver og tall, med minst en stor bokstav." data-minlength="8" data-maxlength="40" data-placeholder="Passord" data-placeholder2="Ønsket passord" data-password data-toggledmain></span>
+					</fieldset>
+
+					<fieldset name="asus">
+						<legend><i class="fas fa-user-circle"></i>ASUS-konto</legend>
+						<div class="accountcopy"><span>Kopier konto fra<i class="fas fa-chevron-down"></i></span></div>
+						<p class="label_subtext">Gir tilgang til mange ekstra funksjoner og fordeler.</p>
+						<select name="asusaccount" data-togglemain data-toggleaccount>
+							<option value="0" selected>Hopp over</option>
+							<option value="existing">Bruk eksisterende ASUS Account</option>
+							<option value="new">Opprett ny konto med kundens egen e-post</option>
+							<option value="later">Info kommer senere</option>
+						</select>
+						<span contenteditable="true" spellcheck="false" class="input input_required input_hidden" data-name="asususer" data-type="email" data-maxlength="50" data-placeholder="Bruker" data-user data-toggledmain></span>
+						<span contenteditable="true" spellcheck="false" class="input input_required input_hidden" data-name="asuspass" data-type="password" data-tooltip="Må som regel inneholde både bokstaver og tall, med minst en stor bokstav." data-minlength="8" data-maxlength="40" data-placeholder="Passord" data-placeholder2="Ønsket passord" data-password data-toggledmain></span>
+					</fieldset>
+
+					<fieldset name="office">
+						<legend><i class="fas fa-file-word"></i>Microsoft Office</legend>
+						<div class="accountcopy"><span>Kopier konto fra<i class="fas fa-chevron-down"></i></span></div>
+						<p class="label_subtext">En Microsoft-konto er nødvendig for å aktivere office-lisensen, for å kunne ta i bruk programmene.</p>
+						<select name="officeoption" data-togglemain>
+							<option value="0" selected>Hopp over</option>
+							<option value="Office 365 Personal">Microsoft 365 Personal (1 enhet)</option>
+							<option value="Office 365 Home">Microsoft 365 Family (6 enheter)</option>
+							<option value="Office 2016 Home & Student">Office 2019 Home & Student</option>
+							<option value="Office 2016 Home & Business">Office 2019 Home & Business</option>
+						</select>
+						<select id="officeaccount" name="officeaccount" class="input_hidden" data-toggledmain data-toggleaccount required>
+							<option value="0" disabled selected>--- Konto ---</option>
+							<option value="existing">Bruk eksisterende Office-konto</option>
+							<option value="new_mail">Opprett ny konto med ny @outlook.com-adresse</option>
+							<option value="new">Opprett ny konto med kundens egen e-post</option>
+							<option value="later">Info kommer senere</option>
+						</select>
+						<div class="input_newline"></div>
+						<span contenteditable="true" spellcheck="false" class="input input_required input_hidden" data-name="officeuser" data-type="email" data-maxlength="50" data-placeholder="Bruker (e-post)" data-user data-toggledaccount></span>
+						<span contenteditable="true" spellcheck="false" class="input input_required input_hidden" data-name="officepassword" data-type="password" data-tooltip="Må som regel inneholde både bokstaver og tall, med minst en stor bokstav." data-minlength="8" data-maxlength="40" data-placeholder="Passord" data-password data-toggledaccount></span>
+					</fieldset>
+
+					<fieldset name="antivirus">
+						<legend><i class="fas fa-shield-check"></i>F-Secure anti-virus</legend>
+						<div class="accountcopy"><span>Kopier konto fra<i class="fas fa-chevron-down"></i></span></div>
+						<p class="label_subtext">Kunden må ha en e-post som lisensen kan bindes til. Med den e-posten lages det en brukerkonto.</p>
+						<select name="antivirusoption" data-togglemain>
+							<option value="0" selected>Hopp over</option>
+							<option value="3">Ny avtale 1 år</option>
+							<option value="4">Ny avtale 1 år med IBAS</option>
+							<option value="5">Ny avtale 2 år</option>
+							<option value="6">Ny avtale 2 år med IBAS</option>
+							<option value="7">Ny avtale 3 år</option>
+							<option value="8">Ny avtale 3 år med IBAS</option>
+							<option value="9">Ny avtale 4 år</option>
+							<option value="10">Ny avtale 4 år med IBAS</option>
+							<option value="11">Ny avtale 5 år</option>
+							<option value="12">Ny avtale 5 år med IBAS</option>
+							<option value="existingantivirus">Bruke eksisterende avtale</option>
+						</select>
+						<select id="antivirusunits" name="antivirusunits" class="input_hidden" data-toggledmain required>
+							<option value="0" disabled selected>--- Antall enheter ---</option>
+							<option value="5norec">5 enhet</option>
+							<option value="20norec">20 enheter</option>
+						</select>
+						<select id="antivirusaccount" name="antivirusaccount" class="input_hidden" data-toggledmain data-toggleaccount required>
+							<option value="0" disabled selected>--- Konto ---</option>
+							<option value="existing">Eksisterende F-Secure konto</option>
+							<option value="new">Opprett ny konto med kundens e-post</option>
+							<option value="later">Info kommer senere</option>
+						</select>
+						<div class="input_newline"></div>
+						<span contenteditable="true" spellcheck="false" class="input input_required input_hidden" data-name="antivirususer" data-type="email" data-maxlength="50" data-placeholder="Bruker (e-post)" data-password data-toggledaccount></span>
+						<span contenteditable="true" spellcheck="false" class="input input_required input_hidden" data-name="antiviruspassword"  data-type="password" data-tooltip="Må som regel inneholde både bokstaver og tall, med minst en stor bokstav." data-minlength="8" data-maxlength="40" data-placeholder="Passord" data-password data-toggledaccount></span>
+					</fieldset>
+
+					<fieldset id="transfer" class="fancyradiobuttons fancyradiobuttons_bigicons transfer_onerow" name="transfer">
+						<legend><i class="fas fa-sync-alt"></i>Overføring</legend>
+						<p class="label_subtext">Velg om det skal overføres innhold fra gammel enhet og eventuelt hva som skal overføres.</p>
+						<div id="transferoption" class="fancyradiolist fancyradiolist_wide">
+							<label class="label_radio label_required"><input type="radio" name="transferextent" value="Ingen"><i class="far fa-times-circle"></i>Ingen</label>
+							<label class="label_radio label_required"><input type="radio" name="transferextent" value="Utvalg"><i class="fas fa-adjust"></i>Delvis</label>
+							<label class="label_radio label_required" style="margin-right:0;"><input type="radio" name="transferextent" value="Alt"><i class="fas fa-check-circle"></i>Fullstendig</label>
+							<span contenteditable="true" spellcheck="false" class="input input_long input_labelradioextra input_hidden" data-name="password_oldunit" data-tooltip="Passordet/PIN-koden på enheten det skal overføres fra..." data-minlength="3" data-maxlength="30" data-placeholder="Passord på gammel enhet" style="max-width:280px;"></span>
+						</div>
+						<div id="transfercontents" class="fancycheckboxlist fancycheckboxlist_printcheckboxes fancycheckboxlist_topborder" style="display:none;">
+							<label class="label_checkbox label_required label_hidden"><input type="checkbox" name="transferdetails" value="Kontakter"><i class="fas fa-address-book"></i>Kontakter</label>
+							<label class="label_checkbox label_required label_hidden"><input type="checkbox" name="transferdetails" value="Meldinger"><i class="fas fa-comments-alt"></i>SMS</label>
+							<label class="label_checkbox label_required label_hidden"><input type="checkbox" name="transferdetails" value="Bilder"><i class="fas fa-images"></i>Bilder</label>
+							<label class="label_checkbox label_required label_hidden"><input type="checkbox" name="transferdetails" value="Videoer"><i class="fas fa-film"></i>Videoer</label>
+							<label class="label_checkbox label_required label_hidden"><input type="checkbox" name="transferdetails" value="Dokumenter"><i class="fas fa-file-archive"></i>Dokumenter</label>
+							<label class="label_checkbox label_required label_hidden"><input type="checkbox" name="transferdetails" value="Apper"><i class="fas fa-shapes"></i>Apper</label>
+						</div>
+					</fieldset>
+
+					<fieldset name="misc">
+						<legend><i class="fas fa-sticky-note"></i>Øvrig informasjon</legend>
+						<div contenteditable="true" class="input input_notitle" data-name="comments" data-maxlength="100" data-placeholder="Ønskede apper, spesielle innstillinger, o.l."></div>
+					</fieldset>
+
+					<fieldset id="extrarequired" class="messagebox" name="extrarequired">
+						<legend><i class="fas fa-exclamation-triangle"></i>Fødselsdato påkrevd</legend>
+						<p class="label_subtext">For å opprette ny konto trenger vi kundens fødselsdato.</p>
+						<span contenteditable="true" spellcheck="false" class="input input_hidden input_required" data-name="placeholder_bdate" data-type="number" data-tooltip="DDMMÅÅÅÅ. Nødvendig for oppretting av nye kontoer." data-minlength="8" data-maxlength="8" data-placeholder="Fødselsdato"></span>
+					</fieldset>
+
+					<fieldset id="lateraccountwarning" class="bottommessage bottommessage_orange" name="lateraccountwarning">
+						<legend>Advarsel!</legend>
+						<p class="label_subtext">OBS! Du har valgt at noen kontodetaljer skal leveres senere. Det kan medføre at klargjøringen ikke kan fullføres til avtalt tid. Enkelte programmer, som for eksempel Office, lar seg ikke installere uten å logge inn på en konto først.</p>
+					</fieldset>
+
+				</div>
+
+				<div id="form_time" class="form_centered form_paddingtop">
+					<fieldset class="fieldset_big">
+						<legend><i class="fas fa-clock"></i>Tidsfrist</legend>
+						<span contenteditable="true" spellcheck="false" class="input input_biglong input_required" data-name="timelimit" data-minlength="6" data-maxlength="30" data-tooltip="Kan være antall timer eller en dato og/eller klokkeslett. Minimum 6 tegn." data-placeholder="Varighet eller tidspunkt..." data-autofocus></span>
+					</fieldset>
+
+					<!--<fieldset class="fieldset_big fieldset_disabled">
+						<legend><i class="fas fa-clipboard-list"></i>Pågående klargjøringer</legend>
+						<p id="setuplist"></p>
+					</fieldset>--->
+				</div>
+
+				<div id="navbtn_bar"><span id="navbtn_retreat" class="navbtn navbtn_red navbtn_hidden navbtn_disabled" tabindex="0"><i class="fas fa-arrow-left"></i></span><span id="navbtn_proceed" class="navbtn navbtn_employee navbtn_disabled" tabindex="0"><i class="fas fa-lock navbtn_locked"></i><i class="fas fa-cog fa-spin navbtn_unlocking navbtn_hiddenicon"></i><i class="fas fa-arrow-right navbtn_next navbtn_hiddenicon"></i></span></div>
+
+				<fieldset id="formstatistics"><legend><i class="fas fa-user-shield"></i>Personvern</legend><p>Alle personlige opplysninger gitt på dette skjema er konfidensielle og blir behandlet deretter. Alle slike opplysninger som fylles ut behandles kun lokalt på denne datamaskinen og blir permanent borte når vinduet lukkes.</p></fieldset>
+				<fieldset id="formnews"><legend><i class="fas fa-do-not-enter" style="--fa-secondary-opacity: 1;"></i>Inne-service</legend><p>Dette skjemaet skal <b><u>ikke</u></b> brukes til å håndtere inne-service. Til dette skal alltid Serviceinfo brukes! Det er viktig at slike oppdrag blir registrert i databasen i Serviceinfo i forhold til oppfølging på et senere tidspunkt.</p></fieldset>
+
+			</div>
+
+			<div id="form_footer">
+				<div id="form_footer_finalinfo"><div><i class="far fa-alarm-clock" data-fa-transform="up-1"></i><strong>Tidsfrist:</strong> <span id="timelimit"></span></div><div><strong>Signatur kunde:</strong><span class="signaturebox"></span></div></div>
+				<div id="form_footer_disclaimer">Alle opplysninger gitt Power på dette skjema er konfidensielle og vi garanterer at de blir behandlet deretter. Dersom noen av opplysningene ikke stemmer, kan dette medføre at fristen for klargjøring ikke kan overholdes. Power er ikke ansvarlig for tap av innhold. Skjema leveres til kunde etter klargjøringen ved utlevering.</div>
+			</div>
+
+			<div id="form_notifications">
+				<div id="form_printbutton"><i class="fa fa-print"></i><span>Skriv ut</span></div>
+				<div id="form_requirednotice">Fyll ut påkrevde felt</div>
+				<div id="form_editnotice">Du kan fortsatt gjøre noen endringer direkte på skjemaet om nødvendig</div>
+			</div>
+
+        </div>
+
+		<footer>
+			<div>
+				<div class="footer_copyright">&copy; 2021 <a href="https://astole.no" target="_blank">Aleksander Støle</a></div>
+				<div class="footer_authorlink"><a href="mailto:aleksander.stole@power.no">aleksander.stole@power.no</a></div>
+				<div class="footer_invisible">...</div>
+			</div>
+		</footer>
+		<div class="clearboth"></div>
+	</div>
+<script type='text/javascript' src='../jquery.js' defer></script>
+<script type='text/javascript' src='jquery.form.js?v16' defer></script>
+<script type='text/javascript' src='jquery.patternlock.js' defer></script>
+</body>
+</html>
