@@ -43,7 +43,7 @@ $(document).ready(function() {
   }
 
   $('#deleteUserBtn').on('click', function(e) {
-    e.preventDefault(); // Prevent the default link behavior
+    e.preventDefault();
 
     var userId = $(this).data('user-id');
     var confirmDelete = confirm("Are you sure you want to delete this user? This action cannot be undone.");
@@ -53,7 +53,18 @@ $(document).ready(function() {
     }
   });
 
-}); // This closes the main $(document).ready() function that wraps the initial parts of the script.
+  $('#deletePageBtn').on('click', function(e) {
+    e.preventDefault();
+
+    var pageId = $(this).data('page-id');
+    var confirmDelete = confirm("Are you sure you want to delete this page? This action cannot be undone.");
+
+    if (confirmDelete) {
+      window.location.href = "process-page.php?a=del&p=" + pageId;
+    }
+  });
+
+});
 
 // Mobile menu
 $('#nav-mobile-toggle').click(function(){

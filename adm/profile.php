@@ -87,7 +87,7 @@
 		</section>
 
 		<section>
-			<a class="btn btn-green btn-r" href="addpage.php"><i class="fa-solid fa-plus" data-fa-transform="up-1"></i>New Page</a>
+			<a class="btn btn-green btn-r" href="edit-page.php?t=new"><i class="fa-solid fa-plus" data-fa-transform="up-1"></i>New Page</a>
 			<h1 class="h1_underscore h1_lessmargin"><i class="fa-solid fa-layer-group" data-fa-transform="down-1"></i>Your pages</h1>
 			<p>Below you will find a list of pages that you have authored.</p>
 

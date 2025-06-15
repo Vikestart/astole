@@ -15,7 +15,8 @@
     public $timezone;
     public $ipaddress;
 
-    public function __construct($username, $usermail, $userrole, $lastseen, $timezone, $ipaddress) {
+    public function __construct($username, $usermail, $userrole, $lastseen, // Corrected timezone parameter for DateTime constructor
+                                $timezone, $ipaddress) {
       $this->username = $username;
       $this->usermail = $usermail;
       $this->userrole = $userrole;
@@ -35,16 +36,28 @@
 		die();
 	} else if (isset($_SESSION['UserID']) && !isset($isLoginPage)) {
     // Fetch user data
-    /*$user = new ActiveUser($_SESSION['User'], $_SESSION['UserMail'], $_SESSION['UserRole'], $_SESSION['LastSeen'], $_SESSION['Timezone'], $_SERVER['REMOTE_ADDR']);*/
-    $active_user_ID = $_SESSION['UserID'];
-    
-    // Fetch user data of current user using prepared statement
-    $userdata = new DBConn(); // Reusing the $userdata variable name for consistency
-    $stmt_userdata = $userdata->conn->prepare("SELECT * FROM users WHERE user_id = ?");
+    /*
+    // If ActiveUser class is desired:
+    $user_timezone = isset($_SESSION['UserTimezone']) ? $_SESSION['UserTimezone'] : 'UTC'; // Fallback timezone
+    $user = new ActiveUser(
+      $_SESSION['User'],
+      $_SESSION['UserMail'],
+      $_SESSION['UserRole'],
+      $_SESSION['LastSeen'],
+      $user_timezone, // Pass the correct timezone
+      $_SESSION['UserIP']
+    );
+    */
+
+    // If ActiveUser class is not used, fetch user data into $userdata->row directly
+    $userdata = new DBConn(); // Reuse DBConn object for user data fetch
+    $active_user_ID = (int)$_SESSION['UserID']; // Ensure ID is integer
+    $stmt_userdata = $userdata->conn->prepare("SELECT user_uid, user_mail, user_role, user_lastseen, user_timezone, user_ip FROM users WHERE user_id = ?");
     if ($stmt_userdata === false) {
-        error_log("Prepare SELECT user in inc-adm-head failed: (" . $userdata->conn->errno . ") " . $userdata->conn->error);
-        // If there's a database error here, it's critical. Redirect to login.
-        header("Location: login.php?msg=db_error_head");
+        error_log("inc-adm-head.php: User data prepare failed: (" . $userdata->conn->errno . ") " . $userdata->conn->error);
+        session_destroy();
+        session_write_close();
+        header("Location: login.php?msg=db_error_user_data");
         die();
     }
     $stmt_userdata->bind_param("i", $active_user_ID);
@@ -53,6 +66,14 @@
 
     if ($result_userdata->num_rows === 1) {
         $userdata->row = $result_userdata->fetch_assoc();
+        // Set session variables that were previously used by ActiveUser if it's not instantiated
+        $_SESSION['User'] = $userdata->row['user_uid'];
+        $_SESSION['UserMail'] = $userdata->row['user_mail'];
+        $_SESSION['UserRole'] = $userdata->row['user_role'];
+        $_SESSION['LastSeen'] = $userdata->row['user_lastseen'];
+        $_SESSION['UserTimezone'] = $userdata->row['user_timezone'];
+        $_SESSION['UserIP'] = $userdata->row['user_ip'];
+
     } else {
         // If user ID from session doesn't match a user in DB, invalidate session.
         session_destroy();
@@ -63,14 +84,14 @@
     $stmt_userdata->close();
   }
 
-  // Error handler
+  // Error handler - REVISED TO USE ASSOCIATIVE KEYS AND INCLUDE 'origin'
 	if (isset($_SESSION['Sessionmsg'])) {
-    $msgorigin = $_SESSION['Sessionmsg'][0];
-    $msgtype = $_SESSION['Sessionmsg'][1];
-    $msgicon = $_SESSION['Sessionmsg'][2];
-    $msgexpire = $_SESSION['Sessionmsg'][3];
-    if ($msgexpire == 0) { $msgexpire = 4500; } //Standard value
-    $msgtxt = $_SESSION['Sessionmsg'][4];
+        $msgorigin = $_SESSION['Sessionmsg']['origin']; // Access 'origin' key
+        $msgtype = $_SESSION['Sessionmsg']['type'];
+        $msgicon = $_SESSION['Sessionmsg']['icon'];
+        $msgexpire = $_SESSION['Sessionmsg']['expire'];
+        if ($msgexpire == 0) { $msgexpire = 4500; } //Standard value
+        $msgtxt = $_SESSION['Sessionmsg']['message']; // Access 'message' key
 		unset($_SESSION['Sessionmsg']);
 	}
 ?>

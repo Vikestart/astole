@@ -3,9 +3,11 @@
 		$page_type = $_GET['t'];
 		if ($page_type == "new") {
 			$site_title = "New User";
+			$section_title = "New user";
 			$user_isnew = true;
 		} else if ($page_type == "edit") {
 			$site_title = "Edit User";
+			$section_title = "Edit user";
 			$user_isnew = false;
 		} else {
 			header("Location: users.php");
@@ -87,7 +89,7 @@
 			if (!$user_isnew && $current_user_role === ROLE_ADMIN && $user_id !== $current_user_id) { ?>
 				<a id="deleteUserBtn" class="btn btn-red btn-r btn-desktop" data-user-id="<?php echo htmlspecialchars($user_id); ?>" href="#"><i class="fa-solid fa-trash-alt" data-fa-transform="up-1"></i>Delete User</a>
 			<?php } ?>
-			<h1 class="h1_underscore h1_lessmargin"><i class="fa-solid fa-user-cog"></i><?php echo $site_title; ?></h1>
+			<h1 class="h1_underscore h1_lessmargin"><i class="fa-solid fa-user-cog"></i><?php echo $section_title; ?></h1>
 			<p>Here you can <?php echo ($user_isnew) ? "create a new" : "edit an existing"; ?> user account.</p>
 
 			<h2 class="h2_underscore">Account details</h2>

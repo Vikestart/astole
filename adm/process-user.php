@@ -18,8 +18,16 @@
 	// The $redirect_url parameter allows explicit redirection, otherwise it constructs based on action.
 	// $target_user_id is used for redirects back to edit-user.php
 	function returnWithMsg($type, $icon, $expire, $message, $redirect_url = false, $target_user_id = null) {
-		global $action;
-		$_SESSION['Sessionmsg'] = array($action, $type, $icon, $expire, $message);
+		global $action; // Use the global $action for the 'origin'
+		
+		// Set $_SESSION['Sessionmsg'] as an ASSOCIATIVE ARRAY
+		$_SESSION['Sessionmsg'] = array(
+			'origin' => $action, // Use $action as the origin for filtering messages
+			'type' => $type,
+			'icon' => $icon,
+			'expire' => $expire,
+			'message' => $message
+		);
 		
 		if ($redirect_url !== false) { // Explicit redirect URL provided (overrides default)
 			header("Location: " . $redirect_url);
