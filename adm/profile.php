@@ -110,4 +110,4 @@
 
 	</main>
 
-<?php require "inc-adm-end.php" ?>
+<?php require "inc-adm-foot.php" ?>

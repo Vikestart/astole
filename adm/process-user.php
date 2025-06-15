@@ -26,14 +26,12 @@
                 // For new user: on error, stay on new user page; on success, go to users list
                 if ($type === "error") { // If it's an error for a new user
                     header("Location: edit-user.php?t=new");
-                } else { // If it's a success for a new user
+                } else { // If it's a success for a new user, go to users list
                     header("Location: users.php");
                 }
-            } elseif ($action === "deluser") {
-                // For delete user: always redirect to the users list
+            } elseif ($action === "deluser") { // For delete user, always redirect to users list
                 header("Location: users.php");
-            } else {
-                // Fallback for any unhandled actions or general errors
+            } else { // Fallback for unexpected actions
                 header("Location: users.php");
             }
 		}
@@ -42,268 +40,232 @@
 
 	// Control user account - Check for logged-in admin using UserID
 	if (isset($_SESSION['UserID'])) {
-		$current_admin_id = $_SESSION['UserID'];
+		$current_logged_in_user_id = $_SESSION['UserID'];
+
+        // Fetch the role of the currently logged-in user
+        $stmt_current_user_role = $db_connection->conn->prepare("SELECT user_role FROM users WHERE user_id = ?");
+        if ($stmt_current_user_role === false) {
+            error_log("Prepare current user role fetch failed: (" . $db_connection->conn->errno . ") " . $db_connection->conn->error);
+            returnWithMsg("error", "exclamation-triangle", 0, "Database error: Could not verify your role.", false, (isset($_POST['user_id']) ? $_POST['user_id'] : null));
+        }
+        $stmt_current_user_role->bind_param("i", $current_logged_in_user_id);
+        $stmt_current_user_role->execute();
+        $result_current_user_role = $stmt_current_user_role->get_result();
+        $current_logged_in_user_data = $result_current_user_role->fetch_assoc();
+        $current_logged_in_user_role = $current_logged_in_user_data['user_role'];
+        $stmt_current_user_role->close();
+
+        // If the action is not 'deluser' and the user is not an admin, they cannot proceed with any user editing
+        if ($action !== "deluser" && $current_logged_in_user_role !== 'admin') {
+            returnWithMsg("error", "times-circle", 0, "You do not have permission to edit user details.", false, (isset($_POST['user_id']) ? $_POST['user_id'] : null));
+        }
 	} else {
 		returnWithMsg("error", "times-circle", 0, "Invalid user session. Try signing out and back in.", "login.php");
 	}
 
-    // Fetch current admin's role to check permissions
-    $stmt_admin_role = $db_connection->conn->prepare("SELECT user_role FROM users WHERE user_id = ?");
-    if ($stmt_admin_role === false) {
-        error_log("Prepare admin role fetch failed: (" . $db_connection->conn->errno . ") " . $db_connection->conn->error);
-        returnWithMsg("error", "exclamation-triangle", 0, "Failed to retrieve admin role.", "users.php");
-    }
-    $stmt_admin_role->bind_param("i", $current_admin_id);
-    $stmt_admin_role->execute();
-    $result_admin_role = $stmt_admin_role->get_result();
-    if ($result_admin_role->num_rows === 1) {
-        $admin_data = $result_admin_role->fetch_assoc();
-        $admin_role = $admin_data['user_role'];
-    } else {
-        // Admin user not found, something is seriously wrong with session/db.
-        session_destroy();
-        session_write_close();
-        returnWithMsg("error", "times-circle", 0, "Admin account not found. Please log in again.", "login.php");
-    }
-    $stmt_admin_role->close();
+	// Require $_POST array to be populated for new/edit actions
+	if ($action !== "deluser" && count($_POST) === 0) {
+		returnWithMsg("error", "times-circle", 0, "Invalid form submission.", false);
+	}
 
+	// Validate and sanitize input data
+	function validate($data) {
+		$data = trim($data);
+		$data = stripslashes($data);
+		$data = htmlspecialchars($data);
+		return $data;
+	}
 
-	// Handle Delete User action
+	$user_name = isset($_POST['user_name']) ? validate($_POST['user_name']) : '';
+	$user_pass = isset($_POST['user_pass']) ? $_POST['user_pass'] : ''; // Password will be hashed, so no htmlspecialchars here
+	$user_mail = isset($_POST['user_mail']) ? validate($_POST['user_mail']) : '';
+	$user_role = isset($_POST['user_role']) ? validate($_POST['user_role']) : 'user'; // Default to 'user' role
+
+	$target_user_id = isset($_POST['user_id']) ? (int)$_POST['user_id'] : null;
+
 	if ($action === "deluser") {
-        if (!isset($_GET['u'])) {
+		// Only admins can delete users
+        if ($current_logged_in_user_role !== 'admin') {
+            returnWithMsg("error", "times-circle", 0, "You do not have permission to delete users.", "users.php");
+        }
+
+        // The user being deleted is passed via GET parameter 'u'
+        $user_id_to_delete = isset($_GET['u']) ? (int)$_GET['u'] : null;
+        if ($user_id_to_delete === null) {
             returnWithMsg("error", "times-circle", 0, "No user specified for deletion.", "users.php");
         }
-        $target_user_id = $_GET['u'];
 
-        // Prevent admin from deleting themselves
-        if ($target_user_id == $current_admin_id) {
+        // Prevent admin from deleting their own account
+        if ($user_id_to_delete == $current_logged_in_user_id) {
             returnWithMsg("error", "times-circle", 0, "You cannot delete your own account.", "users.php");
         }
 
-        // Get target user's role to check if current admin has permission
-        $stmt_target_role = $db_connection->conn->prepare("SELECT user_role FROM users WHERE user_id = ?");
-        if ($stmt_target_role === false) {
+		$stmt_fetch_user_role = $db_connection->conn->prepare("SELECT user_role FROM users WHERE user_id = ?");
+		if ($stmt_fetch_user_role === false) {
+			error_log("Prepare delete user role fetch failed: (" . $db_connection->conn->errno . ") " . $db_connection->conn->error);
+			returnWithMsg("error", "exclamation-triangle", 0, "Database error during deletion.", "users.php");
+		}
+		$stmt_fetch_user_role->bind_param("i", $user_id_to_delete);
+		$stmt_fetch_user_role->execute();
+		$result_user_role = $stmt_fetch_user_role->get_result();
+
+		if ($result_user_role->num_rows === 1) {
+			$user_data = $result_user_role->fetch_assoc();
+			$target_user_role = $user_data['user_role'];
+
+			// An admin cannot delete another admin account unless they are the super-admin (or only one admin is left)
+			// This logic can be enhanced based on specific requirements for "super-admin"
+			// For now, let's assume an admin can delete other admins if there's more than one admin left.
+			// Let's add a check that you cannot delete the LAST admin.
+			$stmt_count_admins = $db_connection->conn->prepare("SELECT COUNT(*) AS admin_count FROM users WHERE user_role = 'admin'");
+			$stmt_count_admins->execute();
+			$result_count_admins = $stmt_count_admins->get_result();
+			$admin_count_row = $result_count_admins->fetch_assoc();
+			$admin_count = $admin_count_row['admin_count'];
+			$stmt_count_admins->close();
+
+			if ($target_user_role === 'admin' && $admin_count <= 1) {
+				returnWithMsg("error", "times-circle", 0, "Cannot delete the last administrator account.", "users.php");
+			}
+
+			$stmt_delete_user = $db_connection->conn->prepare("DELETE FROM users WHERE user_id = ?");
+			if ($stmt_delete_user === false) {
+				error_log("Prepare delete user failed: (" . $db_connection->conn->errno . ") " . $db_connection->conn->error);
+				returnWithMsg("error", "exclamation-triangle", 0, "Database error: Could not delete user.", "users.php");
+			}
+			$stmt_delete_user->bind_param("i", $user_id_to_delete);
+			$stmt_delete_user->execute();
+
+			if ($stmt_delete_user->affected_rows === 1) {
+				returnWithMsg("success", "check-circle", 0, "The user was successfully deleted.", "users.php");
+			} else {
+				error_log("Failed to delete user ID: " . $user_id_to_delete . ". Affected rows: " . $stmt_delete_user->affected_rows . ". Error: " . $stmt_delete_user->error);
+				returnWithMsg("error", "times-circle", 0, "Failed to delete the user. Database error or user not found.", "users.php");
+			}
+			$stmt_delete_user->close();
+
+		} else {
+			returnWithMsg("error", "times-circle", 0, "User not found for deletion.", "users.php");
+		}
+		$stmt_fetch_user_role->close();
+
+	} else if (isset($action) && $action === "newuser") {
+		// Only admins can create new users
+        if ($current_logged_in_user_role !== 'admin') {
+            returnWithMsg("error", "times-circle", 0, "You do not have permission to create new users.", false);
+        }
+
+		// Validate all fields for new user creation
+		if (empty($user_name) || empty($user_pass) || empty($user_mail) || empty($user_role)) {
+			returnWithMsg("error", "times-circle", 0, "Please fill out all the fields.", false);
+		}
+
+		// Hash the password for new user
+		$hashed_pass = password_hash($user_pass, PASSWORD_DEFAULT);
+
+		// Insert new user into database
+		$stmt_insert = $db_connection->conn->prepare("INSERT INTO users (user_uid, user_pass, user_mail, user_role) VALUES (?, ?, ?, ?)");
+		if ($stmt_insert === false) {
+			error_log("Prepare insert user failed: (" . $db_connection->conn->errno . ") " . $db_connection->conn->error);
+			returnWithMsg("error", "exclamation-triangle", 0, "User creation preparation failed!", false);
+		}
+		$stmt_insert->bind_param("ssss", $user_name, $hashed_pass, $user_mail, $user_role);
+		$stmt_insert->execute();
+
+		if ($stmt_insert->affected_rows === 1) {
+			$user_id = $db_connection->conn->insert_id; // Get the ID of the newly inserted user
+			returnWithMsg("success", "check-circle", 0, "The user was successfully added.", false, $user_id);
+		} else {
+            error_log("Failed to insert new user. Error: " . $stmt_insert->error);
+			returnWithMsg("error", "times-circle", 0, "Failed to add the user. Please check for duplicate username/email.", false);
+		}
+		$stmt_insert->close();
+
+	} else if (isset($action) && $action === "edituser") {
+		// Only admins can edit users
+        if ($current_logged_in_user_role !== 'admin') {
+            returnWithMsg("error", "times-circle", 0, "You do not have permission to edit user details.", false, $target_user_id);
+        }
+
+		// Check if target user ID is provided
+		if ($target_user_id === null) {
+			returnWithMsg("error", "times-circle", 0, "No target user specified for editing.", false, $target_user_id);
+		}
+        
+        // Fetch the original role of the target user
+        $stmt_target_user_role = $db_connection->conn->prepare("SELECT user_role FROM users WHERE user_id = ?");
+        if ($stmt_target_user_role === false) {
             error_log("Prepare target user role fetch failed: (" . $db_connection->conn->errno . ") " . $db_connection->conn->error);
-            returnWithMsg("error", "exclamation-triangle", 0, "Failed to retrieve target user role.", "users.php");
+            returnWithMsg("error", "exclamation-triangle", 0, "Database error: Could not verify target user's role.", false, $target_user_id);
         }
-        $stmt_target_role->bind_param("i", $target_user_id);
-        $stmt_target_role->execute();
-        $result_target_role = $stmt_target_role->get_result();
-        if ($result_target_role->num_rows === 1) {
-            $target_user_data = $result_target_role->fetch_assoc();
-            $target_user_role = $target_user_data['user_role'];
+        $stmt_target_user_role->bind_param("i", $target_user_id);
+        $stmt_target_user_role->execute();
+        $result_target_user_role = $stmt_target_user_role->get_result();
+        $target_user_data = $result_target_user_role->fetch_assoc();
+        $target_user_original_role = $target_user_data['user_role'];
+        $stmt_target_user_role->close();
 
-            // Only admin can delete other admins or moderators
-            if ($admin_role !== 'admin' && ($target_user_role === 'admin' || $target_user_role === 'moderator')) {
-                returnWithMsg("error", "times-circle", 0, "You do not have permission to delete this user.", "users.php");
-            }
-        } else {
-            returnWithMsg("error", "times-circle", 0, "User to delete not found.", "users.php");
-        }
-        $stmt_target_role->close();
-
-        // Delete user using prepared statement
-        $stmt_delete = $db_connection->conn->prepare("DELETE FROM users WHERE user_id = ?");
-        if ($stmt_delete === false) {
-            error_log("Prepare delete user failed: (" . $db_connection->conn->errno . ") " . $db_connection->conn->error);
-            returnWithMsg("error", "exclamation-triangle", 0, "User deletion preparation failed!", "users.php");
-        }
-        $stmt_delete->bind_param("i", $target_user_id);
-        $stmt_delete->execute();
-
-        if ($stmt_delete->affected_rows === 1) {
-            returnWithMsg("success", "check-circle", 0, "The user was successfully deleted.", "users.php");
-        } else {
-            error_log("Failed to delete user ID: " . $target_user_id . ". Affected rows: " . $stmt_delete->affected_rows);
-            returnWithMsg("error", "times-circle", 0, "Failed to delete the user. User might not exist or database error.", "users.php");
-        }
-        $stmt_delete->close();
-	}
-
-	// Handle New User / Edit User actions (requires POST data)
-	if (count($_POST) > 0) {
-		// Re-define validate() for safety, if not already available
-        if (!function_exists('validate')) {
-            function validate($data) {
-                $data = trim($data);
-                $data = stripslashes($data);
-                $data = htmlspecialchars($data);
-                return $data;
+        // --- Role Change Validation ---
+        // 1. Prevent a user from changing their OWN role
+        if ($target_user_id == $current_logged_in_user_id) {
+            if ($user_role !== $target_user_original_role) {
+                returnWithMsg("error", "times-circle", 0, "You cannot change your own role.", false, $target_user_id);
             }
         }
-        
-		foreach($_POST as $key => $value) {
-		  ${$key} = validate($value);
+        // 2. Prevent an admin from changing the LAST admin's role
+        if ($target_user_original_role === 'admin' && $user_role !== 'admin') { // If trying to change an admin to non-admin
+            $stmt_count_admins = $db_connection->conn->prepare("SELECT COUNT(*) AS admin_count FROM users WHERE user_role = 'admin'");
+            $stmt_count_admins->execute();
+            $result_count_admins = $stmt_count_admins->get_result();
+            $admin_count_row = $result_count_admins->fetch_assoc();
+            $admin_count = $admin_count_row['admin_count'];
+            $stmt_count_admins->close();
+
+            if ($admin_count <= 1 && $target_user_id == $current_logged_in_user_id) { // This means the admin is trying to demote themselves AND they are the last admin
+                 returnWithMsg("error", "times-circle", 0, "You cannot demote the last administrator account.", false, $target_user_id);
+            } else if ($admin_count <= 1 && $target_user_id != $current_logged_in_user_id && $target_user_original_role === 'admin') { // Admin trying to demote another admin, and that other admin is the last one
+                returnWithMsg("error", "times-circle", 0, "Cannot demote the last administrator account.", false, $target_user_id);
+            }
+        }
+
+
+		// Hash password only if it's provided (i.e., user wants to change it)
+		$hashed_pass = '';
+		if (!empty($user_pass)) {
+			$hashed_pass = password_hash($user_pass, PASSWORD_DEFAULT);
 		}
 
-		// Validate common fields for new and edit user
-		if (empty($user_name) || empty($user_mail) || empty($user_role)) {
-			returnWithMsg("error", "times-circle", 0, "Please fill out all the required fields.", false, isset($user_id) ? $user_id : null);
+		// Build the update query based on whether password is being changed
+		$sql_update = "";
+		if (empty($user_pass)) {
+			$stmt_update = $db_connection->conn->prepare("UPDATE users SET user_uid = ?, user_mail = ?, user_role = ? WHERE user_id = ?");
+			if ($stmt_update === false) {
+				error_log("Prepare update user (no pass) failed: (" . $db_connection->conn->errno . ") " . $db_connection->conn->error);
+				returnWithMsg("error", "exclamation-triangle", 0, "User update preparation failed!", false, $target_user_id);
+			}
+			$stmt_update->bind_param("sssi", $user_name, $user_mail, $user_role, $target_user_id);
+		} else {
+			$stmt_update = $db_connection->conn->prepare("UPDATE users SET user_uid = ?, user_pass = ?, user_mail = ?, user_role = ? WHERE user_id = ?");
+			if ($stmt_update === false) {
+				error_log("Prepare update user (with pass) failed: (" . $db_connection->conn->errno . ") " . $db_connection->conn->error);
+				returnWithMsg("error", "exclamation-triangle", 0, "User update preparation failed!", false, $target_user_id);
+			}
+			$stmt_update->bind_param("ssssi", $user_name, $hashed_pass, $user_mail, $user_role, $target_user_id);
 		}
-        
-        // Backend username pattern validation
-        if (!preg_match("/^[a-zA-Z0-9_.-]+$/", $user_name)) {
-            returnWithMsg("error", "times-circle", 0, "Username can only contain letters, numbers, underscores, hyphens, and periods.", false, isset($user_id) ? $user_id : null);
-        }
+		
+        $stmt_update->execute();
 
-        // Basic email validation
-        if (!filter_var($user_mail, FILTER_VALIDATE_EMAIL)) {
-            returnWithMsg("error", "times-circle", 0, "Invalid email address format.", false, isset($user_id) ? $user_id : null);
-        }
-
-        // Sanitize role input strictly
-        $allowed_roles = ['user', 'moderator', 'admin'];
-        if (!in_array($user_role, $allowed_roles)) {
-            returnWithMsg("error", "times-circle", 0, "Invalid user role specified.", false, isset($user_id) ? $user_id : null);
-        }
-        // Admin role permission check for creation/assignment
-        if ($user_role === 'admin' && $admin_role !== 'admin') {
-            returnWithMsg("error", "times-circle", 0, "You do not have permission to create/assign an administrator role.", false, isset($user_id) ? $user_id : null);
-        }
-        // Moderator role permission check (admins can assign, regular users cannot assign moderator)
-        if ($user_role === 'moderator' && $admin_role === 'user') { // Assuming regular users cannot assign moderator
-            returnWithMsg("error", "times-circle", 0, "You do not have permission to create/assign a moderator role.", false, isset($user_id) ? $user_id : null);
-        }
-
-		if ($action === "newuser") {
-            if (empty($user_pass)) {
-                returnWithMsg("error", "times-circle", 0, "Password is required for new users.", false);
-            }
-            $hashed_pass = password_hash($user_pass, PASSWORD_DEFAULT);
-
-            // Check if username or email already exists (excluding current user for edit)
-            $stmt_check_exist = $db_connection->conn->prepare("SELECT user_id FROM users WHERE user_uid = ? OR user_mail = ?");
-            if ($stmt_check_exist === false) {
-                error_log("Prepare check existing user failed: (" . $db_connection->conn->errno . ") " . $db_connection->conn->error);
-                returnWithMsg("error", "exclamation-triangle", 0, "User check preparation failed!", "users.php");
-            }
-            $stmt_check_exist->bind_param("ss", $user_name, $user_mail);
-            $stmt_check_exist->execute();
-            $result_check_exist = $stmt_check_exist->get_result();
-            if ($result_check_exist->num_rows > 0) {
-                returnWithMsg("error", "times-circle", 0, "Username or email already exists.", false); // Changed redirect to `false` for new user errors
-            }
-            $stmt_check_exist->close();
-
-            // Insert new user using prepared statement
-            $stmt_insert = $db_connection->conn->prepare("INSERT INTO users (user_uid, user_pass, user_mail, user_role, user_registered, user_lastseen, user_ip, user_timezone) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-            if ($stmt_insert === false) {
-                error_log("Prepare insert user failed: (" . $db_connection->conn->errno . ") " . $db_connection->conn->error);
-                returnWithMsg("error", "exclamation-triangle", 0, "New user insertion preparation failed!", false); // Changed redirect to `false` for new user errors
-            }
-            $currtime = gmdate("Y-m-d H:i:s");
-            $user_ip = $_SERVER['REMOTE_ADDR'];
-            $default_timezone = 'Europe/Madrid'; // Or fetch from site settings if available
-            $stmt_insert->bind_param("ssssssss", $user_name, $hashed_pass, $user_mail, $user_role, $currtime, $currtime, $user_ip, $default_timezone);
-            $stmt_insert->execute();
-
-            if ($stmt_insert->affected_rows === 1) {
-                returnWithMsg("success", "check-circle", 0, "The user was successfully added.", false); // Changed redirect to `false` for new user success (will go to users.php by returnWithMsg's logic)
-            } else {
-                error_log("Failed to add new user. Affected rows: " . $stmt_insert->affected_rows . ". Error: " . $stmt_insert->error);
-                returnWithMsg("error", "times-circle", 0, "Failed to add the new user. Database error or duplicate entry.", false); // Changed redirect to `false` for new user errors
-            }
-            $stmt_insert->close();
-
-		} else if ($action === "edituser") {
-            if (!isset($_POST['user_id'])) {
-                returnWithMsg("error", "times-circle", 0, "User ID not specified for editing.", "users.php");
-            }
-            $target_user_id = $_POST['user_id'];
-
-            // Fetch original user data for permission checks
-            $stmt_original_user_data = $db_connection->conn->prepare("SELECT user_role, user_uid, user_mail FROM users WHERE user_id = ?");
-            if ($stmt_original_user_data === false) {
-                 error_log("Prepare original user data fetch failed: (" . $db_connection->conn->errno . ") " . $db_connection->conn->error);
-                 returnWithMsg("error", "exclamation-triangle", 0, "Failed to retrieve original user data.", false, $target_user_id);
-            }
-            $stmt_original_user_data->bind_param("i", $target_user_id);
-            $stmt_original_user_data->execute();
-            $result_original_user_data = $stmt_original_user_data->get_result();
-            if ($result_original_user_data->num_rows === 1) {
-                $original_user_data = $result_original_user_data->fetch_assoc();
-                $original_user_role = $original_user_data['user_role'];
-                $original_user_uid = $original_user_data['user_uid'];
-                $original_user_mail = $original_user_data['user_mail'];
-            } else {
-                returnWithMsg("error", "times-circle", 0, "User to edit not found.", "users.php");
-            }
-            $stmt_original_user_data->close();
-
-            // Check if username or email already exists for another user
-            $stmt_check_exist = $db_connection->conn->prepare("SELECT user_id FROM users WHERE (user_uid = ? OR user_mail = ?) AND user_id != ?");
-            if ($stmt_check_exist === false) {
-                error_log("Prepare check existing user (edit) failed: (" . $db_connection->conn->errno . ") " . $db_connection->conn->error);
-                returnWithMsg("error", "exclamation-triangle", 0, "User check preparation failed!", false, $target_user_id);
-            }
-            $stmt_check_exist->bind_param("ssi", $user_name, $user_mail, $target_user_id);
-            $stmt_check_exist->execute();
-            $result_check_exist = $stmt_check_exist->get_result();
-            if ($result_check_exist->num_rows > 0) {
-                returnWithMsg("error", "times-circle", 0, "Username or email already exists for another user.", false, $target_user_id);
-            }
-            $stmt_check_exist->close();
-
-
-            // Permission checks for editing:
-            // 1. A non-admin cannot change an admin's or moderator's role or edit their profile (unless it's their own, and they aren't changing their role to admin/mod).
-            // 2. A non-admin cannot assign admin/moderator roles to others.
-            // 3. A user cannot change their own role to admin/moderator if they are not already.
-
-            // If current admin is NOT an admin:
-            if ($admin_role !== 'admin') {
-                // If target user is an admin or moderator, and current user is trying to edit someone else
-                if (($original_user_role === 'admin' || $original_user_role === 'moderator') && ($target_user_id != $current_admin_id)) {
-                    returnWithMsg("error", "times-circle", 0, "You do not have permission to edit this user's profile.", "users.php");
-                }
-                // If the target role is being changed to admin/moderator, and current user is not admin
-                if (($user_role === 'admin' || $user_role === 'moderator') && ($user_role !== $original_user_role) && ($target_user_id != $current_admin_id)) {
-                    returnWithMsg("error", "times-circle", 0, "You do not have permission to assign this role to other users.", false, $target_user_id);
-                }
-                // If current admin is trying to change their own role to admin/moderator from a lower role
-                if (($target_user_id == $current_admin_id) && ($user_role !== $original_user_role) && ($user_role === 'admin' || $user_role === 'moderator')) {
-                    returnWithMsg("error", "times-circle", 0, "You cannot change your own role to administrator or moderator.", false, $target_user_id);
-                }
-            }
-
-
-            $currtime = gmdate("Y-m-d H:i:s"); // Update timestamp
-
-            if (empty($user_pass)) {
-                // Update user without changing password
-                $stmt_update = $db_connection->conn->prepare("UPDATE users SET user_uid = ?, user_mail = ?, user_role = ? WHERE user_id = ?");
-                if ($stmt_update === false) {
-                    error_log("Prepare update user (no pass) failed: (" . $db_connection->conn->errno . ") " . $db_connection->conn->error);
-                    returnWithMsg("error", "exclamation-triangle", 0, "User update preparation failed!", false, $target_user_id);
-                }
-                $stmt_update->bind_param("sssi", $user_name, $user_mail, $user_role, $target_user_id);
-            } else {
-                // Update user including new password
-                $hashed_pass = password_hash($user_pass, PASSWORD_DEFAULT);
-                $stmt_update = $db_connection->conn->prepare("UPDATE users SET user_uid = ?, user_pass = ?, user_mail = ?, user_role = ? WHERE user_id = ?");
-                if ($stmt_update === false) {
-                    error_log("Prepare update user (with pass) failed: (" . $db_connection->conn->errno . ") " . $db_connection->conn->error);
-                    returnWithMsg("error", "exclamation-triangle", 0, "User update preparation failed!", false, $target_user_id);
-                }
-                $stmt_update->bind_param("ssssi", $user_name, $hashed_pass, $user_mail, $user_role, $target_user_id);
-            }
-            $stmt_update->execute();
-
-            if ($stmt_update->affected_rows === 1) {
-                returnWithMsg("success", "check-circle", 0, "The user was successfully updated with the new details.", false, $target_user_id);
-            } else if ($stmt_update->affected_rows === 0) {
-                returnWithMsg("success", "check-circle", 0, "No changes were made to the user.", false, $target_user_id);
-            } else {
-                error_log("Failed to update user ID: " . $target_user_id . ". Affected rows: " . $stmt_update->affected_rows . ". Error: " . $stmt_update->error);
-                returnWithMsg("error", "times-circle", 0, "Failed to update the user. Database error or multiple rows affected.", false, $target_user_id);
-            }
-            $stmt_update->close();
+		if ($stmt_update->affected_rows === 1) {
+			returnWithMsg("success", "check-circle", 0, "The user was successfully updated with the new details.", false, $target_user_id);
+		} else if ($stmt_update->affected_rows === 0) {
+            // If affected_rows is 0, it means no actual change was made (e.g., submitted data is identical to current data)
+			returnWithMsg("success", "check-circle", 0, "No changes were made to the user.", false, $target_user_id);
+		} else {
+			error_log("Failed to update user ID: " . $target_user_id . ". Affected rows: " . $stmt_update->affected_rows . ". Error: " . $stmt_update->error);
+			returnWithMsg("error", "times-circle", 0, "Failed to update the user. Database error or multiple rows affected.", false, $target_user_id);
 		}
+		$stmt_update->close();
 	} else {
-		returnWithMsg("error", "times-circle", 0, "Invalid form submission!", "users.php");
+		returnWithMsg("error", "times-circle", 0, "Invalid form!", "users.php");
 	}
-
-    // Close the main database connection object
-    $db_connection->conn->close();
-
 ?>
