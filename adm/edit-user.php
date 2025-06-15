@@ -18,49 +18,84 @@
 	require "inc-adm-head.php";
 	require "inc-adm-nav.php";
 
-	$user_name = ''; $user_role = '';
+	$user_name = '';
+	$user_mail = '';
+	$user_role = ''; // Initialize $user_mail as well
+
 	if ($user_isnew === false) {
-		$user_id = $_GET['u'];
-		$_SESSION['acp_page_id'] = $_GET['u'];
-		$mysqli = new DBConn();
-		$mysqli->result = $mysqli->conn->query("SELECT * FROM users WHERE user_id = '$user_id'");
-		if ($mysqli->result->num_rows === 1) {
-			$mysqli->row = $mysqli->result->fetch_assoc();
-			$user_name = $mysqli->row['user_uid'];
-			$user_mail = $mysqli->row['user_mail'];
-			$user_role = $mysqli->row['user_role'];
+		
+		if (!isset($_GET['u'])) {
+			header("Location: users.php");
+			die();
 		}
+		$user_id = $_GET['u']; // Target user ID from URL
+
+		$db_conn = new DBConn(); // Create a new DB connection instance
+		$stmt_fetch_user = $db_conn->conn->prepare("SELECT user_uid, user_mail, user_role FROM users WHERE user_id = ?");
+		if ($stmt_fetch_user === false) {
+			error_log("Prepare user fetch in edit-user failed: (" . $db_conn->conn->errno . ") " . $db_conn->conn->error);
+			header("Location: users.php?msg=db_error_edit");
+			die();
+		}
+		$stmt_fetch_user->bind_param("i", $user_id);
+		$stmt_fetch_user->execute();
+		$result_fetch_user = $stmt_fetch_user->get_result();
+
+		if ($result_fetch_user->num_rows === 1) {
+			$user_data = $result_fetch_user->fetch_assoc();
+			$user_name = $user_data['user_uid'];
+			$user_mail = $user_data['user_mail'];
+			$user_role = $user_data['user_role'];
+		} else {
+			header("Location: users.php?msg=user_not_found");
+			die();
+		}
+		$stmt_fetch_user->close();
+		$db_conn->conn->close();
 	}
 ?>
 
 	<main id="page-default">
 
 		<section>
-			<?php if (!$user_isnew && $userdata->row['user_role'] === 'admin' && $user_role !== 'admin') { echo "<a class='btn btn-red btn-r' href='process-user.php?a=del&u=$user_id'><i class='fa-solid fa-user-slash' data-fa-transform='up-1'></i>Delete User</a>"; } ?>
-			<h1 class="h1_underscore"><i class="fa-solid fa-<?php echo ($user_isnew) ? "user-plus" : "user-edit"; ?>"></i><?php echo ($user_isnew) ? "New User" : "Edit User: " . $user_name; ?></h1>
+			<?php if (!$user_isnew && $userdata->row['user_role'] === 'admin' && $user_id != $userdata->row['user_id']) { // Only admin can delete other users ?>
+			<a class="btn btn-red btn-r" href="process-user.php?a=del&u=<?php echo htmlspecialchars($user_id); ?>" onclick="return confirm('Are you sure you want to delete this user? This action cannot be undone.');"><i class="fa-solid fa-trash" data-fa-transform="up-1"></i>Delete User</a>
+			<?php } ?>
+			<h1 class="h1_underscore h1_lessmargin"><i class="fa-solid fa-user<?php echo ($user_isnew) ? "-plus" : ""; ?>" data-fa-transform="down-1"></i><?php echo $site_title; ?></h1>
+			<p>Here you can <?php echo ($user_isnew) ? "create a new user" : "edit the user account for <b>" . htmlspecialchars($user_name) . "</b>"; ?>.</p>
 
-			<?php if ($userdata->row['user_role'] === 'admin') { ?>
-			<form action="process-user.php?a=edit" method="POST" class="form-default" autocomplete="off">
+			<h2 class="h2_underscore">User details</h2>
 
-				<?php if (isset($msgtxt)) { echo "<div class='msgbox msgbox-$msgtype' data-expire='$msgexpire'><i class='fa-solid fa-$msgicon'></i><span>" . $msgtxt . "</span></div>"; } ?>
+			<form action="process-user.php" method="POST" class="form-default" autocomplete="off">
 
-				<input name="user_name" class="form-field" type="text" minlength="3" maxlength="30" placeholder="Username" autocomplete="off" value="<?php if (!$user_isnew) echo $user_name; ?>" required />
-				<input name="user_pass" class="form-field" type="password" minlength="8" maxlength="25" placeholder="Password" autocomplete="off" value="" <?php if ($user_isnew) echo 'required '; ?> />
-				<input name="user_mail" class="form-field" type="text" minlength="6" maxlength="30" placeholder="E-mail" autocomplete="off" value="<?php if (!$user_isnew) echo $user_mail; ?>" required />
+				<?php 
+					// Display session messages, if any
+					if (isset($msgtxt)) { 
+						echo "<div class='msgbox msgbox-$msgtype' data-expire='$msgexpire'><i class='fa-solid fa-$msgicon'></i><span>" . $msgtxt . "</span></div>"; 
+					} 
+				?>
+
+				<input name="user_name" class="form-field" type="text" minlength="3" maxlength="30" placeholder="Username" autocomplete="off" value="<?php if (!$user_isnew) echo htmlspecialchars($user_name); ?>" required />
+				
+				<div class="form-field-container">
+					<input id="user_pass_field" name="user_pass" class="form-field" type="password" minlength="8" maxlength="25" placeholder="Password" autocomplete="new-password" value="" <?php if ($user_isnew) echo 'required '; ?> />
+					<button id="generate_pass_btn" class="form-inlinebtn" type="button" onclick="this.blur();"><i class="fa-solid fa-key"></i>Generate</button>
+				</div>
+
+				<input name="user_mail" class="form-field" type="text" minlength="6" maxlength="30" placeholder="E-mail" autocomplete="off" value="<?php if (!$user_isnew) echo htmlspecialchars($user_mail); ?>" required />
+				
 				<?php if ($userdata->row['user_role'] === 'admin') { ?>
 				<select name="user_role" class="form-dropdown form-dropdown-medium">
 						<option value="user" <?php if ($user_isnew || $user_role === 'user') echo 'selected'; ?>>User</option>
 						<option value="moderator" <?php if ($user_role === 'moderator') echo 'selected'; ?>>Moderator</option>
 						<option value="admin" <?php if ($user_role === 'admin') echo 'selected'; ?>>Administrator</option>
 				</select>
-			<?php } ?>
-				<input name="action" value="<?php echo ($user_isnew) ? "newuser" : "edituser"; ?>" type="hidden" />
-				<button class="form-submit" type="submit"><i class="fa-solid fa-<?php echo ($user_isnew) ? "paper-plane" : "edit"; ?>"></i><?php echo ($user_isnew) ? "Submit" : "Save changes"; ?></button>
+				<?php } ?>
+				<?php if (!$user_isnew) { ?><input name="user_id" type="hidden" value="<?php echo htmlspecialchars($user_id); ?>" /><?php } ?>
+				<input name="action" value="<?php echo htmlspecialchars(($user_isnew) ? "newuser" : "edituser"); ?>" type="hidden" />
+				<button class="form-submit btn-green" type="submit"><i class="fa-solid fa-<?php echo ($user_isnew) ? "plus" : "edit"; ?>"></i><?php echo ($user_isnew) ? "Create User" : "Save Changes"; ?></button>
 
 			</form>
-		<?php } else { ?>
-			<p>No settings available to your user role.</p>
-		<?php } ?>
 
 		</section>
 

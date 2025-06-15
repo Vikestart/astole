@@ -49,10 +49,17 @@ main ul > li svg { margin-right:10px; }
 main ul > ul { padding:0 0 0 20px; }
 
 /* Forms and input elements */
+main .form-field-container { display:flex;gap:10px;align-items:center; }
 main input.form-field { background-color:#eee;position:relative;width:300px;max-width:100%;height:48px;display:block;color:#111;font-size:18px;text-align:left;font-family:inherit;padding:5px 15px 0;margin:0 0 15px;border-bottom:4px solid #fff;border-radius:5px;box-shadow:0 0 8px 0 rgb(0 0 0 / 5%); }
 main input.form-field:focus { background-color:#fff;border-bottom-color:#fff; }
 main input.form-field::placeholder { color:#aaa; }
 main input.form-field:focus::placeholder { color:#fff; }
+main button.form-inlinebtn { background-color:#76c3ff;max-width:100%;height:48px;display:inline-block;line-height:48px;cursor:pointer;color:#fff;font-size:18px;font-weight:normal;font-family:inherit;padding:0 40px;margin-bottom:15px;border-bottom:4px solid #96d1ff;border-radius:5px;box-shadow:0 0 8px 0 rgb(0 0 0 / 5%); }
+main button.form-inlinebtn.btn-red { background-color:#fb8585;border-bottom-color:#ffa7a7; }
+main button.form-inlinebtn.btn-green { background-color:#7ec18c;border-bottom-color:#8bda9c; }
+main button.form-inlinebtn:hover,
+main button.form-inlinebtn:focus { background-color:#32333a;color:#fff;border-bottom-color:#32333a; }
+main button.form-inlinebtn:active { position:relative;top:2px; }
 main textarea.form-textbox { background-color:#eee;position:relative;width:1200px;max-width:100%;min-height:200px;display:block;color:#111;font-size:18px;font-family:inherit;padding:15px;margin:0 0 15px;border-bottom:4px solid #fff;border-radius:5px;box-shadow:0 0 8px 0 rgb(0 0 0 / 5%); }
 main textarea.form-textbox:focus { background-color:#fff;border-bottom-color:#fff; }
 main textarea.form-textbox::placeholder { color:#999; }
@@ -63,8 +70,11 @@ main select.form-dropdown.form-dropdown-wide { width:400px; }
 main select.form-dropdown.form-dropdown-wider { width:500px; }
 main select.form-dropdown > option { line-height:48px;color:#111;font-size:16px; }
 main button.form-submit { background-color:#76c3ff;max-width:100%;height:48px;display:inline-block;line-height:48px;cursor:pointer;color:#fff;font-size:18px;font-weight:normal;font-family:inherit;padding:0 40px;border-bottom:4px solid #96d1ff;border-radius:5px;box-shadow:0 0 8px 0 rgb(0 0 0 / 5%); }
+main button.form-submit.btn-red { background-color:#fb8585;border-bottom-color:#ffa7a7; }
+main button.form-submit.btn-green { background-color:#7ec18c;border-bottom-color:#8bda9c; }
 main button.form-submit:hover,
 main button.form-submit:focus { background-color:#32333a;color:#fff;border-bottom-color:#32333a; }
+main button.form-submit:active { position:relative;top:2px; }
 main button svg { vertical-align:middle;font-size:20px;margin-right:8px; }
 
 /* Buttons */
@@ -73,6 +83,7 @@ a.btn.btn-red { background-color:#fb8585;border-bottom-color:#ffa7a7; }
 a.btn.btn-green { background-color:#7ec18c;border-bottom-color:#8bda9c; }
 a.btn.btn-r { float:right;margin-left:10px; }
 a.btn:hover, a.btn:focus { background-color:#32333a;color:#fff;text-decoration:none;border-bottom-color:#32333a; }
+a.btn:active { position:relative;top:2px; }
 a.btn svg { vertical-align:middle;font-size:20px;margin-right:8px; }
 
 /* Message boxes */

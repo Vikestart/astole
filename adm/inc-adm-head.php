@@ -6,7 +6,7 @@
   // Set full page title
   $site_title = "AdminCP - " . $site_title;
 
-  // Function for defining user
+  // Function for defining user - (this class is defined but not currently instantiated if commented out below)
   class ActiveUser {
     public $username;
     public $usermail;
@@ -38,10 +38,29 @@
     /*$user = new ActiveUser($_SESSION['User'], $_SESSION['UserMail'], $_SESSION['UserRole'], $_SESSION['LastSeen'], $_SESSION['Timezone'], $_SERVER['REMOTE_ADDR']);*/
     $active_user_ID = $_SESSION['UserID'];
     
-    // Fetch user data of current user
-    $userdata = new DBConn();
-    $userdata->result = $userdata->conn->query("SELECT * FROM users WHERE user_id = '$active_user_ID'");
-    $userdata->row = $userdata->result->fetch_assoc();
+    // Fetch user data of current user using prepared statement
+    $userdata = new DBConn(); // Reusing the $userdata variable name for consistency
+    $stmt_userdata = $userdata->conn->prepare("SELECT * FROM users WHERE user_id = ?");
+    if ($stmt_userdata === false) {
+        error_log("Prepare SELECT user in inc-adm-head failed: (" . $userdata->conn->errno . ") " . $userdata->conn->error);
+        // If there's a database error here, it's critical. Redirect to login.
+        header("Location: login.php?msg=db_error_head");
+        die();
+    }
+    $stmt_userdata->bind_param("i", $active_user_ID);
+    $stmt_userdata->execute();
+    $result_userdata = $stmt_userdata->get_result();
+
+    if ($result_userdata->num_rows === 1) {
+        $userdata->row = $result_userdata->fetch_assoc();
+    } else {
+        // If user ID from session doesn't match a user in DB, invalidate session.
+        session_destroy();
+        session_write_close();
+        header("Location: login.php?msg=user_data_mismatch");
+        die();
+    }
+    $stmt_userdata->close();
   }
 
   // Error handler

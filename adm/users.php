@@ -15,21 +15,26 @@
 			<h1 class="h1_underscore h1_lessmargin"><i class="fa-solid fa-users" data-fa-transform="down-1"></i>User accounts</h1>
 			<p>Here you can manage the user accounts for this website. Click on a user to edit that user.</p>
 
+			<?php 
+				// Display session messages, if any
+				if (isset($msgtxt)) { 
+					echo "<div class='msgbox msgbox-$msgtype' data-expire='$msgexpire'><i class='fa-solid fa-$msgicon'></i><span>" . $msgtxt . "</span></div>"; 
+				} 
+			?>
+
 			<h2 class="h2_underscore">List of user accounts</h2>
 			<?php
 				if ($userlist->result->num_rows > 0) {
-						echo '<ul>';
+					echo '<ul>';
 				    // output data of each row
 				    while($userlist->row = $userlist->result->fetch_assoc()) {
-				        echo "<li><a href='edit-user.php?t=edit&u=" . $userlist->row['user_id'] . "'><i class='fa-solid fa-user'></i>" . $userlist->row['user_uid']. "</a></li>";
+				        echo "<li><a href='edit-user.php?t=edit&u=" . $userlist->row['user_id'] . "'><i class='fa-solid fa-user'></i>" . htmlspecialchars($userlist->row['user_uid']). "</a></li>";
 				    }
-						echo '</ul>';
+					echo '</ul>';
 				} else {
 				    echo "<p>No users found.</p>";
 				}
 			?>
-
-			</div>
 		</section>
 
 	</main>
