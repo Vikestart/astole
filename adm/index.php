@@ -15,7 +15,7 @@
 			<a class="btn btn-r btn-desktop" href="/" target="_blank"><i class="fa-solid fa-eye"></i>Go to website</a>
 			<h1 class="h1_underscore"><i class="fa-solid fa-shield-check"></i>Welcome, <?php echo $userdata->row['user_uid']; ?></h1>
 			<p>Your last login was <strong><?php echo $userdata->row['user_lastseen']; /*format("F j, o \a\\t H:i T")*/ ?></strong>.</p>
-			<p>Your current role is: <strong><?php echo ucwords($userdata->row['user_role']); ?></strong>.</p>
+			<p>Your current role is: <strong><?php echo ucfirst(htmlspecialchars($userdata->row['role_name'])); ?></strong>.</p>
 			<p>Your IP is: <strong><?php echo $userdata->row['user_ip']; ?></strong>.</p>
 			</div>
 		</section>

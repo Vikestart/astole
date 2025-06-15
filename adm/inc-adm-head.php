@@ -10,16 +10,17 @@
   class ActiveUser {
     public $username;
     public $usermail;
-    public $userrole;
+    public $userrole; // numeric role ID
+    public $rolename; // string role name - ADDED
     public $lastseen;
     public $timezone;
     public $ipaddress;
 
-    public function __construct($username, $usermail, $userrole, $lastseen, // Corrected timezone parameter for DateTime constructor
-                                $timezone, $ipaddress) {
+    public function __construct($username, $usermail, $userrole, $rolename, $lastseen, $timezone, $ipaddress) { // ADDED $rolename
       $this->username = $username;
       $this->usermail = $usermail;
       $this->userrole = $userrole;
+      $this->rolename = $rolename; // Store role name - ADDED
       $this->lastseen = new DateTime($lastseen, new DateTimeZone('UTC'));
       $this->lastseen->setTimezone(new DateTimeZone($timezone));
       $this->timezone = $timezone;
@@ -35,45 +36,32 @@
 		header("Location: index.php");
 		die();
 	} else if (isset($_SESSION['UserID']) && !isset($isLoginPage)) {
-    // Fetch user data
-    /*
-    // If ActiveUser class is desired:
-    $user_timezone = isset($_SESSION['UserTimezone']) ? $_SESSION['UserTimezone'] : 'UTC'; // Fallback timezone
-    $user = new ActiveUser(
-      $_SESSION['User'],
-      $_SESSION['UserMail'],
-      $_SESSION['UserRole'],
-      $_SESSION['LastSeen'],
-      $user_timezone, // Pass the correct timezone
-      $_SESSION['UserIP']
-    );
-    */
+    // Fetch user data along with their role name
+    $user_ID = (int)$_SESSION['UserID'];
+    $db_conn = new DBConn(); // Establish DB connection for this script
 
-    // If ActiveUser class is not used, fetch user data into $userdata->row directly
-    $userdata = new DBConn(); // Reuse DBConn object for user data fetch
-    $active_user_ID = (int)$_SESSION['UserID']; // Ensure ID is integer
-    $stmt_userdata = $userdata->conn->prepare("SELECT user_uid, user_mail, user_role, user_lastseen, user_timezone, user_ip FROM users WHERE user_id = ?");
+    // Prepared statement to fetch user details and their role name using LEFT JOIN.
+    // Assuming 'roles' table has 'role_id' and 'role_name' columns.
+    // LEFT JOIN ensures user data is fetched even if a role_id doesn't have a matching role_name.
+    $stmt_userdata = $db_conn->conn->prepare("SELECT u.user_uid, u.user_mail, u.user_role, u.user_lastseen, u.user_timezone, u.user_ip, r.role_name FROM users u LEFT JOIN roles r ON u.user_role = r.role_id WHERE u.user_id = ?");
+    
     if ($stmt_userdata === false) {
-        error_log("inc-adm-head.php: User data prepare failed: (" . $userdata->conn->errno . ") " . $userdata->conn->error);
+        error_log("inc-adm-head.php: Prepare statement failed: (" . $db_conn->conn->errno . ") " . $db_conn->conn->error);
+        // In case of a critical database issue with the prepare statement, invalidate session and redirect.
         session_destroy();
         session_write_close();
-        header("Location: login.php?msg=db_error_user_data");
+        header("Location: login.php?msg=db_error"); // Redirect to login with a generic error
         die();
     }
-    $stmt_userdata->bind_param("i", $active_user_ID);
+    
+    $stmt_userdata->bind_param("i", $user_ID); // "i" for integer
     $stmt_userdata->execute();
     $result_userdata = $stmt_userdata->get_result();
 
     if ($result_userdata->num_rows === 1) {
-        $userdata->row = $result_userdata->fetch_assoc();
-        // Set session variables that were previously used by ActiveUser if it's not instantiated
-        $_SESSION['User'] = $userdata->row['user_uid'];
-        $_SESSION['UserMail'] = $userdata->row['user_mail'];
-        $_SESSION['UserRole'] = $userdata->row['user_role'];
-        $_SESSION['LastSeen'] = $userdata->row['user_lastseen'];
-        $_SESSION['UserTimezone'] = $userdata->row['user_timezone'];
-        $_SESSION['UserIP'] = $userdata->row['user_ip'];
-
+        $userdata = (object)['row' => $result_userdata->fetch_assoc()]; // Populate $userdata->row
+        // The role_name will now be available in $userdata->row['role_name']
+        // The numeric role ID is still in $userdata->row['user_role']
     } else {
         // If user ID from session doesn't match a user in DB, invalidate session.
         session_destroy();
@@ -81,17 +69,17 @@
         header("Location: login.php?msg=user_data_mismatch");
         die();
     }
-    $stmt_userdata->close();
+    $stmt_userdata->close(); // Close the prepared statement
   }
 
-  // Error handler - REVISED TO USE ASSOCIATIVE KEYS AND INCLUDE 'origin'
+  // Error handler (existing code for displaying session messages)
 	if (isset($_SESSION['Sessionmsg'])) {
-        $msgorigin = $_SESSION['Sessionmsg']['origin']; // Access 'origin' key
-        $msgtype = $_SESSION['Sessionmsg']['type'];
-        $msgicon = $_SESSION['Sessionmsg']['icon'];
-        $msgexpire = $_SESSION['Sessionmsg']['expire'];
-        if ($msgexpire == 0) { $msgexpire = 4500; } //Standard value
-        $msgtxt = $_SESSION['Sessionmsg']['message']; // Access 'message' key
+    $msgorigin = $_SESSION['Sessionmsg']['origin'];
+    $msgtype = $_SESSION['Sessionmsg']['type'];
+    $msgicon = $_SESSION['Sessionmsg']['icon'];
+    $msgexpire = $_SESSION['Sessionmsg']['expire'];
+    if ($msgexpire == 0) { $msgexpire = 4500; } //Standard value
+    $msgtxt = $_SESSION['Sessionmsg']['message'];
 		unset($_SESSION['Sessionmsg']);
 	}
 ?>
