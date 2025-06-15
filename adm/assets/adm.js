@@ -41,7 +41,17 @@ $(document).ready(function() {
     // Shuffle the password to ensure the required characters are not always at the beginning
     return password.split('').sort(() => 0.5 - Math.random()).join('');
   }
-  // End of new code for password generation
+
+  $('#deleteUserBtn').on('click', function(e) {
+    e.preventDefault(); // Prevent the default link behavior
+
+    var userId = $(this).data('user-id');
+    var confirmDelete = confirm("Are you sure you want to delete this user? This action cannot be undone.");
+
+    if (confirmDelete) {
+      window.location.href = "process-user.php?a=del&u=" + userId;
+    }
+  });
 
 }); // This closes the main $(document).ready() function that wraps the initial parts of the script.
 
