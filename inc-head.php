@@ -13,6 +13,7 @@ require "db.php";
 <script defer src="/assets/font-awesome/fontawesome.min.js"></script>
 <script defer src="/assets/font-awesome/solid.min.js"></script>
 <script defer src="/assets/font-awesome/brands.min.js"></script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9553054176028249" crossorigin="anonymous"></script>
 </head>
 <body>
 		<header>
