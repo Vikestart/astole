@@ -40,11 +40,11 @@ ins.adsbygoogle { width:1200px;margin:0 auto; }
 ins.adsbygoogle > div { margin:0 auto; }
 footer { width:100%;height:100px;text-align:center;padding:21px 20px 19px;margin:60px auto 0; }
 footer > div { width:1200px;max-width:100%;height:60px;display:block;margin:0 auto; }
-footer > div > #copyright { height:60px;display:inline-block;cursor:default;float:left;line-height:22px;color:#888;font-size:18px;font-family:"Roboto", "Helvetica Neue", Helvetica, Arial, sans-serif;text-align:left;padding-top:10px; }
+footer > div > #copyright { height:60px;display:block;cursor:default;float:left;line-height:22px;color:#888;font-size:18px;font-family:"Roboto", "Helvetica Neue", Helvetica, Arial, sans-serif;text-align:left;padding-top:10px; }
 footer > div > #copyright a { color:inherit;text-decoration:none; }
 footer > div > #copyright a:hover { color:#fff;text-decoration:underline; }
 footer > div > #copyright div { display:block;color:#94989a;font-size:14px; }
-footer > div > #disclaimer { max-width:600px;height:60px;display:inline-block;cursor:default;float:right;line-height:16px;color:#737c82;font-size:12px;font-family:"Roboto", "Helvetica Neue", Helvetica, Arial, sans-serif;text-align:right;padding-top:10px; }
+footer > div > #disclaimer { max-width:600px;height:60px;display:block;cursor:default;float:right;line-height:16px;color:#737c82;font-size:12px;font-family:"Roboto", "Helvetica Neue", Helvetica, Arial, sans-serif;text-align:right;padding-top:10px; }
 footer > div > #disclaimer a { color:inherit;text-decoration:none; }
 footer > div > #disclaimer a:hover { color:#fff;text-decoration:underline; }
 
