@@ -4,16 +4,24 @@ require "db.php";
 <!DOCTYPE html>
 <html lang="no">
 <head>
-<meta name="description" content="Aleksander Støle">
-<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
-<meta charset="UTF-8">
-<title>Aleksander Støle</title>
-<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
-<link rel="stylesheet" href="/assets/main.css?v=<?php echo date("mdHis") ?>">
-<script defer src="/assets/font-awesome/fontawesome.min.js"></script>
-<script defer src="/assets/font-awesome/solid.min.js"></script>
-<script defer src="/assets/font-awesome/brands.min.js"></script>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9553054176028249" crossorigin="anonymous"></script>
+	<meta name="description" content="Aleksander Støle">
+	<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+	<meta charset="UTF-8">
+	<title>Aleksander Støle</title>
+	<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+	<link rel="stylesheet" href="/assets/main.css?v=<?php echo date("mdHis") ?>">
+	<script defer src="/assets/font-awesome/fontawesome.min.js"></script>
+	<script defer src="/assets/font-awesome/solid.min.js"></script>
+	<script defer src="/assets/font-awesome/brands.min.js"></script>
+	<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9553054176028249" crossorigin="anonymous"></script>
+	<script async src="https://www.googletagmanager.com/gtag/js?id=G-D9DKJ2PMQX"></script>
+	<script>
+		window.dataLayer = window.dataLayer || [];
+		function gtag(){dataLayer.push(arguments);}
+		gtag('js', new Date());
+
+		gtag('config', 'G-D9DKJ2PMQX');
+	</script>
 </head>
 <body>
 		<header>
