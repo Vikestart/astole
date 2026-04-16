@@ -26,12 +26,12 @@ require "db.php";
 <body>
 		<header>
 			<div id="nav-mobile">
-				<div id="nav-mobile-toggle" class="nav-mobile-item"><i id="nav-mobile-toggle-icon" class="far fa-bars"></i></div>
-				<a class="nav-mobile-item nav-mobile-item-logo" href="index.php">aleksander støle</a>
+				<div id="nav-mobile-toggle" class="nav-mobile-item"><i id="nav-mobile-toggle-icon" class="fa-solid fa-bars"></i></div>
+				<a class="nav-mobile-item nav-mobile-item-logo" href="/"></a>
 			</div>
 			<nav>
 				<ol>
-					<li class="logo"><a class="logo" href="index.php">aleksander støle</a></li>
+					<li class="logo"><a class="logo" href="index.php"></a></li>
 					<li><a class="menu-item" href="index.php"><i class="fa-solid fa-house"></i>Home</a></li>
 					<li><a class="menu-item" href="page.php?p=4"><i class="fa-solid fa-file-user"></i>CV</a></li>
 					<li><a class="menu-item" href="page.php?p=5"><i class="fa-solid fa-project-diagram"></i>Projects</a></li>

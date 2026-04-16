@@ -5,31 +5,51 @@
 @font-face { font-family:'Roboto-Bold';src:url('fonts/Roboto-Bold.ttf'); }
 
 * { -webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;padding:0;margin:0;border:0;outline:0; }
-html { background-color:#d5d5d5;height:100%;overflow-y:scroll;-webkit-font-smoothing:antialiased; }
-body { background-color:#d5d5d5;min-height:100%;position:relative;font-family:"Roboto", Arial, sans-serif;-webkit-font-smoothing:antialiased; }
-header { background-color:#613636;width:100%;position:relative;margin:0 0 40px; }
+html { background-color:#f3f3f3;height:100%;overflow-y:scroll;-webkit-font-smoothing:antialiased; }
+body { background-color:#f3f3f3;min-height:100%;position:relative;font-family:"Roboto", Arial, sans-serif;-webkit-font-smoothing:antialiased; }
+header { width:100%;position:relative;margin:0 0 40px; }
 
 /* Navigation menu */
-#nav-mobile { background-color:#454d54;position:fixed;top:0;left:0;z-index:1001;width:100%;height:86px;display:none;border-bottom:1px solid #1a1d20; }
-#nav-mobile > .nav-mobile-item { height:85px;line-height:86px;cursor:pointer;color:#fff;font-size:42px;text-decoration:none;padding:0 25px;transition:background-color 0s ease-in-out 0s, transform 250ms ease-in-out; }
+#nav-mobile { background-color:#fff;position:fixed;top:0;left:0;z-index:1001;width:100%;height:86px;display:none; }
+#nav-mobile > .nav-mobile-item { height:85px;line-height:86px;cursor:pointer;color:#6b6c9e;font-size:42px;text-decoration:none;padding:0 25px;transition:background-color 0s ease-in-out 0s, transform 250ms ease-in-out; }
 #nav-mobile > .nav-mobile-item.nav-mobile-item-active { background-color:#535a60;color:#fff;border-bottom-color:#502d2d;outline:0;transform:rotate(180deg);transition:background-color 250ms ease-in-out 250ms, transform 250ms ease-in-out; }
 #nav-mobile > .nav-mobile-item.nav-mobile-item-logo { position:relative;top:0;left:0;display:inline-block;line-height:82px;color:#fff;font-size:32px;font-family:"Roboto-Light",Arial,Helvetica,sans-serif;text-decoration:none;text-transform:lowercase;letter-spacing:4px;text-shadow: 0 0 #000;margin-left:auto;transition-property:left, top, text-shadow;transition-duration:250ms;transition-timing-function:ease; }
 #nav-mobile > .nav-mobile-item.nav-mobile-item-logo:active { left:-5px;top:-5px;text-shadow: 10px 10px #000; }
-nav { background-color:#454d54;position:static;position:-webkit-sticky;position:sticky;top:0;z-index:1000;width:100%;height:86px;border-bottom:1px solid #1a1d20;box-shadow:0 0 15px 0 rgb(0 0 0 / 10%); }
+nav { background-color:#fff;
+    position: static;
+    position: -webkit-sticky;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    width: 100%;
+    height: 86px;
+    box-shadow: 0 0 15px 0 rgb(0 0 0 / 10%); }
 nav > ol { width:1200px;height:inherit;display:flex;list-style:none;margin:0 auto; }
 nav > ol > li { height:86px;display:block;flex:1 1 auto;list-style:none; }
-nav > ol > li a.logo { position:relative;top:0;left:0;display:inline-block;line-height:82px;color:#ebedef;font-size:32px;font-family:"Roboto-Light",Arial,Helvetica,sans-serif;text-decoration:none;text-transform:lowercase;letter-spacing:4px;text-shadow:0 0 #33373c;margin:0;transition-property:left, top, text-shadow;transition-duration:250ms;transition-timing-function:ease; }
-nav > ol > li a.logo:hover { left:-5px;top:-5px;text-shadow: 10px 10px #000; }
-nav > ol > li a.menu-item { width:100%;height:86px;display:block;line-height:88px;color:#d5d5d5;font-size:22px;text-decoration:none;text-align:center;border-bottom:1px solid transparent;border-left:1px solid #60656a;outline:0; }
-nav > ol > li:last-child a.menu-item { border-right:1px solid #60656a; }
+nav > ol > li a.logo { background-image: url(/img/logo.svg);
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: 210px;
+    display: block;
+    width: 210px;
+    height: 100%; }
+nav > ol > li a.menu-item { width:100%;
+    height: 86px;
+    display: block;
+    line-height: 88px;
+    color: #3d3d3d;
+    font-size: 22px;
+    text-decoration: none;
+    text-align: center;
+    outline: 0 }
 nav > ol > li a.menu-item:hover,
-nav > ol > li a.menu-item:focus { background-color:#d9dcdf;color:#637289;border-bottom-color:#e1e5e9;outline:0; }
-nav > ol > li a.menu-item.menu-item-active { background-color:#d9dcdf;border-bottom-color:#e1e5e9; }
+nav > ol > li a.menu-item:focus,
+nav > ol > li a.menu-item.menu-item-active { background-color:#537dd7;color:#fff;outline:0; }
 nav > ol > li a > svg { font-size:24px;margin-right:10px; }
 
 /* Main content area */
 main { width:1200px;min-height:100%;position:relative;margin:0 auto; }
-section { background-color:#e2e2e2;width:100%;max-width:100%;min-height:400px;padding:40px;margin:0 0 40px;border-top:4px solid #ededed; }
+section { background-color:#fff;width:100%;max-width:100%;min-height:400px;padding:40px;margin:0 0 40px;border-top:4px solid #ededed; }
 section h1 { cursor:default;color:#797979;font-size:36px;font-weight:normal;font-family:"Roboto-Medium", Arial, sans-serif;margin:0 0 25px; }
 section h1.h1_underscore { padding-bottom:25px;border-bottom:2px dotted #d5d5d5; }
 section h1.h1_lessmargin { margin-bottom:10px; }
@@ -53,12 +73,12 @@ footer > div > #disclaimer a:hover { color:#fff;text-decoration:underline; }
   header { margin-bottom:15px; }
   #nav-mobile { display:flex; }
   #nav-mobile > .nav-mobile-item.nav-mobile-item-logo { font-size:26px;letter-spacing:2px; }
-  nav > ol { background-color:#292f34;position:fixed;top:86px;width:100%;height:auto;display:block;padding:15px 15px 8px;border-bottom:4px solid #454d54;box-shadow:0 15px 15px 0 rgb(0 0 0 / 15%);transform:translateY(-100%); }
+  nav > ol { background-color:#fff;position:fixed;top:86px;width:100%;height:auto;display:block;padding:15px 15px 8px; }
   nav > ol.nav-mobile-animated { transition:transform 500ms ease-in-out; }
   nav > ol.nav-mobile-active { transform:translateY(0); }
   nav > ol > li { height:76px;margin-bottom:15px; }
 	nav > ol > li.logo { display:none; }
-	nav > ol > li a.menu-item, nav > ol > li a.menu-item:hover, nav > ol > li a.menu-item:focus { background-color:rgb(255 255 255 / 5%);height:80px;line-height:80px;color:#d5d5d5;border:0;border-bottom:2px solid rgb(255 255 255 / 5%); }
+	nav > ol > li a.menu-item, nav > ol > li a.menu-item:hover, nav > ol > li a.menu-item:focus { height:80px;line-height:80px; }
   nav > ol > li a.menu-item:active { background-color:#d9dcdf;border-color:#637289; }
   main { width:100%;padding:0 15px; }
   main section { margin-bottom:15px; }
