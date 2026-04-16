@@ -5,7 +5,7 @@ require "db.php";
 <html lang="no">
 <head>
 	<meta name="description" content="Aleksander Støle">
-	<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<meta charset="UTF-8">
 	<title>Aleksander Støle</title>
 	<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
