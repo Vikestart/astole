@@ -77,6 +77,8 @@
 
 			<form action="process-page.php?a=edit" method="POST" class="form-default" autocomplete="off">
 
+				<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
+
 				<?php if (isset($msgtxt)) { echo "<div class='msgbox msgbox-$msgtype' data-expire='$msgexpire'><i class='fa-solid fa-$msgicon'></i><span>" . htmlspecialchars($msgtxt) . "</span></div>"; } ?>
 
                 <input name="pagetitle" class="form-field" type="text" minlength="3" maxlength="30" placeholder="Page title" autocomplete="off" value="<?php if (!$page_isnew) echo htmlspecialchars($page_title); ?>" required />

@@ -1,2 +1,3 @@
 # Ignore database configuration file
 db.php
+.env

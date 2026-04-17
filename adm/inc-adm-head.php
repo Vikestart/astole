@@ -1,6 +1,18 @@
 <?php
-  // Start session and get mySQL database parameters
+  // Force cookies to be accessible only via HTTP protocol (prevents XSS theft)
+  ini_set('session.cookie_httponly', 1);
+  // Optional but recommended: Uncomment the next line if your site uses SSL/HTTPS!
+  ini_set('session.cookie_secure', 1); 
+  // Prevents session fixation by refusing uninitialized session IDs
+  ini_set('session.use_strict_mode', 1);
+  
   session_start();
+
+  if (empty($_SESSION['csrf_token'])) {
+      // Generate a cryptographically secure random token
+      $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+  }
+  
   require "../db.php";
 
   // Set full page title

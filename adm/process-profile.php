@@ -1,6 +1,10 @@
 <?php
 	// Fetch database configuration and start session
 	session_start();
+	// Prevent unauthorized remote submissions
+	if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+		returnWithMsg(MSG_TYPE_ERROR, MSG_ICON_ERROR, 5000, "Security validation failed (CSRF).", false);
+	}
 	require "../db.php";
 	$db_connection = new DBConn();
 

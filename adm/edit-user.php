@@ -97,6 +97,8 @@
 
 			<form action="process-user.php" method="POST" class="form-default" autocomplete="off">
 
+				<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
+
 				<?php if (isset($msgtxt) && ($msgorigin == "newuser" || $msgorigin == "edituser")) { echo "<div class='msgbox msgbox-$msgtype' data-expire='$msgexpire'><i class='fa-solid fa-$msgicon'></i><span>" . htmlspecialchars($msgtxt) . "</span></div>"; } ?>
 
 				<input name="user_name" class="form-field" type="text" minlength="3" maxlength="40" placeholder="Username" autocomplete="off" value="<?php if (!$user_isnew) echo htmlspecialchars($user_name); ?>" required />

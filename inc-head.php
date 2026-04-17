@@ -1,6 +1,3 @@
-<?php
-require "db.php";
-?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -44,15 +41,15 @@ require "db.php";
 		<!-- Glassmorphism Floating Navigation -->
 		<header class="glass-header">
 			<div class="header-container">
-				<a href="index.php" class="nav-brand">
+				<a href="/" class="nav-brand">
 					<span class="brand-initials">A.S</span>
 				</a>
 				
 				<nav class="nav-links">
-					<a href="index.php" class="nav-item active">Home</a>
-					<a href="page.php?p=4" class="nav-item">Experience</a>
-					<a href="page.php?p=5" class="nav-item">Projects</a>
-					<a href="page.php?p=1" class="nav-item">Contact</a>
+					<a href="/home" class="nav-item <?php echo ($route === 'home' || $route === '') ? 'active' : ''; ?>">Home</a>
+					<a href="/experience" class="nav-item <?php echo ($route === 'experience') ? 'active' : ''; ?>">Experience</a>
+					<a href="/projects" class="nav-item <?php echo ($route === 'projects') ? 'active' : ''; ?>">Projects</a>
+					<a href="/contact" class="nav-item <?php echo ($route === 'contact') ? 'active' : ''; ?>">Contact</a>
 				</nav>
 				
 				<button class="mobile-toggle"><i class="fa-solid fa-bars"></i></button>

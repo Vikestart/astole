@@ -1,24 +1,24 @@
-<?php require "inc-head.php";
+<?php 
+require_once "PageManager.php";
 
-// Assuming $page_id is set here, or via $_GET['p'] in a page.php script
-$page_id = 3; 
-$mysqli = new DBConn();
+// 1. Get the requested route from the URL. Default to 'home' if empty.
+$route = isset($_GET['route']) && !empty($_GET['route']) ? rtrim($_GET['route'], '/') : 'home';
 
-// SECURITY FIX: Use prepared statements
-$stmt = $mysqli->conn->prepare("SELECT page_title, page_contents FROM pages WHERE page_id = ?");
-$stmt->bind_param("i", $page_id);
-$stmt->execute();
-$result = $stmt->get_result();
+// 2. Fetch the data using our new PageManager
+$pageData = PageManager::getPageBySlug($route);
 
-if ($result->num_rows === 1) {
-	$row = $result->fetch_assoc();
-	$page_title = $row['page_title'];
-	$page_contents = $row['page_contents'];
+// 3. Handle 404 Not Found if the slug doesn't exist in the database
+if (!$pageData) {
+    header("HTTP/1.0 404 Not Found");
+    $page_title = "Page Not Found";
+    $page_contents = "The content you are looking for does not exist or has been moved.";
 } else {
-	$page_title = "Page Not Found";
-	$page_contents = "The content you are looking for does not exist or has been moved.";
+    $page_title = $pageData['page_title'];
+    $page_contents = $pageData['page_contents'];
 }
-$stmt->close();
+
+// 4. Output the View (HTML)
+require_once "inc-head.php"; 
 ?>
 
 	<div class="hero-section">
@@ -38,4 +38,4 @@ $stmt->close();
 		</div>
 	</section>
 
-<?php require "inc-end.php"; ?>
+<?php require_once "inc-end.php"; ?>

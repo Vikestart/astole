@@ -5,11 +5,24 @@
 	require "../db.php";
 
 	// Function for returning back to page with an error message
-	function returnWithMsg($type, $icon, $expire, $message) { // Removed $redirect, as it always redirects to login.php
-		$_SESSION['Sessionmsg'] = array("login", $type, $icon, $expire, $message);
+	function returnWithMsg($type, $icon, $expire, $message) { 
+        // Updated to use associative keys to match the new inc-adm-head.php expectations
+		$_SESSION['Sessionmsg'] = array(
+            'origin' => 'login', 
+            'type' => $type, 
+            'icon' => $icon, 
+            'expire' => $expire, 
+            'message' => $message
+        );
 		header("Location: login.php");
 		die();
 	}
+
+    // --- 1. CSRF VERIFICATION ---
+    // Prevent Cross-Site Request Forgery attacks
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+        returnWithMsg("error", "times-circle", 5000, "Security validation failed. Please refresh and try again.");
+    }
 
 	if (isset($_POST["username"]) && isset($_POST["password"])) {
 
@@ -35,55 +48,65 @@
 
 	// Create a single DBConn instance for this script
 	$db_connection = new DBConn();
+    $ip_address = $_SERVER['REMOTE_ADDR'];
 
-	// Query the database for user using prepared statement
-	$stmt_userquery = $db_connection->conn->prepare("SELECT user_id, user_pass, user_uid FROM users WHERE user_uid = ? OR user_mail = ?");
-    if ($stmt_userquery === false) {
-        error_log("Prepare user query failed: (" . $db_connection->conn->errno . ") " . $db_connection->conn->error);
-        returnWithMsg("error", "exclamation-triangle", 0, "Database query preparation failed!");
+    // --- 2. RATE LIMITING CHECK ---
+    // Look for 5 or more failed attempts from this IP in the last 15 minutes
+    $time_limit = date('Y-m-d H:i:s', strtotime('-15 minutes'));
+    $stmt_limit = $db_connection->conn->prepare("SELECT COUNT(*) FROM login_attempts WHERE ip_address = ? AND attempt_time > ?");
+    $stmt_limit->bind_param("ss", $ip_address, $time_limit);
+    $stmt_limit->execute();
+    $stmt_limit->bind_result($attempt_count);
+    $stmt_limit->fetch();
+    $stmt_limit->close();
+
+    if ($attempt_count >= 5) {
+        returnWithMsg("error", "times-circle", 5000, "Too many failed attempts. Try again in 15 minutes.");
     }
-    $stmt_userquery->bind_param("ss", $admuser, $admuser);
-    $stmt_userquery->execute();
-    $result_userquery = $stmt_userquery->get_result();
+
+	// --- 3. AUTHENTICATE USER ---
+	// Query the database for user using prepared statement
+	$stmt_userquery = $db_connection->conn->prepare("SELECT user_id, user_pass, user_uid FROM users WHERE user_uid = ? OR user_mail = ? LIMIT 1");
+    if ($stmt_userquery === false) {
+        error_log("Prepare user query failed: " . $db_connection->conn->error);
+        returnWithMsg("error", "times-circle", 0, "Database error occurred.");
+    }
+
+	$stmt_userquery->bind_param("ss", $admuser, $admuser);
+	$stmt_userquery->execute();
+	$result_userquery = $stmt_userquery->get_result();
 
 	if ($result_userquery->num_rows === 1) {
 		$userquery_row = $result_userquery->fetch_assoc();
-        $stmt_userquery->close(); // Close statement after fetching result
 
-		$hashedPwd = $userquery_row['user_pass'];
-		$passcheck = password_verify($admpass, $hashedPwd);
+        // Securely verify password
+		if (password_verify($admpass, $userquery_row['user_pass'])) {
+            
+            // --- 4. LOGIN SUCCESS ---
+            session_regenerate_id(true); // Session Fixation Protection
+            
+            // Clear all failed login attempts for this IP
+            $stmt_clear = $db_connection->conn->prepare("DELETE FROM login_attempts WHERE ip_address = ?");
+            $stmt_clear->bind_param("s", $ip_address);
+            $stmt_clear->execute();
+            $stmt_clear->close();
 
-		// ONLY use password_verify for password check
-		if ($passcheck === true) {
-
-			$ipaddress = $_SERVER['REMOTE_ADDR'];
+			// Update last seen and IP
 			$currtime = gmdate("Y-m-d H:i:s");
-
-			// Update user last seen and IP using prepared statement
 			$stmt_refreshuser = $db_connection->conn->prepare("UPDATE users SET user_lastseen = ?, user_ip = ? WHERE user_id = ?");
-            if ($stmt_refreshuser === false) {
-                error_log("Prepare refresh user failed: (" . $db_connection->conn->errno . ") " . $db_connection->conn->error);
-                returnWithMsg("error", "exclamation-triangle", 0, "Database update preparation failed!");
-            }
-            $stmt_refreshuser->bind_param("ssi", $currtime, $ipaddress, $userquery_row['user_id']); // Bind by user_id
-            $stmt_refreshuser->execute();
+			$stmt_refreshuser->bind_param("ssi", $currtime, $ip_address, $userquery_row['user_id']);
+			$stmt_refreshuser->execute();
 
-            if ($stmt_refreshuser->errno) {
-                error_log("Execute refresh user failed: (" . $stmt_refreshuser->errno . ") " . $stmt_refreshuser->error);
-                returnWithMsg("error", "exclamation-triangle", 0, "Database update execution failed!");
-            }
+			if ($stmt_refreshuser->errno) {
+				error_log("Execute refresh user failed: (" . $stmt_refreshuser->errno . ") " . $stmt_refreshuser->error);
+				returnWithMsg("error", "exclamation-triangle", 0, "Database update execution failed!");
+			}
 
-            $rows_affected = $stmt_refreshuser->affected_rows;
-            $stmt_refreshuser->close();
+			$rows_affected = $stmt_refreshuser->affected_rows;
+			$stmt_refreshuser->close();
 
-			if ($rows_affected === 1) {
+			if ($rows_affected === 1 || $rows_affected === 0) { // 0 is fine if updating rapidly within the same second
 				$_SESSION['UserID'] = $userquery_row['user_id'];
-				// The commented lines below should remain commented if you are solely relying on UserID for session.
-				/*$_SESSION['User'] = $userquery_row['user_uid'];
-				$_SESSION['UserMail'] = $userquery_row['user_mail'];
-				$_SESSION['UserRole'] = $userquery_row['user_role'];
-				$_SESSION['LastSeen'] = $currtime;
-				$_SESSION['Timezone'] = $userquery_row['user_timezone'];*/
 				
 				// Close the DB connection before redirect
 				$db_connection->conn->close();
@@ -91,19 +114,18 @@
 				die();
 
 			} else {
-                error_log("Failed to update user last seen/IP for user ID: " . $userquery_row['user_id'] . ". Affected rows: " . $rows_affected);
+				error_log("Failed to update user last seen/IP for user ID: " . $userquery_row['user_id'] . ". Affected rows: " . $rows_affected);
 				returnWithMsg("error", "exclamation-triangle", 0, "Error updating user last seen/IP.");
 			}
-
-		} else {
-			returnWithMsg("error", "times-circle", 0, "Incorrect username or password.");
 		}
-
-	} else {
-		
-		returnWithMsg("error", "times-circle", 0, "Incorrect username or password.");
 	}
 
-    $db_connection->conn->close();
+    // --- 5. LOGIN FAILED - LOG ATTEMPT ---
+    // If the code reaches this point, either the username didn't exist, or the password was wrong.
+    $stmt_log = $db_connection->conn->prepare("INSERT INTO login_attempts (ip_address, attempt_time) VALUES (?, NOW())");
+    $stmt_log->bind_param("s", $ip_address);
+    $stmt_log->execute();
+    $stmt_log->close();
 
+    returnWithMsg("error", "times-circle", 4500, "Incorrect username or password.");
 ?>

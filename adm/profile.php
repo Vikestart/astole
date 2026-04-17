@@ -21,6 +21,8 @@
 
 			<form action="process-profile.php" method="POST" class="form-default" autocomplete="off">
 
+				<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
+
 				<?php if (isset($msgtxt) && $msgorigin == "changebasics") { echo "<div class='msgbox msgbox-$msgtype' data-expire='$msgexpire'><i class='fa-solid fa-$msgicon'></i><span>" . $msgtxt . "</span></div>"; } ?>
 
 				<input name="user_name" class="form-field" type="text" minlength="3" maxlength="20" placeholder="Username" value="<?php echo $userdata->row['user_uid']; ?>" autocomplete="off" required />
@@ -34,6 +36,8 @@
 			<p>Type in the current password below, then the new password two times to confirm.</p>
 
 			<form action="process-profile.php" method="POST" class="form-default" autocomplete="off">
+
+				<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
 
 				<?php if (isset($msgtxt) && $msgorigin == "changepassword") { echo "<div class='msgbox msgbox-$msgtype' data-expire='$msgexpire'><i class='fa-solid fa-$msgicon'></i><span>" . $msgtxt . "</span></div>"; } ?>
 
@@ -49,6 +53,8 @@
 			<p>Set the timezone to your current local timezone to get the correct dates and timestamps.</p>
 
 			<form action="process-profile.php" method="POST" class="form-default">
+
+				<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
 
 				<?php if (isset($msgtxt) && $msgorigin == "changetimezone") { echo "<div class='msgbox msgbox-$msgtype' data-expire='$msgexpire'><i class='fa-solid fa-$msgicon'></i><span>" . $msgtxt . "</span></div>"; } ?>
 
