@@ -335,14 +335,59 @@ body {
 @media screen and (max-width: 768px) {
     .header-container {
         padding: 0.75rem 1.5rem;
+        position: relative; /* Required for the absolute positioning of the menu */
     }
 
+    /* Hide by default, but set up the styling for when it's active */
     .nav-links {
-        display: none; /* Can be toggled with JS later */
+        display: none; 
+        flex-direction: column;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        
+        /* THE FIX: Make it 95% opaque instead of using the highly transparent var(--glass-bg) */
+        background: rgba(255, 255, 255, 0.95); 
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-md);
+        padding: 1.5rem;
+        
+        /* Make the shadow slightly darker so it pops off the text underneath */
+        box-shadow: 0 10px 40px rgba(31, 38, 135, 0.15); 
+        
+        gap: 1.5rem;
+        text-align: center;
+        margin-top: 1rem;
+    }
+
+    /* This class will be toggled by our JavaScript */
+    .nav-links.nav-active {
+        display: flex;
+        animation: fadeInDown 0.3s ease forwards;
     }
 
     .mobile-toggle {
         display: block;
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        color: var(--color-heading);
+        cursor: pointer;
+        transition: transform 0.2s ease;
+    }
+
+    .mobile-toggle:active {
+        transform: scale(0.9);
+    }
+
+    /* Smooth dropdown animation */
+    @keyframes fadeInDown {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
     }
 
     .hero-title {
