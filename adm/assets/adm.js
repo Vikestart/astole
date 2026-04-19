@@ -97,7 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitBtn.disabled = true; // Grey out initially
         
         // Grab all inputs to track their original state
-        const inputs = form.querySelectorAll('input:not([type="hidden"]), select');
+        const inputs = form.querySelectorAll('input:not([type="hidden"]), textarea, select');
         const initialValues = {};
         inputs.forEach(input => initialValues[input.name] = input.value);
         
