@@ -5,8 +5,8 @@ class PageManager {
     public static function getPageBySlug($slug) {
         $db = new DBConn();
         
-        // Prepare the statement to prevent SQL injection
-        $stmt = $db->conn->prepare("SELECT page_title, page_contents FROM pages WHERE page_slug = ? LIMIT 1");
+        // Fetch title, contents, and updated timestamp
+        $stmt = $db->conn->prepare("SELECT page_title, page_contents, page_updated FROM pages WHERE page_slug = ? LIMIT 1");
         $stmt->bind_param("s", $slug);
         $stmt->execute();
         $result = $stmt->get_result();
