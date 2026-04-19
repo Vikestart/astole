@@ -38,7 +38,9 @@
 		'site_email' => trim($_POST['site_email'] ?? ''),
 		'maintenance_mode' => (int)($_POST['maintenance_mode'] ?? 0),
 		'seo_description' => trim($_POST['seo_description'] ?? ''),
-		'ga_id' => trim($_POST['ga_id'] ?? '')
+		'ga_id' => trim($_POST['ga_id'] ?? ''),
+		'recaptcha_site' => trim($_POST['recaptcha_site'] ?? ''),
+		'recaptcha_secret' => trim($_POST['recaptcha_secret'] ?? '')
 	];
 
 	// Prepare a single update statement that we will loop through

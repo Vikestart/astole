@@ -39,6 +39,8 @@
 	$s_maint = (int)($config['maintenance_mode'] ?? 0);
 	$s_desc = $config['seo_description'] ?? '';
 	$s_ga = $config['ga_id'] ?? '';
+	$s_rc_site = $config['recaptcha_site'] ?? '';
+	$s_rc_sec = $config['recaptcha_secret'] ?? '';
 ?>
 
 <section>
@@ -90,6 +92,22 @@
                 <div class="form-group">
                     <label>Google Analytics ID <span class="tooltip-icon" data-tooltip="Your tracking ID (e.g., G-XXXXXXXXXX). Leave blank to disable tracking."><i class="fa-solid fa-question"></i></span></label>
                     <input type="text" name="ga_id" class="form-input" value="<?php echo htmlspecialchars($s_ga); ?>">
+                </div>
+            </div>
+
+            <div style="background: var(--bg-body); border: 1px solid var(--border); border-radius: 8px; padding: 25px;">
+                <h2 style="font-size: 16px; margin-bottom: 15px; display: flex; align-items: center;">
+                    <i class="fa-solid fa-shield-halved" style="margin-right: 10px; color: var(--text-muted);"></i> Security & Anti-Spam
+                </h2>
+                
+                <div class="form-group">
+                    <label>Google reCAPTCHA v2 Site Key <span class="tooltip-icon" data-tooltip="The public key for the v2 Checkbox widget. Leave blank to disable CAPTCHA."><i class="fa-solid fa-question"></i></span></label>
+                    <input type="text" name="recaptcha_site" class="form-input" value="<?php echo htmlspecialchars($s_rc_site); ?>">
+                </div>
+                
+                <div class="form-group">
+                    <label>Google reCAPTCHA v2 Secret Key <span class="tooltip-icon" data-tooltip="The private secret key used by the server to verify the user's response."><i class="fa-solid fa-question"></i></span></label>
+                    <input type="password" name="recaptcha_secret" class="form-input" value="<?php echo htmlspecialchars($s_rc_sec); ?>">
                 </div>
             </div>
 
