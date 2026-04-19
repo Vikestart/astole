@@ -173,13 +173,21 @@ require_once "inc-head.php";
 ?>
 
 <main class="page-container">
-    <div class="hero-section">
-        <div class="hero-badge">
-            <i class="fa-solid fa-chart-line"></i> Technical Consultant & Developer
+    <?php if ($route === 'home') { ?>
+        <div class="hero-section">
+            <div class="hero-badge">
+                <i class="fa-solid fa-chart-line"></i> Technical Consultant & Developer
+            </div>
+            <h1 class="hero-title">Bridging Business Strategy<br>with <span>Modern Technology</span>.</h1>
+            <p class="hero-subtitle">Specializing in ERP solutions, business controlling, and scalable web experiences.</p>
         </div>
-        <h1 class="hero-title">Bridging Business Strategy<br>with <span>Modern Technology</span>.</h1>
-        <p class="hero-subtitle">Specializing in ERP solutions, business controlling, and scalable web experiences.</p>
-    </div>
+    <?php } else { ?>
+        <div class="hero-section" style="min-height: auto;">
+            <div class="hero-badge" style="margin-bottom: 0; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                <i class="fa-solid fa-chart-line"></i> Technical Consultant & Developer
+            </div>
+        </div>
+    <?php } ?>
 
     <section class="glass-panel">
         <div class="panel-header">
