@@ -527,6 +527,67 @@ ul li i, ul li svg {
     color: var(--danger);
 }
 
+/* --- Required Field Asterisk --- */
+.req-ast {
+    color: var(--danger);
+    margin-left: 3px;
+    font-weight: bold;
+}
+
+/* --- Hover Tooltips --- */
+.tooltip-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    background: var(--bg-body);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    border-radius: 50%;
+    font-size: 10px;
+    margin-left: 8px;
+    cursor: help;
+    position: relative;
+    vertical-align: middle;
+}
+.tooltip-icon:hover {
+    background: var(--text-main);
+    color: var(--bg-body);
+    border-color: var(--text-main);
+}
+.tooltip-icon:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 130%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: max-content;
+    max-width: 220px;
+    background: #1e293b;
+    color: #fff;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 400;
+    white-space: normal;
+    line-height: 1.4;
+    z-index: 1000;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+.tooltip-icon:hover::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 5px;
+    border-style: solid;
+    border-color: #1e293b transparent transparent transparent;
+    z-index: 1000;
+}
+
 @media screen and (min-width: 769px) {
     .desktop-menu-btn { display: block; }
     

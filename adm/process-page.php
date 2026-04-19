@@ -73,21 +73,22 @@
 	} else { 
 		$pagetitle = trim($_POST['pagetitle'] ?? '');
         $pageslug = trim($_POST['pageslug'] ?? ''); 
+        $pagedesc = trim($_POST['pagedesc'] ?? ''); // New SEO Description field
 		$pagecontents = trim($_POST['pagecontents'] ?? '');
 		$currtime = gmdate("Y-m-d H:i:s"); 
 
 		if (empty($pagetitle) || empty($pagecontents)) { returnWithMsg(MSG_TYPE_ERROR, MSG_ICON_ERROR, MSG_DEFAULT_EXPIRE, "Page title and contents are required.", false); }
 
 		if ($action === "newpage") {
-			$stmt = $db_connection->conn->prepare("INSERT INTO pages (page_title, page_slug, page_author, page_created, page_updated, page_contents) VALUES (?, ?, ?, ?, ?, ?)");
-			$stmt->bind_param("ssssss", $pagetitle, $pageslug, $active_user_uid, $currtime, $currtime, $pagecontents); 
+			$stmt = $db_connection->conn->prepare("INSERT INTO pages (page_title, page_slug, page_desc, page_author, page_created, page_updated, page_contents) VALUES (?, ?, ?, ?, ?, ?, ?)");
+			$stmt->bind_param("sssssss", $pagetitle, $pageslug, $pagedesc, $active_user_uid, $currtime, $currtime, $pagecontents); 
 			$stmt->execute();
 			$page_id = $db_connection->conn->insert_id; 
 			returnWithMsg(MSG_TYPE_SUCCESS, MSG_ICON_SUCCESS, MSG_DEFAULT_EXPIRE, "The page was successfully created.", false); 
 
 		} else if ($action === "editpage") {
-			$stmt = $db_connection->conn->prepare("UPDATE pages SET page_title = ?, page_slug = ?, page_contents = ?, page_updated = ? WHERE page_id = ?");
-			$stmt->bind_param("ssssi", $pagetitle, $pageslug, $pagecontents, $currtime, $page_id); 
+			$stmt = $db_connection->conn->prepare("UPDATE pages SET page_title = ?, page_slug = ?, page_desc = ?, page_contents = ?, page_updated = ? WHERE page_id = ?");
+			$stmt->bind_param("sssssi", $pagetitle, $pageslug, $pagedesc, $pagecontents, $currtime, $page_id); 
 			$stmt->execute();
 			returnWithMsg(MSG_TYPE_SUCCESS, MSG_ICON_SUCCESS, MSG_DEFAULT_EXPIRE, "The page was successfully updated.", false); 
 		}

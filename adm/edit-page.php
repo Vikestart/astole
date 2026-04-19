@@ -6,6 +6,7 @@ if (isset($_GET['t'])) {
         $page_isnew = true;
         $page_title = '';
         $page_slug = '';
+        $page_desc = '';
         $page_contents = '';
     } else if ($page_type == "edit") {
         $site_title = "Edit Page";
@@ -26,7 +27,7 @@ if ($page_isnew === false) {
     $mysqli = new DBConn();
     
     // Updated Query to grab the author
-    $stmt = $mysqli->conn->prepare("SELECT page_title, page_slug, page_contents, page_author FROM pages WHERE page_id = ?");
+    $stmt = $mysqli->conn->prepare("SELECT page_title, page_slug, page_desc, page_contents, page_author FROM pages WHERE page_id = ?");
     $stmt->bind_param("i", $page_id);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -35,6 +36,7 @@ if ($page_isnew === false) {
         $row = $result->fetch_assoc();
         $page_title = $row['page_title'];
         $page_slug = $row['page_slug'];
+        $page_desc = $row['page_desc'];
         $page_contents = $row['page_contents'];
         $page_author = $row['page_author'];
         
@@ -77,17 +79,22 @@ if (isset($_SESSION['Sessionmsg'])) {
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
             <div class="form-group">
-                <label>Page Title</label>
+                <label>Page Title <span class="req-ast">*</span></label>
                 <input name="pagetitle" class="form-input" type="text" maxlength="50" value="<?php echo htmlspecialchars($page_title); ?>" required />
             </div>
             <div class="form-group">
-                <label>URL Slug (e.g., 'about-me')</label>
+                <label>URL Slug <span class="req-ast">*</span> <span class="tooltip-icon" data-tooltip="The web address for this page (e.g., 'about-me'). Use lowercase letters and dashes."><i class="fa-solid fa-question"></i></span></label>
                 <input name="pageslug" class="form-input" type="text" maxlength="100" value="<?php echo htmlspecialchars($page_slug); ?>" required />
             </div>
         </div>
 
         <div class="form-group">
-            <label>Page Content</label>
+            <label>SEO Meta Description <span class="tooltip-icon" data-tooltip="A brief summary for search engines. Leave blank to use the global default."><i class="fa-solid fa-question"></i></span></label>
+            <input name="pagedesc" class="form-input" type="text" maxlength="160" value="<?php echo htmlspecialchars($page_desc); ?>" />
+        </div>
+
+        <div class="form-group">
+            <label>Page Content <span class="req-ast">*</span></label>
             <input type="hidden" name="pagecontents" id="hidden-pagecontents">
             <div id="editor-container" style="height: 400px; background: #fff; border-radius: 8px;">
                 <?php if (!$page_isnew) echo $page_contents; ?>

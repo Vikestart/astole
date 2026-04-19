@@ -1,13 +1,9 @@
 <?php 
 require_once "PageManager.php";
 
-// 1. Get the requested route from the URL. Default to 'home' if empty.
 $route = isset($_GET['route']) && !empty($_GET['route']) ? rtrim($_GET['route'], '/') : 'home';
-
-// 2. Fetch the data using our new PageManager
 $pageData = PageManager::getPageBySlug($route);
 
-// 3. Handle 404 Not Found if the slug doesn't exist in the database
 if (!$pageData) {
     header("HTTP/1.0 404 Not Found");
     $page_title = "Page Not Found";
@@ -15,9 +11,14 @@ if (!$pageData) {
 } else {
     $page_title = $pageData['page_title'];
     $page_contents = $pageData['page_contents'];
+    
+    // Only set the page description if the author actually typed one!
+    if (!empty($pageData['page_desc'])) {
+        $page_desc = $pageData['page_desc'];
+    }
 }
 
-// 4. Output the Smart Header (which will grab the $page_title)
+// Output the Smart Header
 require_once "inc-head.php"; 
 ?>
 

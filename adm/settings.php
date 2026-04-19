@@ -59,17 +59,17 @@
                 </h2>
                 
                 <div class="form-group">
-                    <label>Website Name</label>
+                    <label>Website Name <span class="req-ast">*</span> <span class="tooltip-icon" data-tooltip="The global brand name displayed in the browser tab and search results."><i class="fa-solid fa-question"></i></span></label>
                     <input type="text" name="site_name" class="form-input" value="<?php echo htmlspecialchars($s_name); ?>" required>
                 </div>
                 
                 <div class="form-group">
-                    <label>Administrator Contact Email</label>
+                    <label>Administrator Contact Email <span class="req-ast">*</span> <span class="tooltip-icon" data-tooltip="The primary email address used for system alerts and contact forms."><i class="fa-solid fa-question"></i></span></label>
                     <input type="email" name="site_email" class="form-input" value="<?php echo htmlspecialchars($s_email); ?>" required>
                 </div>
                 
                 <div class="form-group">
-                    <label>Maintenance Mode</label>
+                    <label>Maintenance Mode <span class="req-ast">*</span> <span class="tooltip-icon" data-tooltip="When turned on, the public will see a maintenance screen. Admins can still browse normally."><i class="fa-solid fa-question"></i></span></label>
                     <select name="maintenance_mode" class="form-input" style="cursor: pointer;">
                         <option value="0" <?php echo ($s_maint === 0) ? 'selected' : ''; ?>>Off - Website is Live</option>
                         <option value="1" <?php echo ($s_maint === 1) ? 'selected' : ''; ?>>On - Hide from Public</option>
@@ -83,13 +83,13 @@
                 </h2>
                 
                 <div class="form-group">
-                    <label>Default Meta Description</label>
+                    <label>Default Meta Description <span class="req-ast">*</span> <span class="tooltip-icon" data-tooltip="The global fallback description for search engines when a specific page lacks custom metadata."><i class="fa-solid fa-question"></i></span></label>
                     <textarea name="seo_description" class="form-input" style="height: 100px; resize: none; font-family: inherit;" required><?php echo htmlspecialchars($s_desc); ?></textarea>
                 </div>
                 
                 <div class="form-group">
-                    <label>Google Analytics ID (Optional)</label>
-                    <input type="text" name="ga_id" class="form-input" placeholder="e.g., G-XXXXXXXXXX" value="<?php echo htmlspecialchars($s_ga); ?>">
+                    <label>Google Analytics ID <span class="tooltip-icon" data-tooltip="Your tracking ID (e.g., G-XXXXXXXXXX). Leave blank to disable tracking."><i class="fa-solid fa-question"></i></span></label>
+                    <input type="text" name="ga_id" class="form-input" value="<?php echo htmlspecialchars($s_ga); ?>">
                 </div>
             </div>
 
