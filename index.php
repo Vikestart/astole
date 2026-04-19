@@ -32,29 +32,14 @@ $rc_site = ($res_rc && $res_rc->num_rows === 1) ? trim($res_rc->fetch_assoc()['s
 // A. Submit Ticket Form [TICKET_SUBMIT]
 $rc_html = '';
 if (!empty($rc_site)) {
+    // Google's Automatic Rendering Method
     $rc_html = '
-    <input type="hidden" name="g-recaptcha-response" id="g-recaptcha-response">
-    <script src="https://www.google.com/recaptcha/api.js?render=' . htmlspecialchars($rc_site) . '"></script>
-    <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        var form = document.getElementById("ticket-submit-form");
-        if(form) {
-            form.addEventListener("submit", function(e) {
-                e.preventDefault(); 
-                grecaptcha.ready(function() {
-                    grecaptcha.execute("' . htmlspecialchars($rc_site) . '", {action: "submit_ticket"}).then(function(token) {
-                        document.getElementById("g-recaptcha-response").value = token;
-                        form.submit(); 
-                    });
-                });
-            });
-        }
-    });
-    </script>';
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <div class="g-recaptcha" data-sitekey="' . htmlspecialchars($rc_site) . '" data-action="submit_ticket" style="margin-bottom: 15px;"></div>';
 }
 
 $ticket_submit_html = '
-<form id="ticket-submit-form" action="process-ticket.php" method="POST" style="margin-top: 20px; background: #f8fafc; padding: 25px; border-radius: 8px; border: 1px solid #e2e8f0;">
+<form action="process-ticket.php" method="POST" style="margin-top: 20px; background: #f8fafc; padding: 25px; border-radius: 8px; border: 1px solid #e2e8f0;">
     <h3 style="margin-top: 0; color: #0f172a; margin-bottom: 20px;">Open a Support Ticket</h3>
     <input type="hidden" name="csrf_token" value="' . htmlspecialchars($_SESSION['csrf_token']) . '">
     <input type="hidden" name="action" value="new_ticket">

@@ -111,24 +111,8 @@ if ($res_rc && $res_rc->num_rows === 1) { $rc_site = trim($res_rc->fetch_assoc()
                     </div>
 
                     <?php if (!empty($rc_site)) { ?>
-                        <input type="hidden" name="g-recaptcha-response" id="g-recaptcha-response-reply">
-                        <script src="https://www.google.com/recaptcha/api.js?render=<?php echo htmlspecialchars($rc_site); ?>"></script>
-                        <script>
-                        document.addEventListener("DOMContentLoaded", function() {
-                            var form = document.getElementById("ticket-reply-form");
-                            if(form) {
-                                form.addEventListener("submit", function(e) {
-                                    e.preventDefault();
-                                    grecaptcha.ready(function() {
-                                        grecaptcha.execute("<?php echo htmlspecialchars($rc_site); ?>", {action: "reply_ticket"}).then(function(token) {
-                                            document.getElementById("g-recaptcha-response-reply").value = token;
-                                            form.submit();
-                                        });
-                                    });
-                                });
-                            }
-                        });
-                        </script>
+                        <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+                        <div class="g-recaptcha" data-sitekey="<?php echo htmlspecialchars($rc_site); ?>" data-action="reply_ticket" style="margin-bottom: 15px;"></div>
                     <?php } ?>
 
                     <button type="submit" style="background: #475569; color: white; padding: 10px 24px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: background 0.2s;">Send Reply</button>
