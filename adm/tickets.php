@@ -40,7 +40,11 @@
                     if ($row['status'] == 'Closed') $badge_class = 'badge-gray';
             ?>
                     <tr style="border-bottom: 1px solid var(--border);">
-                        <td style="padding: 15px;"><strong style="color: var(--color-heading);"><?php echo htmlspecialchars($row['tracking_id']); ?></strong></td>
+                        <td style="padding: 15px;">
+                            <a href="view-ticket.php?id=<?php echo $row['id']; ?>" style="color: var(--color-heading); text-decoration: none; transition: color 0.2s;">
+                                <strong><?php echo htmlspecialchars($row['tracking_id']); ?></strong>
+                            </a>
+                        </td>
                         <td style="padding: 15px;">
                             <a href="view-ticket.php?id=<?php echo $row['id']; ?>" style="color: var(--color-heading); font-weight: 600; text-decoration: none; transition: color 0.2s;"><?php echo htmlspecialchars($row['subject']); ?></a>
                             <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;"><?php echo htmlspecialchars($row['client_name']) . ' (' . htmlspecialchars($row['client_email']) . ')'; ?></div>

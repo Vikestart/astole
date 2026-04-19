@@ -444,6 +444,7 @@ ul li i, ul li svg {
 }
 .badge-blue { background: #eff6ff; color: #2563eb; }
 .badge-gray { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
+.badge-green { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
 
 .table-actions a { 
     color: var(--text-muted); 

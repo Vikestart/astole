@@ -76,26 +76,39 @@ if ($action === 'admin_reply') {
     $stmt_tkt->close();
 
     if ($t_data) {
+        // Fetch Settings safely
         $res_stg = $db->conn->query("SELECT setting_key, setting_value FROM settings WHERE setting_key IN ('site_email', 'site_name', 'ticket_msg_reply', 'ticket_msg_closed_admin')");
         $settings = [];
-        while($r = $res_stg->fetch_assoc()) { $settings[$r['setting_key']] = $r['setting_value']; }
+        if ($res_stg) { while($r = $res_stg->fetch_assoc()) { $settings[$r['setting_key']] = $r['setting_value']; } }
 
-        $headers = "From: " . $settings['site_name'] . " <noreply@" . $_SERVER['SERVER_NAME'] . ">\r\nReply-To: " . $settings['site_email'] . "\r\nX-Mailer: PHP/" . phpversion();
+        $site_name = $settings['site_name'] ?? 'Support';
+        $site_email = $settings['site_email'] ?? 'noreply@' . $_SERVER['SERVER_NAME'];
+        
+        $headers = "From: " . $site_name . " <" . $site_email . ">\r\nReply-To: " . $site_email . "\r\nX-Mailer: PHP/" . phpversion();
         
         $body_text = "Hello " . $t_data['client_name'] . ",\n\n";
         $send_email = false;
 
-        if (!empty($message) && !empty($settings['ticket_msg_reply'])) {
-            $body_text .= $settings['ticket_msg_reply'] . "\n\n";
+        // If you typed a message, ALWAYS send an email (use default text if setting is missing)
+        if (!empty($message)) {
+            $msg_reply = !empty($settings['ticket_msg_reply']) ? $settings['ticket_msg_reply'] : "An administrator has replied to your ticket.";
+            $body_text .= $msg_reply . "\n\n";
             $send_email = true;
         }
-        if ($status_update === 'Closed' && !empty($settings['ticket_msg_closed_admin'])) {
-            $body_text .= $settings['ticket_msg_closed_admin'] . "\n\n";
+        
+        // If you closed the ticket, ALWAYS send an email (use default text if setting is missing)
+        if ($status_update === 'Closed') {
+            $msg_closed = !empty($settings['ticket_msg_closed_admin']) ? $settings['ticket_msg_closed_admin'] : "Your ticket has been marked as resolved and closed.";
+            $body_text .= $msg_closed . "\n\n";
             $send_email = true;
         }
 
         if ($send_email) {
-            $body_text .= "Tracking ID: " . $t_data['tracking_id'] . "\nYou can view the full thread on our support portal.";
+            // Dynamically grab your website URL so they can click it!
+            $portal_url = "http" . (isset($_SERVER['HTTPS']) ? "s" : "") . "://" . $_SERVER['HTTP_HOST'];
+            
+            $body_text .= "Tracking ID: " . $t_data['tracking_id'] . "\n\nYou can view the full thread and reply on our support portal: \n" . $portal_url;
+            
             @mail($t_data['client_email'], "Ticket Update: " . $t_data['tracking_id'], $body_text, $headers);
         }
     }
