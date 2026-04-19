@@ -50,9 +50,8 @@ function getRoleBadge($roleInt) {
                         } elseif ($userdata->row['user_role'] == 2) {
                             if ($row['user_role'] != 1) $can_edit = true;
                             if ($userdata->row['user_id'] != $row['user_id'] && $row['user_role'] != 1) $can_delete = true;
-                        } elseif ($userdata->row['user_id'] == $row['user_id']) {
-                            $can_edit = true; // Regular users can edit themselves
                         }
+                        // Standard Users (Role 3) bypass this entirely, keeping both variables false!
                 ?>
                         <tr>
                             <td>

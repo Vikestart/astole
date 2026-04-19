@@ -12,6 +12,11 @@ if (isset($_GET['t'])) {
 require "inc-adm-head.php";
 require "inc-adm-nav.php";
 
+// UI SECURITY: Standard Users (Role 3) have no access to the user editor at all.
+if ($userdata->row['user_role'] == 3) { 
+    header("Location: users.php"); die(); 
+}
+
 if ($user_isnew === false) {
     if (!isset($_GET['u'])) { header("Location: users.php"); die(); }
     $user_id = (int)$_GET['u']; 

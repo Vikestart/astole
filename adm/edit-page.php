@@ -24,15 +24,25 @@ if ($page_isnew === false) {
     $page_id = (int)$_GET['p'];
     $_SESSION['acp_page_id'] = $page_id;
     $mysqli = new DBConn();
-    $stmt = $mysqli->conn->prepare("SELECT page_title, page_slug, page_contents FROM pages WHERE page_id = ?");
+    
+    // Updated Query to grab the author
+    $stmt = $mysqli->conn->prepare("SELECT page_title, page_slug, page_contents, page_author FROM pages WHERE page_id = ?");
     $stmt->bind_param("i", $page_id);
     $stmt->execute();
     $result = $stmt->get_result();
+    
     if ($result->num_rows === 1) {
         $row = $result->fetch_assoc();
         $page_title = $row['page_title'];
         $page_slug = $row['page_slug'];
         $page_contents = $row['page_contents'];
+        $page_author = $row['page_author'];
+        
+        // SECURITY: Boot out Standard Users trying to edit someone else's page
+        if ($userdata->row['user_role'] == 3 && $page_author !== $userdata->row['user_uid']) {
+            header("Location: pages.php"); die();
+        }
+        
     } else {
         header("Location: pages.php"); die();
     }

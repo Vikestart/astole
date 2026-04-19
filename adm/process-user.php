@@ -36,6 +36,11 @@
 	$active_user_role = (int)$stmt_active->get_result()->fetch_assoc()['user_role'];
 	$stmt_active->close();
 
+	// NEW: Instantly reject any processing if the user is a Standard User (Role 3)
+	if ($active_user_role == 3) {
+		returnWithMsg("error", "times-circle", 5000, "Permission denied. You can only view users.", "users.php");
+	}
+
 	// --- ACTIONS ---
 	if ($action === "deluser") {
 		$target_user_id = (isset($_POST['u'])) ? (int)$_POST['u'] : 0;
