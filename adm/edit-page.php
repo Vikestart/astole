@@ -82,7 +82,14 @@
 				<?php if (isset($msgtxt)) { echo "<div class='msgbox msgbox-$msgtype' data-expire='$msgexpire'><i class='fa-solid fa-$msgicon'></i><span>" . htmlspecialchars($msgtxt) . "</span></div>"; } ?>
 
                 <input name="pagetitle" class="form-field" type="text" minlength="3" maxlength="30" placeholder="Page title" autocomplete="off" value="<?php if (!$page_isnew) echo htmlspecialchars($page_title); ?>" required />
-                <textarea name="pagecontents" class="form-textbox" placeholder="What do you have on your mind?" required><?php if (!$page_isnew) echo htmlspecialchars($page_contents); ?></textarea>
+                <input type="hidden" name="pagecontents" id="hidden-pagecontents">
+
+                <div id="editor-container" style="height: 400px; background: #fff; color: #333; border-radius: 8px; margin-bottom: 20px; font-family: inherit;">
+                    <?php if (!$page_isnew) echo $page_contents; ?>
+                </div>
+
+                <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
+                <script src="https://cdn.quilljs.com/1.3.7/quill.js"></script>
 				<input name="action" value="<?php echo ($page_isnew) ? "newpage" : "editpage"; ?>" type="hidden" />
 				<button class="form-submit" type="submit"><i class="fa-solid fa-<?php echo ($page_isnew) ? "paper-plane" : "edit"; ?>"></i><?php echo ($page_isnew) ? "Submit" : "Save changes"; ?></button>
 
@@ -90,5 +97,36 @@
 		</section>
 
 	</main>
+
+	<script>
+		// 1. Initialize the Quill Editor
+		var quill = new Quill('#editor-container', {
+			theme: 'snow',
+			placeholder: 'What do you have on your mind?...',
+			modules: {
+				toolbar: [
+					[{ 'header': [1, 2, 3, false] }], // Headers
+					['bold', 'italic', 'underline', 'strike'], // Font styling
+					[{ 'list': 'ordered'}, { 'list': 'bullet' }], // Lists
+					['link', 'blockquote', 'code-block'], // Media & Blocks
+					['clean'] // Remove formatting button
+				]
+			}
+		});
+
+		// 2. Sync the HTML content to the hidden input right before the form submits
+		var form = document.querySelector('form.form-default');
+		form.addEventListener('submit', function(e) {
+			var hiddenInput = document.querySelector('#hidden-pagecontents');
+			// Extract the raw HTML from the editor
+			hiddenInput.value = quill.root.innerHTML;
+			
+			// Failsafe: Don't submit if it's practically empty
+			if (quill.getText().trim().length === 0) {
+				e.preventDefault();
+				alert("Please enter some content before saving.");
+			}
+		});
+	</script>
 
 	<?php require "inc-adm-foot.php"; ?>

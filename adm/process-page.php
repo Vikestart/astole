@@ -1,10 +1,12 @@
 <?php
 	// Start session and get database configuration
 	session_start();
-	// Prevent unauthorized remote submissions
+	
+	// Prevent unauthorized remote submissions (CSRF check)
 	if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
 		returnWithMsg(MSG_TYPE_ERROR, MSG_ICON_ERROR, 5000, "Security validation failed (CSRF).", false);
 	}
+	
 	require "../db.php"; // Include DB connection class
 
 	// --- CONSTANTS ---
@@ -30,7 +32,7 @@
 	$page_id = isset($_SESSION['acp_page_id']) ? (int)$_SESSION['acp_page_id'] : 0;
 
 	// Determine which action is to be performed on the page (e.g., 'delpage', 'newpage', 'editpage').
-	$action = ($_GET['a'] == 'del') ? 'delpage' : (isset($_POST['action']) ? $_POST['action'] : '');
+	$action = (isset($_GET['a']) && $_GET['a'] == 'del') ? 'delpage' : (isset($_POST['action']) ? $_POST['action'] : '');
 
 	// Function for returning back to a page with a session message.
 	// $redirect_url: If false, redirects to the page's edit screen. Otherwise, redirects to the specified URL.
@@ -69,7 +71,7 @@
 
 	// --- SECURITY CHECK ---
 	// Ensure a user is logged in before proceeding with any actions.
-	if (!isset($_SESSION['User'])) {
+	if (!isset($_SESSION['UserID'])) {
 		returnWithMsg(MSG_TYPE_ERROR, MSG_ICON_ERROR, MSG_DEFAULT_EXPIRE, "Invalid user session. Try signing out and back in.", "login.php");
 	}
 
@@ -116,7 +118,13 @@
 		$currtime = gmdate("Y-m-d H:i:s"); // Current GMT time for created/updated fields
 
 		if ($action === "newpage") {
-			$user = $_SESSION['User']; // Author for the new page
+			// Fetch the author's username securely using their UserID
+			$stmt_author = $db_connection->conn->prepare("SELECT user_uid FROM users WHERE user_id = ?");
+			$stmt_author->bind_param("i", $_SESSION['UserID']);
+			$stmt_author->execute();
+			$stmt_author->bind_result($user);
+			$stmt_author->fetch();
+			$stmt_author->close();
 
 			// Use a prepared statement for secure insertion of new page data.
 			$stmt = $db_connection->conn->prepare("INSERT INTO pages (page_title, page_author, page_created, page_updated, page_contents) VALUES (?, ?, ?, ?, ?)");

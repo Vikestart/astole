@@ -34,7 +34,9 @@ require_once "inc-head.php";
 			<h2 class="panel-title"><?php echo htmlspecialchars($page_title, ENT_QUOTES, 'UTF-8'); ?></h2>
 		</div>
 		<div class="panel-body">
-			<p><?php echo nl2br(htmlspecialchars($page_contents, ENT_QUOTES, 'UTF-8')); ?></p>
+			<div class="rich-text-content">
+				<?php echo $page_contents; ?>
+			</div>
 		</div>
 	</section>
 
