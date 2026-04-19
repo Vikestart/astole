@@ -1,4 +1,4 @@
-<script type='text/javascript' src='../assets/jquery.js' defer></script>
-<script type='text/javascript' src='assets/adm.js?v=<?php echo date("mdHis") ?>' defer></script>
+</main> </div> </div> <script src="assets/adm.js?v=<?php echo date('mdHis'); ?>"></script>
+
 </body>
 </html>

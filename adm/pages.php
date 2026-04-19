@@ -1,39 +1,66 @@
 <?php
-	$site_title = "Pages";
-	require "inc-adm-head.php";
-	require "inc-adm-nav.php";
+$site_title = "Manage Pages";
+require "inc-adm-head.php";
+require "inc-adm-nav.php";
 
-	// Fetch the list of pages
-	$pageslist = new DBConn();
-	$pageslist->result = $pageslist->conn->query("SELECT * FROM pages ORDER BY page_title");
+$pages = new DBConn();
+$pages->result = $pages->conn->query("SELECT * FROM pages ORDER BY page_title");
+
+if (isset($_SESSION['Sessionmsg'])) {
+    $msgorigin = $_SESSION['Sessionmsg']['origin'];
+    $msgtype = $_SESSION['Sessionmsg']['type'];
+    $msgicon = $_SESSION['Sessionmsg']['icon'];
+    $msgtxt = $_SESSION['Sessionmsg']['message'];
+    unset($_SESSION['Sessionmsg']);
+}
 ?>
+<section>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 15px;">
+        <h1 style="margin: 0; font-size: 22px; color: var(--color-heading);"><i class="fa-solid fa-file-lines"></i> Page Management</h1>
+        <a class="btn btn-primary" href="edit-page.php?t=new"><i class="fa-solid fa-plus"></i> Create New</a>
+    </div>
 
-	<main id="page-default">
+    <?php if (isset($msgtxt) && in_array($msgorigin, ['delpage', 'newpage', 'editpage'])) { echo "<div class='msgbox msgbox-$msgtype'><i class='fa-solid fa-$msgicon'></i> " . htmlspecialchars($msgtxt) . "</div>"; } ?>
 
-		<section>
-			<a class="btn btn-green btn-r" href="edit-page.php?t=new"><i class="fa-solid fa-plus" data-fa-transform="up-1"></i>New Page</a>
-			<h1 class="h1_underscore h1_lessmargin"><i class="fa-solid fa-layer-group" data-fa-transform="down-1"></i>Pages management</h1>
-			<p>Here you can manage the pages of the website. Click on a page in the list below to start editing.</p>
-
-			<?php if (isset($msgtxt)) { echo "<div class='msgbox msgbox-$msgtype' data-expire='$msgexpire'><i class='fa-solid fa-$msgicon'></i><span>" . $msgtxt . "</span></div>"; } ?>
-
-			<h2 class="h2_underscore">List of pages</h2>
-			<?php
-				if ($pageslist->result->num_rows > 0) {
-						echo '<ul>';
-				    // output data of each row
-				    while($pageslist->row = $pageslist->result->fetch_assoc()) {
-				        echo "<li><a href='edit-page.php?t=edit&p=" . $pageslist->row['page_id'] . "'><i class='fa-solid fa-file'></i>" . $pageslist->row['page_title']. "</a></li>";
-				    }
-						echo '</ul>';
-				} else {
-				    echo "<p>No pages found.</p>";
-				}
-			?>
-
-			</div>
-		</section>
-
-	</main>
-
-<?php require "inc-adm-foot.php" ?>
+    <div style="overflow-x: auto;">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>URL Slug</th>
+                    <th>Author</th>
+                    <th>Last Updated</th>
+                    <th style="text-align: right;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php if ($pages->result->num_rows > 0) {
+                    while($row = $pages->result->fetch_assoc()) { ?>
+                        <tr>
+                            <td>
+								<a href="edit-page.php?t=edit&p=<?php echo htmlspecialchars($row['page_id']); ?>" style="color: var(--color-heading); font-weight: 700; text-decoration: none; transition: color 0.2s;">
+									<?php echo htmlspecialchars($row['page_title']); ?>
+								</a>
+							</td>
+                            <td><span class="badge badge-blue">/<?php echo htmlspecialchars($row['page_slug']); ?></span></td>
+                            <td><?php echo htmlspecialchars($row['page_author']); ?></td>
+                            <td><?php echo htmlspecialchars(date('M d, Y', strtotime($row['page_updated']))); ?></td>
+                            <td style="text-align: right;" class="table-actions">
+                                <a href="../<?php echo htmlspecialchars($row['page_slug']); ?>" target="_blank" title="View"><i class="fa-solid fa-external-link-alt"></i></a>
+                                <a href="edit-page.php?t=edit&p=<?php echo htmlspecialchars($row['page_id']); ?>" title="Edit"><i class="fa-solid fa-edit"></i></a>
+                                <form action="process-page.php" method="POST" class="form-delete" style="display:inline-block; margin-left: 15px;">
+									<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
+									<input type="hidden" name="action" value="delpage">
+									<input type="hidden" name="p" value="<?php echo htmlspecialchars($row['page_id']); ?>">
+									<button type="submit" class="delete" title="Delete" style="background:none; border:none; cursor:pointer; font-size:16px; color:var(--text-muted); transition:color 0.2s;"><i class="fa-solid fa-trash-alt"></i></button>
+								</form>
+                            </td>
+                        </tr>
+                <?php } } else { ?>
+                    <tr><td colspan="5" style="text-align: center; padding: 30px; color: var(--text-muted);">No pages found. Create one!</td></tr>
+                <?php } ?>
+            </tbody>
+        </table>
+    </div>
+</section>
+<?php require "inc-adm-foot.php"; ?>

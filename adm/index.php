@@ -1,50 +1,57 @@
 <?php
-	$site_title = "Home";
+	$site_title = "Dashboard";
 	require "inc-adm-head.php";
 	require "inc-adm-nav.php";
 
-	// Fetch list of recently updated pages
-	$updatedpages = new DBConn();
-	$updatedpages->result = $updatedpages->conn->query("SELECT * FROM pages ORDER BY page_updated DESC LIMIT 5");
+    // 1. Map the integer role to a human-readable string
+    $role_name = 'User';
+    if (isset($userdata->row['user_role'])) {
+        if ($userdata->row['user_role'] == 1) {
+            $role_name = 'Administrator';
+        } elseif ($userdata->row['user_role'] == 2) {
+            $role_name = 'Moderator';
+        }
+    }
 ?>
 
-	<main id="page-default">
+    <section>
+        <h1 class="h1_underscore"><i class="fa-solid fa-gauge"></i> System Dashboard</h1>
+        <p style="font-size: 16px;">
+            Welcome back, <strong><?php echo htmlspecialchars($userdata->row['user_uid']); ?></strong>! 
+            You are currently logged in with <strong><?php echo $role_name; ?></strong> privileges.
+        </p>
+    </section>
 
-		<section>
-			<a class="btn btn-red btn-r btn-desktop" href="logout.php"><i class="fa-solid fa-sign-out-alt" data-fa-transform="up-1"></i>Sign out</a>
-			<a class="btn btn-r btn-desktop" href="/" target="_blank"><i class="fa-solid fa-eye"></i>Go to website</a>
-			<h1 class="h1_underscore"><i class="fa-solid fa-shield-check"></i>Welcome, <?php echo $userdata->row['user_uid']; ?></h1>
-			<p>Your last login was <strong><?php echo $userdata->row['user_lastseen']; /*format("F j, o \a\\t H:i T")*/ ?></strong>.</p>
-			<p>Your current role is: <strong><?php echo ucfirst(htmlspecialchars($userdata->row['role_name'])); ?></strong>.</p>
-			<p>Your IP is: <strong><?php echo $userdata->row['user_ip']; ?></strong>.</p>
-			</div>
-		</section>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+        
+        <section style="margin-bottom: 0;">
+            <h2 class="h1_underscore" style="font-size: 18px; margin-bottom: 15px;">
+                <i class="fa-solid fa-shield-halved"></i> Security & Session
+            </h2>
+            <ul style="list-style: none; padding: 0; line-height: 2;">
+                <li><i class="fa-solid fa-envelope" style="color: var(--text-muted); width: 20px;"></i> <strong>Email:</strong> <?php echo htmlspecialchars($userdata->row['user_mail']); ?></li>
+                <li><i class="fa-solid fa-clock" style="color: var(--text-muted); width: 20px;"></i> <strong>Last Seen:</strong> <?php echo htmlspecialchars($userdata->row['user_lastseen']); ?></li>
+                <li><i class="fa-solid fa-network-wired" style="color: var(--text-muted); width: 20px;"></i> <strong>Current IP:</strong> <?php echo htmlspecialchars($userdata->row['user_ip']); ?></li>
+            </ul>
+        </section>
 
-		<section>
-			<h1 class="h1_underscore"><i class="fas fa-bell"></i>Notifications</h1>
-			<p>No new notifications. Check back later.</p>
-			</div>
-		</section>
+        <section style="margin-bottom: 0;">
+            <h2 class="h1_underscore" style="font-size: 18px; margin-bottom: 15px;">
+                <i class="fa-solid fa-bolt"></i> Quick Actions
+            </h2>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <a href="edit-page.php?t=new" class="btn btn-primary">
+                    <i class="fa-solid fa-plus"></i> Create New Page
+                </a>
+                <a href="pages.php" class="btn" style="background: var(--bg-body); border: 1px solid var(--border); color: var(--text-main);">
+                    <i class="fa-solid fa-file-lines"></i> Manage Content
+                </a>
+                <a href="users.php" class="btn" style="background: var(--bg-body); border: 1px solid var(--border); color: var(--text-main);">
+                    <i class="fa-solid fa-users"></i> User Administration
+                </a>
+            </div>
+        </section>
 
-		<section>
-			<a class="btn btn-green btn-r" href="edit-page.php?t=new"><i class="fa-solid fa-plus" data-fa-transform="up-1"></i>New Page</a>
-			<h1 class="h1_underscore"><i class="fas fa-clock" data-fa-transform="down-1"></i>Recently updated</h1>
-			<?php
-				if ($updatedpages->result->num_rows > 0) {
-						echo '<ul>';
-				    // output data of each row
-				    while($updatedpages->row = $updatedpages->result->fetch_assoc()) {
-				        echo "<li><a href='edit-page.php?t=edit&p=" . $updatedpages->row['page_id'] . "'><i class='fas fa-file'></i>" . $updatedpages->row['page_title']. "</a></li>";
-				    }
-						echo '</ul>';
-				} else {
-				    echo "<p>No pages found.</p>";
-				}
-			?>
+    </div>
 
-			</div>
-		</section>
-
-	</main>
-
-<?php require "inc-adm-foot.php" ?>
+<?php require "inc-adm-foot.php"; ?>
