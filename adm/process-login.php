@@ -6,7 +6,6 @@
 
 	// Function for returning back to page with an error message
 	function returnWithMsg($type, $icon, $expire, $message) { 
-        // Updated to use associative keys to match the new inc-adm-head.php expectations
 		$_SESSION['Sessionmsg'] = array(
             'origin' => 'login', 
             'type' => $type, 
@@ -19,7 +18,6 @@
 	}
 
     // --- 1. CSRF VERIFICATION ---
-    // Prevent Cross-Site Request Forgery attacks
     if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
         returnWithMsg("error", "times-circle", 5000, "Security validation failed. Please refresh and try again.");
     }
@@ -34,7 +32,9 @@
 		}
 
 		$admuser = validate($_POST["username"]);
-		$admpass = validate($_POST["password"]);
+        
+        // BUG FIX: Never sanitize passwords! Take the raw input so symbols aren't destroyed.
+		$admpass = $_POST["password"]; 
 
 		if (empty($admuser)) {
 			returnWithMsg("error", "times-circle", 0, "Username is required.");
@@ -46,12 +46,10 @@
 		returnWithMsg("error", "times-circle", 0, "Username and/or password not specified.");
 	}
 
-	// Create a single DBConn instance for this script
 	$db_connection = new DBConn();
     $ip_address = $_SERVER['REMOTE_ADDR'];
 
     // --- 2. RATE LIMITING CHECK ---
-    // Look for 5 or more failed attempts from this IP in the last 15 minutes
     $time_limit = date('Y-m-d H:i:s', strtotime('-15 minutes'));
     $stmt_limit = $db_connection->conn->prepare("SELECT COUNT(*) FROM login_attempts WHERE ip_address = ? AND attempt_time > ?");
     $stmt_limit->bind_param("ss", $ip_address, $time_limit);
@@ -65,7 +63,6 @@
     }
 
 	// --- 3. AUTHENTICATE USER ---
-	// Query the database for user using prepared statement
 	$stmt_userquery = $db_connection->conn->prepare("SELECT user_id, user_pass, user_uid FROM users WHERE user_uid = ? OR user_mail = ? LIMIT 1");
     if ($stmt_userquery === false) {
         error_log("Prepare user query failed: " . $db_connection->conn->error);
@@ -83,15 +80,13 @@
 		if (password_verify($admpass, $userquery_row['user_pass'])) {
             
             // --- 4. LOGIN SUCCESS ---
-            session_regenerate_id(true); // Session Fixation Protection
+            session_regenerate_id(true); 
             
-            // Clear all failed login attempts for this IP
             $stmt_clear = $db_connection->conn->prepare("DELETE FROM login_attempts WHERE ip_address = ?");
             $stmt_clear->bind_param("s", $ip_address);
             $stmt_clear->execute();
             $stmt_clear->close();
 
-			// Update last seen and IP
 			$currtime = gmdate("Y-m-d H:i:s");
 			$stmt_refreshuser = $db_connection->conn->prepare("UPDATE users SET user_lastseen = ?, user_ip = ? WHERE user_id = ?");
 			$stmt_refreshuser->bind_param("ssi", $currtime, $ip_address, $userquery_row['user_id']);
@@ -105,10 +100,9 @@
 			$rows_affected = $stmt_refreshuser->affected_rows;
 			$stmt_refreshuser->close();
 
-			if ($rows_affected === 1 || $rows_affected === 0) { // 0 is fine if updating rapidly within the same second
+			if ($rows_affected === 1 || $rows_affected === 0) { 
 				$_SESSION['UserID'] = $userquery_row['user_id'];
 				
-				// Close the DB connection before redirect
 				$db_connection->conn->close();
 				header("Location: index.php");
 				die();
@@ -121,7 +115,6 @@
 	}
 
     // --- 5. LOGIN FAILED - LOG ATTEMPT ---
-    // If the code reaches this point, either the username didn't exist, or the password was wrong.
     $stmt_log = $db_connection->conn->prepare("INSERT INTO login_attempts (ip_address, attempt_time) VALUES (?, NOW())");
     $stmt_log->bind_param("s", $ip_address);
     $stmt_log->execute();

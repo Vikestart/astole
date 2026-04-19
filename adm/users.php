@@ -69,8 +69,11 @@ function getRoleBadge($roleInt) {
                             <td><?php echo ($row['user_lastseen'] !== "0000-00-00 00:00:00") ? htmlspecialchars(date('M d, Y H:i', strtotime($row['user_lastseen']))) : '<span style="color: var(--text-muted);">Never logged in</span>'; ?></td>
                             
                             <td style="text-align: right;" class="table-actions">
+                                
                                 <?php if ($can_edit) { ?>
                                     <a href="edit-user.php?t=edit&u=<?php echo htmlspecialchars($row['user_id']); ?>" title="Edit User"><i class="fa-solid fa-user-edit"></i></a>
+                                <?php } else { ?>
+                                    <span style="opacity: 0.3; cursor: not-allowed; color: var(--text-muted);" title="Not Allowed"><i class="fa-solid fa-user-edit"></i></span>
                                 <?php } ?>
                                 
                                 <?php if ($can_delete) { ?>
@@ -80,7 +83,10 @@ function getRoleBadge($roleInt) {
                                         <input type="hidden" name="u" value="<?php echo htmlspecialchars($row['user_id']); ?>">
                                         <button type="submit" class="delete" title="Delete User" style="background:none; border:none; cursor:pointer; font-size:16px; color:var(--text-muted); transition:color 0.2s;"><i class="fa-solid fa-trash-alt"></i></button>
                                     </form>
+                                <?php } else { ?>
+                                    <span style="display:inline-block; margin-left: 15px; opacity: 0.3; cursor: not-allowed; font-size:16px; color:var(--text-muted);" title="Not Allowed"><i class="fa-solid fa-trash-alt"></i></span>
                                 <?php } ?>
+                                
                             </td>
                         </tr>
                 <?php } } else { ?>

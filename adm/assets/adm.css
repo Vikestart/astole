@@ -202,7 +202,21 @@ a { text-decoration: none; color: var(--primary); }
     border: 1px solid var(--border);
     border-radius: 50px;
     padding: 4px 15px 4px 4px;
+    gap: 12px; /* This gap now applies between the profile link and the logout button */
+}
+
+/* --- NEW: Styling for the clickable profile link --- */
+.user-profile-link {
+    display: flex;
+    align-items: center;
     gap: 12px;
+    color: inherit;
+    text-decoration: none;
+    transition: opacity 0.2s;
+}
+
+.user-profile-link:hover {
+    opacity: 0.8;
 }
 
 .user-avatar {
@@ -450,6 +464,68 @@ ul li i, ul li svg {
     transition: color 0.2s;
 }
 .desktop-menu-btn:hover { color: var(--primary); }
+
+/* --- Form Change Detection & Disabled Buttons --- */
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+    filter: grayscale(100%);
+}
+
+/* --- Password Strength Meter --- */
+.strength-meter {
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    margin-top: 10px;
+    margin-bottom: 5px;
+    overflow: hidden;
+}
+.strength-bar {
+    height: 100%;
+    width: 0;
+    background: var(--danger);
+    transition: width 0.3s ease, background-color 0.3s ease;
+}
+.strength-text {
+    font-size: 12px;
+    font-weight: 600;
+    display: block;
+}
+
+/* --- Password Requirements Checklist --- */
+.password-reqs {
+    list-style: none;
+    padding: 0;
+    margin: 15px 0 0 0;
+    font-size: 13px;
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    padding: 12px 15px;
+    border-radius: 8px;
+}
+.password-reqs li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+    transition: color 0.2s;
+}
+.password-reqs li:last-child {
+    margin-bottom: 0;
+}
+.icon-container {
+    width: 16px;
+    text-align: center;
+}
+.password-reqs li.req-met {
+    color: var(--success);
+}
+.password-reqs li.req-unmet {
+    color: var(--danger);
+}
 
 @media screen and (min-width: 769px) {
     .desktop-menu-btn { display: block; }

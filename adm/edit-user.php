@@ -92,7 +92,7 @@ if ($user_isnew) {
                 <div class="form-group">
                     <label><?php echo ($user_isnew) ? "Assign Password" : "New Password (leave blank to keep current)"; ?></label>
                     <div style="display: flex; gap: 10px;">
-                        <input name="user_pass" id="user_pass_field" class="form-input" type="password" minlength="8" maxlength="20" <?php echo ($user_isnew) ? "required" : ""; ?> autocomplete="new-password" />
+                        <input name="user_pass" id="user_pass_field" class="form-input" type="password" minlength="8" maxlength="128" <?php echo ($user_isnew) ? "required" : ""; ?> autocomplete="new-password" />
                         <button id="generate_pass_btn" class="btn" style="background: var(--bg-body); border: 1px solid var(--border); color: var(--text-main); flex-shrink: 0;" title="Generate Secure Password">
                             <i class="fa-solid fa-key" style="margin: 0;"></i>
                         </button>

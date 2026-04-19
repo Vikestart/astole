@@ -53,12 +53,15 @@
                 </a>
                 
                 <div class="user-pill">
-                    <div class="user-avatar">
-                        <i class="fa-solid fa-user"></i>
-                    </div>
-                    <div class="user-info">
-                        <span class="user-name"><?php echo htmlspecialchars($userdata->row['user_uid']); ?></span>
-                    </div>
+                    <a href="profile.php" class="user-profile-link" title="My Profile">
+                        <div class="user-avatar">
+                            <i class="fa-solid fa-user"></i>
+                        </div>
+                        <div class="user-info">
+                            <span class="user-name"><?php echo htmlspecialchars($userdata->row['user_uid']); ?></span>
+                        </div>
+                    </a>
+                    
                     <a href="logout.php" class="logout-btn" title="Sign Out"><i class="fa-solid fa-sign-out-alt"></i></a>
                 </div>
             </div>

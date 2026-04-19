@@ -31,7 +31,7 @@
 
                 <div class="form-group">
                     <label>Password</label>
-                    <input name="password" class="form-input" type="password" minlength="8" maxlength="20" required />
+                    <input name="password" class="form-input" type="password" minlength="8" maxlength="128" required />
                 </div>
 
                 <button class="btn btn-primary btn-full" type="submit">
