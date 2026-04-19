@@ -15,14 +15,18 @@
 	require "../db.php";
 
 	function returnWithMsg($type, $icon, $expire, $message) { 
-		$_SESSION['Sessionmsg'] = array(
-            'origin' => 'login', 
-            'type' => $type, 
-            'icon' => $icon, 
-            'expire' => $expire, 
-            'message' => $message
-        );
-		header("Location: login.php");
+        // DIAGNOSTIC HALT: Stop the redirect so we can actually read the error!
+        echo "<div style='font-family: sans-serif; padding: 30px; text-align: center;'>";
+        echo "<h2 style='color: #b91c1c;'>Login Process Halted</h2>";
+        echo "<p style='font-size: 18px;'><strong>System Error:</strong> " . htmlspecialchars($message) . "</p>";
+        
+        // Let's also check if the session is persisting!
+        if (empty($_SESSION['csrf_token'])) {
+            echo "<p style='color: #d97706;'><em>Diagnostic Note: Your PHP Session was dropped/erased by the VPS.</em></p>";
+        }
+        
+        echo "<br><a href='login.php' style='padding: 10px 20px; background: #2563eb; color: white; text-decoration: none; border-radius: 5px;'>Go Back</a>";
+        echo "</div>";
 		die();
 	}
 
