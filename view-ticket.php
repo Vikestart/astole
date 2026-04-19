@@ -97,7 +97,7 @@ if ($res_rc && $res_rc->num_rows === 1) { $rc_site = trim($res_rc->fetch_assoc()
 
         <?php if ($ticket['status'] !== 'Closed') { ?>
             <div style="background: #fff; padding: 25px; border-radius: 0 0 8px 8px; border: 1px solid #e2e8f0; border-top: none;">
-                <form action="process-ticket.php" method="POST">
+                <form id="ticket-reply-form" action="process-ticket.php" method="POST">
                     <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
                     <input type="hidden" name="action" value="reply_ticket">
                     <input type="hidden" name="ticket_id" value="<?php echo $ticket['id']; ?>">
@@ -110,7 +110,26 @@ if ($res_rc && $res_rc->num_rows === 1) { $rc_site = trim($res_rc->fetch_assoc()
                         <textarea name="message" style="width: 100%; height: 100px; padding: 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit; resize: vertical;" required></textarea>
                     </div>
 
-                    <?php if (!empty($rc_site)) { echo '<div class="g-recaptcha" data-sitekey="'.htmlspecialchars($rc_site).'" style="margin-bottom: 15px;"></div>'; } ?>
+                    <?php if (!empty($rc_site)) { ?>
+                        <input type="hidden" name="g-recaptcha-response" id="g-recaptcha-response-reply">
+                        <script src="https://www.google.com/recaptcha/api.js?render=<?php echo htmlspecialchars($rc_site); ?>"></script>
+                        <script>
+                        document.addEventListener("DOMContentLoaded", function() {
+                            var form = document.getElementById("ticket-reply-form");
+                            if(form) {
+                                form.addEventListener("submit", function(e) {
+                                    e.preventDefault();
+                                    grecaptcha.ready(function() {
+                                        grecaptcha.execute("<?php echo htmlspecialchars($rc_site); ?>", {action: "reply_ticket"}).then(function(token) {
+                                            document.getElementById("g-recaptcha-response-reply").value = token;
+                                            form.submit();
+                                        });
+                                    });
+                                });
+                            }
+                        });
+                        </script>
+                    <?php } ?>
 
                     <button type="submit" style="background: #475569; color: white; padding: 10px 24px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: background 0.2s;">Send Reply</button>
                 </form>

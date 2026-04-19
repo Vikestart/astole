@@ -21,17 +21,21 @@ if (!empty($_POST['favorite_color'])) {
 
 $db = new DBConn();
 
-// --- RECAPTCHA VERIFICATION ---
+// --- RECAPTCHA v3 VERIFICATION ---
 $res_sec = $db->conn->query("SELECT setting_value FROM settings WHERE setting_key = 'recaptcha_secret'");
 $rc_secret = ($res_sec && $res_sec->num_rows === 1) ? trim($res_sec->fetch_assoc()['setting_value']) : '';
 
 if (!empty($rc_secret)) {
     $rc_response = $_POST['g-recaptcha-response'] ?? '';
-    if (empty($rc_response)) { returnWithMsg("error", "Please check the reCAPTCHA box to verify you are human."); }
+    if (empty($rc_response)) { returnWithMsg("error", "Anti-spam validation missing. Please try again."); }
     
     $verify_url = "https://www.google.com/recaptcha/api/siteverify?secret={$rc_secret}&response={$rc_response}";
     $verify_data = json_decode(file_get_contents($verify_url));
-    if (!$verify_data->success) { returnWithMsg("error", "reCAPTCHA verification failed. Please try again."); }
+    
+    // Check if it succeeded AND if the score is at least 0.5 (acceptable human threshold)
+    if (!$verify_data->success || (isset($verify_data->score) && $verify_data->score < 0.5)) { 
+        returnWithMsg("error", "Anti-spam verification failed. Our system thinks you might be a bot."); 
+    }
 }
 
 $action = $_POST['action'] ?? '';
