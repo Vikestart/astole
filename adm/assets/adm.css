@@ -443,6 +443,7 @@ ul li i, ul li svg {
     padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600;
 }
 .badge-blue { background: #eff6ff; color: #2563eb; }
+.badge-gray { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
 
 .table-actions a { 
     color: var(--text-muted); 

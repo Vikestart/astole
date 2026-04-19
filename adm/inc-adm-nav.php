@@ -21,7 +21,11 @@
             
             <span class="menu-label">Content</span>
             <a href="pages.php" class="menu-item <?php if(basename($_SERVER['PHP_SELF']) == 'pages.php' || basename($_SERVER['PHP_SELF']) == 'edit-page.php') echo 'active'; ?>">
-                <i class="fa-solid fa-file-lines"></i> <span>Pages</span>
+                <i class="fa-solid fa-file-alt"></i> <span>Pages</span>
+            </a>
+            
+            <a href="tickets.php" class="menu-item <?php if(basename($_SERVER['PHP_SELF']) == 'tickets.php' || basename($_SERVER['PHP_SELF']) == 'view-ticket.php') echo 'active'; ?>">
+                <i class="fa-solid fa-ticket-alt"></i> <span>Tickets</span>
             </a>
             
             <span class="menu-label">Administration</span>

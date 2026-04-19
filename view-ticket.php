@@ -115,7 +115,18 @@ if ($res_rc && $res_rc->num_rows === 1) { $rc_site = trim($res_rc->fetch_assoc()
                         <div class="g-recaptcha" data-sitekey="<?php echo htmlspecialchars($rc_site); ?>" data-action="reply_ticket" style="margin-bottom: 15px;"></div>
                     <?php } ?>
 
-                    <button type="submit" style="background: #475569; color: white; padding: 10px 24px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: background 0.2s;">Send Reply</button>
+                    <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                        <button type="submit" style="background: #475569; color: white; padding: 10px 24px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: background 0.2s;">Send Reply</button>
+                        </form>
+                        <form action="process-ticket.php" method="POST" onsubmit="return confirm('Are you sure you want to close this ticket? You will not be able to send further replies.');">
+                            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
+                            <input type="hidden" name="action" value="client_close">
+                            <input type="hidden" name="ticket_id" value="<?php echo $ticket['id']; ?>">
+                            <input type="hidden" name="auth_email" value="<?php echo htmlspecialchars($ticket['client_email']); ?>">
+                            <input type="hidden" name="return_url" value="view-ticket.php?id=<?php echo urlencode($track_id); ?>&email=<?php echo urlencode($email); ?>">
+                            <button type="submit" style="background: transparent; color: #dc2626; border: 1px solid #dc2626; padding: 9px 20px; border-radius: 6px; font-weight: 600; cursor: pointer;">Mark as Resolved</button>
+                        </form>
+                    </div>
                 </form>
             </div>
         <?php } else { ?>

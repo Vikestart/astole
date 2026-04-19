@@ -41,6 +41,15 @@
 	$s_ga = $config['ga_id'] ?? '';
 	$s_rc_site = $config['recaptcha_site'] ?? '';
 	$s_rc_sec = $config['recaptcha_secret'] ?? '';
+    $s_tkt_sys = (int)($config['ticket_system_enabled'] ?? 1);
+	$s_tkt_new = (int)($config['ticket_creation_enabled'] ?? 1);
+	$s_tkt_close = (int)($config['ticket_autoclose_hours'] ?? 72);
+    $s_tkt_notif_new = (int)($config['ticket_notify_admin_new'] ?? 1);
+	$s_tkt_notif_rep = (int)($config['ticket_notify_admin_reply'] ?? 1);
+	$s_tkt_msg_rec = $config['ticket_msg_received'] ?? '';
+	$s_tkt_msg_rep = $config['ticket_msg_reply'] ?? '';
+	$s_tkt_msg_ca = $config['ticket_msg_closed_admin'] ?? '';
+	$s_tkt_msg_cu = $config['ticket_msg_closed_auto'] ?? '';
 ?>
 
 <section>
@@ -108,6 +117,76 @@
                 <div class="form-group">
                     <label>Google reCAPTCHA v2 Secret Key <span class="tooltip-icon" data-tooltip="The private secret key used by the server to verify the user's response."><i class="fa-solid fa-question"></i></span></label>
                     <input type="password" name="recaptcha_secret" class="form-input" value="<?php echo htmlspecialchars($s_rc_sec); ?>">
+                </div>
+            </div>
+
+            <div style="background: var(--bg-body); border: 1px solid var(--border); border-radius: 8px; padding: 25px;">
+                <h2 style="font-size: 16px; margin-bottom: 15px; display: flex; align-items: center;">
+                    <i class="fa-solid fa-ticket-alt" style="margin-right: 10px; color: var(--text-muted);"></i> Tickets system
+                </h2>
+                
+                <div class="form-group">
+                    <label>Master Toggle (Front-End) <span class="tooltip-icon" data-tooltip="Turns the entire support portal on or off."><i class="fa-solid fa-question"></i></span></label>
+                    <select name="ticket_system_enabled" class="form-input" style="cursor: pointer;">
+                        <option value="1" <?php echo ($s_tkt_sys === 1) ? 'selected' : ''; ?>>Enabled - Portal is Active</option>
+                        <option value="0" <?php echo ($s_tkt_sys === 0) ? 'selected' : ''; ?>>Disabled - Portal is Offline</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Allow New Tickets <span class="tooltip-icon" data-tooltip="If disabled, clients can reply to existing tickets, but cannot open new ones."><i class="fa-solid fa-question"></i></span></label>
+                    <select name="ticket_creation_enabled" class="form-input" style="cursor: pointer;">
+                        <option value="1" <?php echo ($s_tkt_new === 1) ? 'selected' : ''; ?>>Yes - Accept New Tickets</option>
+                        <option value="0" <?php echo ($s_tkt_new === 0) ? 'selected' : ''; ?>>No - Pause New Inquiries</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Auto-Close 'Answered' Tickets <span class="tooltip-icon" data-tooltip="Automatically closes tickets awaiting a client response after X hours. Set to 0 to disable."><i class="fa-solid fa-question"></i></span></label>
+                    <div style="display: flex; align-items: center;">
+                        <input type="number" name="ticket_autoclose_hours" class="form-input" value="<?php echo htmlspecialchars($s_tkt_close); ?>" min="0" style="width: 100px; margin-right: 10px;">
+                        <span style="color: var(--text-muted); font-size: 14px;">Hours</span>
+                    </div>
+                </div>
+            </div>
+
+            <div style="background: var(--bg-body); border: 1px solid var(--border); border-radius: 8px; padding: 25px;">
+                <h2 style="font-size: 16px; margin-bottom: 15px; display: flex; align-items: center;">
+                    <i class="fa-solid fa-envelope" style="margin-right: 10px; color: var(--text-muted);"></i> Ticket Email Notifications
+                </h2>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="form-group">
+                        <label>Notify Admin on New Ticket</label>
+                        <select name="ticket_notify_admin_new" class="form-input">
+                            <option value="1" <?php echo ($s_tkt_notif_new === 1) ? 'selected' : ''; ?>>Yes - Send Email</option>
+                            <option value="0" <?php echo ($s_tkt_notif_new === 0) ? 'selected' : ''; ?>>No</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Notify Admin on Client Reply</label>
+                        <select name="ticket_notify_admin_reply" class="form-input">
+                            <option value="1" <?php echo ($s_tkt_notif_rep === 1) ? 'selected' : ''; ?>>Yes - Send Email</option>
+                            <option value="0" <?php echo ($s_tkt_notif_rep === 0) ? 'selected' : ''; ?>>No</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Message: Ticket Received (To Client)</label>
+                    <textarea name="ticket_msg_received" class="form-input" style="height: 60px; resize: vertical;"><?php echo htmlspecialchars($s_tkt_msg_rec); ?></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Message: Admin Replied (To Client)</label>
+                    <textarea name="ticket_msg_reply" class="form-input" style="height: 60px; resize: vertical;"><?php echo htmlspecialchars($s_tkt_msg_rep); ?></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Message: Admin Closed Ticket (To Client)</label>
+                    <textarea name="ticket_msg_closed_admin" class="form-input" style="height: 60px; resize: vertical;"><?php echo htmlspecialchars($s_tkt_msg_ca); ?></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Message: Auto-Closed by System (To Client)</label>
+                    <textarea name="ticket_msg_closed_auto" class="form-input" style="height: 60px; resize: vertical;"><?php echo htmlspecialchars($s_tkt_msg_cu); ?></textarea>
                 </div>
             </div>
 

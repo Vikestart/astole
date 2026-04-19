@@ -25,14 +25,17 @@ $db = new DBConn();
 $res_sec = $db->conn->query("SELECT setting_value FROM settings WHERE setting_key = 'recaptcha_secret'");
 $rc_secret = ($res_sec && $res_sec->num_rows === 1) ? trim($res_sec->fetch_assoc()['setting_value']) : '';
 
-if (!empty($rc_secret)) {
+$action = $_POST['action'] ?? ''; // Grab action early!
+$currtime = gmdate("Y-m-d H:i:s");
+
+// Only enforce reCAPTCHA for new tickets and replies!
+if (!empty($rc_secret) && in_array($action, ['new_ticket', 'reply_ticket'])) {
     $rc_response = $_POST['g-recaptcha-response'] ?? '';
     if (empty($rc_response)) { returnWithMsg("error", "Anti-spam validation missing. Please try again."); }
     
     $verify_url = "https://www.google.com/recaptcha/api/siteverify?secret={$rc_secret}&response={$rc_response}";
     $verify_data = json_decode(file_get_contents($verify_url));
     
-    // Check if it succeeded AND if the score is at least 0.5 (acceptable human threshold)
     if (!$verify_data->success || (isset($verify_data->score) && $verify_data->score < 0.5)) { 
         returnWithMsg("error", "Anti-spam verification failed. Our system thinks you might be a bot."); 
     }
@@ -64,6 +67,24 @@ if ($action === 'new_ticket') {
     $stmt_msg->bind_param("iss", $ticket_id, $message, $currtime);
     $stmt_msg->execute();
     $stmt_msg->close();
+
+    // --- EMAIL NOTIFICATIONS (NEW TICKET) ---
+    $res_stg = $db->conn->query("SELECT setting_key, setting_value FROM settings WHERE setting_key IN ('site_email', 'site_name', 'ticket_notify_admin_new', 'ticket_msg_received')");
+    $settings = [];
+    while($r = $res_stg->fetch_assoc()) { $settings[$r['setting_key']] = $r['setting_value']; }
+    
+    $headers = "From: " . $settings['site_name'] . " <noreply@" . $_SERVER['SERVER_NAME'] . ">\r\nReply-To: " . $settings['site_email'] . "\r\nX-Mailer: PHP/" . phpversion();
+
+    // 1. Email Client
+    if (!empty($settings['ticket_msg_received'])) {
+        $body = "Hello " . $name . ",\n\n" . $settings['ticket_msg_received'] . "\n\nTracking ID: " . $tracking_id . "\nSubject: " . $subject;
+        @mail($email, "Ticket Received: " . $tracking_id, $body, $headers);
+    }
+    // 2. Email Admin
+    if ($settings['ticket_notify_admin_new'] == '1' && !empty($settings['site_email'])) {
+        $admin_body = "A new support ticket has been opened.\n\nTracking ID: $tracking_id\nClient: $name ($email)\nSubject: $subject\n\nMessage:\n$message";
+        @mail($settings['site_email'], "New Ticket: " . $tracking_id, $admin_body, $headers);
+    }
 
     returnWithMsg("success", "Your ticket has been opened! Your Tracking ID is: <strong>" . $tracking_id . "</strong><br><br>Please save this ID and use the tracking form to view replies.");
 }
@@ -97,6 +118,41 @@ if ($action === 'reply_ticket') {
     $stmt_upd->execute();
     $stmt_upd->close();
 
+    // --- EMAIL NOTIFICATION (CLIENT REPLY) ---
+    $res_stg = $db->conn->query("SELECT setting_key, setting_value FROM settings WHERE setting_key IN ('site_email', 'site_name', 'ticket_notify_admin_reply')");
+    $settings = [];
+    while($r = $res_stg->fetch_assoc()) { $settings[$r['setting_key']] = $r['setting_value']; }
+
+    if ($settings['ticket_notify_admin_reply'] == '1' && !empty($settings['site_email'])) {
+        $headers = "From: " . $settings['site_name'] . " <noreply@" . $_SERVER['SERVER_NAME'] . ">\r\nReply-To: " . $auth_email . "\r\nX-Mailer: PHP/" . phpversion();
+        $admin_body = "A client has replied to their ticket.\n\nTracking ID: " . ($_POST['tracking_id'] ?? 'Unknown') . "\nClient Email: $auth_email\n\nMessage:\n$message";
+        @mail($settings['site_email'], "Ticket Reply: " . ($_POST['tracking_id'] ?? 'Unknown'), $admin_body, $headers);
+    }
+
     returnWithMsg("success", "Your reply has been added to the ticket.");
+}
+
+// --- ACTION: CLIENT CLOSE TICKET ---
+if ($action === 'client_close') {
+    $ticket_id = (int)($_POST['ticket_id'] ?? 0);
+    $auth_email = filter_var($_POST['auth_email'] ?? '', FILTER_SANITIZE_EMAIL);
+
+    if (empty($ticket_id)) { returnWithMsg("error", "Invalid request."); }
+
+    // Security Check: Ensure the email matches the ticket ID!
+    $stmt_chk = $db->conn->prepare("SELECT id FROM tickets WHERE id = ? AND client_email = ? AND status != 'Closed'");
+    $stmt_chk->bind_param("is", $ticket_id, $auth_email);
+    $stmt_chk->execute();
+    if ($stmt_chk->get_result()->num_rows === 0) { 
+        returnWithMsg("error", "Authorization failed, or ticket is already closed."); 
+    }
+    $stmt_chk->close();
+
+    $stmt_upd = $db->conn->prepare("UPDATE tickets SET status = 'Closed', updated_at = ? WHERE id = ?");
+    $stmt_upd->bind_param("si", $currtime, $ticket_id);
+    $stmt_upd->execute();
+    $stmt_upd->close();
+
+    returnWithMsg("success", "Ticket has been successfully closed. Thank you!");
 }
 ?>
