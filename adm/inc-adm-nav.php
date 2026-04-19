@@ -28,9 +28,12 @@
             <a href="users.php" class="menu-item <?php if(basename($_SERVER['PHP_SELF']) == 'users.php' || basename($_SERVER['PHP_SELF']) == 'edit-user.php') echo 'active'; ?>">
                 <i class="fa-solid fa-users"></i> <span>Users</span>
             </a>
-            <a href="settings.php" class="menu-item <?php if(basename($_SERVER['PHP_SELF']) == 'settings.php') echo 'active'; ?>">
-                <i class="fa-solid fa-cog"></i> <span>Settings</span>
-            </a>
+            
+            <?php if ($userdata->row['user_role'] == 1) { ?>
+                <a href="settings.php" class="menu-item <?php if(basename($_SERVER['PHP_SELF']) == 'settings.php') echo 'active'; ?>">
+                    <i class="fa-solid fa-cog"></i> <span>Settings</span>
+                </a>
+            <?php } ?>
         </div>
     </aside>
 
