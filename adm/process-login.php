@@ -49,9 +49,16 @@
 	$db_connection = new DBConn();
     $ip_address = $_SERVER['REMOTE_ADDR'];
 
-    // --- 2. RATE LIMITING CHECK ---
+	// --- 2. RATE LIMITING CHECK ---
     $time_limit = date('Y-m-d H:i:s', strtotime('-15 minutes'));
     $stmt_limit = $db_connection->conn->prepare("SELECT COUNT(*) FROM login_attempts WHERE ip_address = ? AND attempt_time > ?");
+    
+    // SAFEGUARD: If the table doesn't exist, tell the user instead of throwing Error 500!
+    if ($stmt_limit === false) {
+        error_log("Missing table 'login_attempts': " . $db_connection->conn->error);
+        returnWithMsg("error", "times-circle", 0, "Database setup incomplete. Check error logs.");
+    }
+
     $stmt_limit->bind_param("ss", $ip_address, $time_limit);
     $stmt_limit->execute();
     $stmt_limit->bind_result($attempt_count);
