@@ -1,12 +1,5 @@
 <?php
-    // --- 1. TEMPORARY DEBUGGING ---
-    // Forces PHP to print Fatal Errors to the screen instead of a blank 500 page.
-    ini_set('display_errors', 1);
-    ini_set('display_startup_errors', 1);
-    error_reporting(E_ALL);
-
-    // --- 2. MATCH STRICT SESSION RULES ---
-    // This MUST match the settings in inc-adm-head.php so Ubuntu doesn't drop the session!
+    // --- MATCH STRICT SESSION RULES ---
     ini_set('session.cookie_httponly', 1);
     ini_set('session.use_strict_mode', 1);
 	session_start();
@@ -15,36 +8,28 @@
 	require "../db.php";
 
 	function returnWithMsg($type, $icon, $expire, $message) { 
-        // DIAGNOSTIC HALT: Stop the redirect so we can actually read the error!
-        echo "<div style='font-family: sans-serif; padding: 30px; text-align: center;'>";
-        echo "<h2 style='color: #b91c1c;'>Login Process Halted</h2>";
-        echo "<p style='font-size: 18px;'><strong>System Error:</strong> " . htmlspecialchars($message) . "</p>";
-        
-        // Let's also check if the session is persisting!
-        if (empty($_SESSION['csrf_token'])) {
-            echo "<p style='color: #d97706;'><em>Diagnostic Note: Your PHP Session was dropped/erased by the VPS.</em></p>";
-        }
-        
-        echo "<br><a href='login.php' style='padding: 10px 20px; background: #2563eb; color: white; text-decoration: none; border-radius: 5px;'>Go Back</a>";
-        echo "</div>";
+		$_SESSION['Sessionmsg'] = array(
+            'origin' => 'login', 
+            'type' => $type, 
+            'icon' => $icon, 
+            'expire' => $expire, 
+            'message' => $message
+        );
+		header("Location: login.php");
 		die();
 	}
 
-    // --- 3. BULLETPROOF CSRF CHECK ---
-    // Using ?? '' prevents PHP 8 TypeErrors if the session token is ever missing
+    // --- BULLETPROOF CSRF CHECK ---
     $session_token = $_SESSION['csrf_token'] ?? '';
     $post_token = $_POST['csrf_token'] ?? '';
 
     if (empty($session_token) || empty($post_token) || !hash_equals($session_token, $post_token)) {
-        returnWithMsg("error", "times-circle", 5000, "Security validation failed (Session timeout). Please refresh and try again.");
+        returnWithMsg("error", "times-circle", 5000, "Security validation failed. Please refresh and try again.");
     }
 
 	if (isset($_POST["username"]) && isset($_POST["password"])) {
-        // Clean up the inner function and sanitize directly
 		$admuser = htmlspecialchars(stripslashes(trim($_POST["username"])));
-        
-        // BUG FIX: Never sanitize passwords! Take the raw input.
-		$admpass = $_POST["password"]; 
+		$admpass = $_POST["password"]; // Raw password!
 
 		if (empty($admuser)) { returnWithMsg("error", "times-circle", 0, "Username is required."); }
         if (empty($admpass)) { returnWithMsg("error", "times-circle", 0, "Password is required."); }
@@ -61,7 +46,7 @@
     
     if ($stmt_limit === false) {
         error_log("Missing table 'login_attempts': " . $db_connection->conn->error);
-        returnWithMsg("error", "times-circle", 0, "Database setup incomplete. Check logs.");
+        returnWithMsg("error", "times-circle", 0, "Database setup incomplete. Check error logs.");
     }
 
     $stmt_limit->bind_param("ss", $ip_address, $time_limit);
