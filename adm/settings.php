@@ -50,6 +50,7 @@
 	$s_tkt_msg_rep = $config['ticket_msg_reply'] ?? '';
 	$s_tkt_msg_ca = $config['ticket_msg_closed_admin'] ?? '';
 	$s_tkt_msg_cu = $config['ticket_msg_closed_auto'] ?? '';
+    $s_tkt_retention = (int)($config['attachment_retention_days'] ?? 365);
 ?>
 
 <section>
@@ -146,6 +147,14 @@
                     <div style="display: flex; align-items: center;">
                         <input type="number" name="ticket_autoclose_hours" class="form-input" value="<?php echo htmlspecialchars($s_tkt_close); ?>" min="0" style="width: 100px; margin-right: 10px;">
                         <span style="color: var(--text-muted); font-size: 14px;">Hours</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Attachment Retention <span class="tooltip-icon" data-tooltip="Automatically delete physical file attachments from the server after this many days to save disk space. Set to 0 to keep forever."><i class="fa-solid fa-question"></i></span></label>
+                    <div style="display: flex; align-items: center;">
+                        <input type="number" name="attachment_retention_days" class="form-input" value="<?php echo htmlspecialchars($s_tkt_retention); ?>" min="0" style="width: 100px; margin-right: 10px;">
+                        <span style="color: var(--text-muted); font-size: 14px;">Days</span>
                     </div>
                 </div>
             </div>

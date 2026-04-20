@@ -24,3 +24,37 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+// Ticket attachments multi-file UI tracking
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.multi-file-input').forEach(input => {
+        const previewDiv = input.nextElementSibling;
+        let dt = new DataTransfer(); // Allows us to manipulate the file list
+
+        input.addEventListener('change', function() {
+            for(let file of this.files) { dt.items.add(file); }
+            this.files = dt.files;
+            renderPreview();
+        });
+
+        function renderPreview() {
+            previewDiv.innerHTML = '';
+            Array.from(input.files).forEach((file, index) => {
+                let fileRow = document.createElement('div');
+                fileRow.style.cssText = "display: inline-flex; align-items: center; justify-content: space-between; background: #f1f5f9; padding: 6px 12px; border-radius: 4px; font-size: 12px; border: 1px solid #e2e8f0; width: fit-content;";
+                fileRow.innerHTML = `<span>${file.name}</span> <i class="fa-solid fa-times" style="margin-left: 10px; cursor: pointer; color: #dc2626;" data-index="${index}"></i>`;
+                previewDiv.appendChild(fileRow);
+            });
+
+            previewDiv.querySelectorAll('.fa-times').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    let indexToRemove = parseInt(this.getAttribute('data-index'));
+                    let newDt = new DataTransfer();
+                    Array.from(input.files).forEach((f, i) => { if (i !== indexToRemove) newDt.items.add(f); });
+                    input.files = newDt.files;
+                    dt = newDt;
+                    renderPreview();
+                });
+            });
+        }
+    });
+});

@@ -34,6 +34,21 @@ $currtime = gmdate("Y-m-d H:i:s");
 
 // --- ACTION: DELETE TICKET ---
 if ($action === 'delete_ticket') {
+    // Delete physical files to save server space
+    $stmt_att = $db->conn->prepare("SELECT attachment FROM ticket_replies WHERE ticket_id = ? AND attachment IS NOT NULL");
+    $stmt_att->bind_param("i", $ticket_id);
+    $stmt_att->execute();
+    $res_att = $stmt_att->get_result();
+    while($r = $res_att->fetch_assoc()) {
+        $files = json_decode($r['attachment'], true);
+        if(is_array($files)) {
+            foreach($files as $f) { @unlink(__DIR__ . '/../uploads/tickets/' . $f); }
+        } else {
+            @unlink(__DIR__ . '/../uploads/tickets/' . $r['attachment']); // Fallback for old single files
+        }
+    }
+    $stmt_att->close();
+
     $stmt = $db->conn->prepare("DELETE FROM tickets WHERE id = ?");
     $stmt->bind_param("i", $ticket_id);
     $stmt->execute();
@@ -83,7 +98,7 @@ if ($action === 'admin_reply') {
         // Process Attachment
         $attachment = null;
         if (!empty($_FILES['attachment']['name'])) {
-            $upload_res = processTicketAttachment($_FILES['attachment'], __DIR__ . '/../uploads/tickets');
+            $upload_res = processMultipleAttachments($_FILES['attachment'], __DIR__ . '/../uploads/tickets');
             if (is_array($upload_res) && isset($upload_res['error'])) {
                 returnWithMsg("error", "times-circle", 4500, $upload_res['error'], "view-ticket.php?id=" . $ticket_id);
             }

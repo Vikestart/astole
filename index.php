@@ -27,11 +27,29 @@ if (!$pageData) {
 // Fetch the Ticket Settings & reCAPTCHA
 $db = new DBConn();
 $res_tkt = $db->conn->query("SELECT setting_key, setting_value FROM settings WHERE setting_key IN ('recaptcha_site', 'ticket_system_enabled', 'ticket_creation_enabled', 'ticket_autoclose_hours')");
-$tkt_settings = ['ticket_system_enabled' => 1, 'ticket_creation_enabled' => 1, 'ticket_autoclose_hours' => 72, 'recaptcha_site' => ''];
+$tkt_settings = ['ticket_system_enabled' => 1, 'ticket_creation_enabled' => 1, 'ticket_autoclose_hours' => 72, 'recaptcha_site' => '', 'attachment_retention_days' => 365];
 if ($res_tkt) {
     while($r = $res_tkt->fetch_assoc()) { $tkt_settings[$r['setting_key']] = $r['setting_value']; }
 }
 
+// AUTO-DELETE ATTACHMENTS CRON
+$retention_days = (int)($tkt_settings['attachment_retention_days'] ?? 365);
+if ($retention_days > 0) {
+    // Find replies with attachments older than X days
+    $q_att = $db->conn->query("SELECT id, attachment FROM ticket_replies WHERE attachment IS NOT NULL AND created_at < DATE_SUB(NOW(), INTERVAL $retention_days DAY)");
+    if ($q_att && $q_att->num_rows > 0) {
+        while($r = $q_att->fetch_assoc()) {
+            $files = json_decode($r['attachment'], true);
+            if (is_array($files)) {
+                foreach($files as $f) { @unlink(__DIR__ . '/uploads/tickets/' . $f); }
+            } else {
+                @unlink(__DIR__ . '/uploads/tickets/' . $r['attachment']);
+            }
+            // Clear the database record
+            $db->conn->query("UPDATE ticket_replies SET attachment = NULL WHERE id = " . $r['id']);
+        }
+    }
+}
 // AUTO-CLOSE CRON FUNCTION
 $auto_close_hours = (int)$tkt_settings['ticket_autoclose_hours'];
 if ($auto_close_hours > 0) {
@@ -136,7 +154,7 @@ if ((int)$tkt_settings['ticket_system_enabled'] === 0) {
                 </div>
                 <div style="margin-bottom: 15px;"><label style="display: block; font-weight: 600; margin-bottom: 5px; color: #334155; font-size: 14px;">Subject <span style="color: #dc2626;">*</span></label><input type="text" name="subject" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit; background: #fff;" required></div>
                 <div style="margin-bottom: 15px;"><label style="display: block; font-weight: 600; margin-bottom: 5px; color: #334155; font-size: 14px;">Message <span style="color: #dc2626;">*</span></label><textarea name="message" style="width: 100%; height: 150px; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit; resize: vertical; background: #fff;" required></textarea></div>
-                <div style="margin-bottom: 20px;"><label style="display: block; font-weight: 600; margin-bottom: 5px; color: #334155; font-size: 14px;"><i class="fa-solid fa-paperclip"></i> Attach File (Optional)</label><input type="file" name="attachment" accept=".jpg,.jpeg,.png,.pdf,.txt" style="width: 100%; padding: 8px; border: 1px dashed #cbd5e1; border-radius: 6px; background: #fff; font-size: 13px;"><div style="font-size: 12px; color: #94a3b8; margin-top: 5px;">Max size: 5MB. Allowed: JPG, PNG, PDF, TXT.</div></div>
+                <div style="margin-bottom: 20px;"><label style="display: block; font-weight: 600; margin-bottom: 5px; color: #334155; font-size: 14px;"><i class="fa-solid fa-paperclip"></i> Attach File (Optional)</label><input type="file" name="attachment[]" multiple accept=".jpg,.jpeg,.png,.webp,.pdf,.txt" class="multi-file-input" style="width: 100%; padding: 8px; border: 1px dashed var(--border); border-radius: 6px; font-size: 13px;"><div class="file-list-preview" style="margin-top: 10px; display: flex; flex-direction: column; gap: 5px;"></div></div>
                 ' . $rc_html . '
                 <button type="submit" style="background: #2563eb; color: white; padding: 10px 20px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: opacity 0.2s;">Submit Ticket</button>
             </form>

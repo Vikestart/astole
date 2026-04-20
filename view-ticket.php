@@ -112,7 +112,7 @@ require_once "inc-head.php";
                     <div style="font-size: 12px; color: #64748b; margin-bottom: 5px; text-align: <?php echo $text_align; ?>;">
                         <strong><?php echo $name_tag; ?></strong> &bull; <?php echo date('M d, Y H:i', strtotime($reply['created_at'])); ?>
                     </div>
-                    <div style="background: <?php echo $bubble_bg; ?>; color: <?php echo $bubble_text; ?>; padding: 18px 22px; border-radius: 10px; border: <?php echo $bubble_border; ?>; box-shadow: <?php echo $shadow; ?>; line-height: 1.6; font-size: 15px; white-space: pre-wrap;"><?php echo htmlspecialchars($reply['message']); ?>
+                    <div style="background: <?php echo $bubble_bg; ?>; color: <?php echo $bubble_text; ?>; padding: 18px 22px; border-radius: 10px; border: <?php echo $bubble_border; ?>; box-shadow: <?php echo $shadow; ?>; line-height: 1.6; font-size: 15px; white-space: pre-wrap;"><?php echo htmlspecialchars($reply['message']); ?></div>
                     
                     <?php if (!empty($reply['attachment'])) { ?>
                         <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid <?php echo $is_client ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)'; ?>;">
@@ -121,8 +121,6 @@ require_once "inc-head.php";
                             </a>
                         </div>
                     <?php } ?>
-                    
-                    </div>
                 </div>
             <?php } ?>
         </div>
@@ -144,8 +142,8 @@ require_once "inc-head.php";
                     
                     <div style="margin-bottom: 20px;">
                         <label style="display: block; font-weight: 600; margin-bottom: 5px; color: #334155; font-size: 14px;"><i class="fa-solid fa-paperclip"></i> Attach File (Optional)</label>
-                        <input type="file" name="attachment" accept=".jpg,.jpeg,.png,.pdf,.txt" style="width: 100%; padding: 8px; border: 1px dashed #cbd5e1; border-radius: 6px; background: #f8fafc; font-size: 13px;">
-                        <div style="font-size: 12px; color: #94a3b8; margin-top: 5px;">Max size: 5MB. Allowed: JPG, PNG, PDF, TXT.</div>
+                        <input type="file" name="attachment[]" multiple accept=".jpg,.jpeg,.png,.webp,.pdf,.txt" class="multi-file-input" style="width: 100%; padding: 8px; border: 1px dashed var(--border); border-radius: 6px; font-size: 13px;">
+                        <div class="file-list-preview" style="margin-top: 10px; display: flex; flex-direction: column; gap: 5px;"></div>
                     </div>
 
                     <?php if (!empty($rc_site)) { ?>

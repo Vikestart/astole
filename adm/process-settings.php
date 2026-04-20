@@ -49,7 +49,8 @@
 		'ticket_msg_received' => trim($_POST['ticket_msg_received'] ?? ''),
 		'ticket_msg_reply' => trim($_POST['ticket_msg_reply'] ?? ''),
 		'ticket_msg_closed_admin' => trim($_POST['ticket_msg_closed_admin'] ?? ''),
-		'ticket_msg_closed_auto' => trim($_POST['ticket_msg_closed_auto'] ?? '')
+		'ticket_msg_closed_auto' => trim($_POST['ticket_msg_closed_auto'] ?? ''),
+		'attachment_retention_days' => (int)($_POST['attachment_retention_days'] ?? 365)
 	];
 
 	// Prepare a single update statement that we will loop through

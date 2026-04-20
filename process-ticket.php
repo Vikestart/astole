@@ -54,7 +54,7 @@ if ($action === 'new_ticket') {
     // Process Attachment
     $attachment = null;
     if (!empty($_FILES['attachment']['name'])) {
-        $upload_res = processTicketAttachment($_FILES['attachment'], __DIR__ . '/uploads/tickets');
+        $upload_res = processMultipleAttachments($_FILES['attachment'], __DIR__ . '/../uploads/tickets');
         if (is_array($upload_res) && isset($upload_res['error'])) { returnWithMsg("error", $upload_res['error']); }
         $attachment = $upload_res;
     }
@@ -124,7 +124,7 @@ if ($action === 'reply_ticket') {
     // Process Attachment
     $attachment = null;
     if (!empty($_FILES['attachment']['name'])) {
-        $upload_res = processTicketAttachment($_FILES['attachment'], __DIR__ . '/uploads/tickets');
+        $upload_res = processMultipleAttachments($_FILES['attachment'], __DIR__ . '/../uploads/tickets');
         if (is_array($upload_res) && isset($upload_res['error'])) { returnWithMsg("error", $upload_res['error']); }
         $attachment = $upload_res;
     }

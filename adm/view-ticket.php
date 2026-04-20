@@ -85,7 +85,7 @@
                 <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 5px; text-align: <?php echo $text_align; ?>;">
                     <strong><?php echo $name_tag; ?></strong> &bull; <?php echo date('M d, Y H:i', strtotime($reply['created_at'])); ?>
                 </div>
-                <div style="background: <?php echo $bubble_bg; ?>; color: <?php echo $bubble_text; ?>; padding: 15px 20px; border-radius: 8px; border: <?php echo $bubble_border; ?>; box-shadow: 0 2px 4px rgba(0,0,0,0.05); line-height: 1.6; font-size: 15px; white-space: pre-wrap;"><?php echo htmlspecialchars($reply['message']); ?>
+                <div style="background: <?php echo $bubble_bg; ?>; color: <?php echo $bubble_text; ?>; padding: 15px 20px; border-radius: 8px; border: <?php echo $bubble_border; ?>; box-shadow: 0 2px 4px rgba(0,0,0,0.05); line-height: 1.6; font-size: 15px; white-space: pre-wrap;"><?php echo htmlspecialchars($reply['message']); ?></div>
                 
                 <?php if (!empty($reply['attachment'])) { ?>
                     <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid <?php echo $is_admin ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)'; ?>;">
@@ -94,8 +94,6 @@
                         </a>
                     </div>
                 <?php } ?>
-                
-                </div>
             </div>
         <?php } ?>
     </div>
@@ -113,8 +111,8 @@
             
             <div style="margin-bottom: 20px;">
                 <label style="display: block; font-weight: 600; margin-bottom: 8px; color: var(--color-heading);"><i class="fa-solid fa-paperclip"></i> Attach File (Optional)</label>
-                <input type="file" name="attachment" accept=".jpg,.jpeg,.png,.pdf,.txt" style="width: 100%; padding: 8px; border: 1px dashed var(--border); border-radius: 6px; background: var(--bg-body-alt); font-size: 13px; color: var(--color-heading);">
-                <div style="font-size: 12px; color: var(--text-muted); margin-top: 5px;">Max size: 5MB. Allowed: JPG, PNG, PDF, TXT.</div>
+                <input type="file" name="attachment[]" multiple accept=".jpg,.jpeg,.png,.webp,.pdf,.txt" class="multi-file-input" style="width: 100%; padding: 8px; border: 1px dashed var(--border); border-radius: 6px; font-size: 13px;">
+                <div class="file-list-preview" style="margin-top: 10px; display: flex; flex-direction: column; gap: 5px;"></div>
             </div>
 
             <div style="display: flex; justify-content: space-between; align-items: center;">
