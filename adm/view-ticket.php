@@ -59,7 +59,14 @@
     </div>
 
     <div style="background: var(--bg-body-alt); padding: 30px 25px; border: 1px solid var(--border);">
-        <?php foreach ($replies as $reply) { 
+        <?php foreach ($replies as $reply) {
+            // SYSTEM HISTORY LOG VIEW
+            if ($reply['sender_type'] === 'System') {
+                echo '<div style="text-align: center; margin: 20px 0;">';
+                echo '<span style="background: var(--bg-body); color: var(--text-muted); font-size: 12px; padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border);"><i class="fa-solid fa-clock-rotate-left"></i> ' . htmlspecialchars($reply['message']) . ' &bull; ' . date('M d H:i', strtotime($reply['created_at'])) . '</span>';
+                echo '</div>';
+                continue;
+            }
             // ADMIN VIEW: Admin is on the right (Blue), Client is on the left (White)
             $is_admin = ($reply['sender_type'] === 'Admin');
             $bubble_bg = $is_admin ? 'var(--text-main)' : 'var(--bg-body)';
@@ -86,13 +93,13 @@
 
             <div style="margin-bottom: 15px;">
                 <label style="display: block; font-weight: 600; margin-bottom: 8px; color: var(--color-heading);">Post a Reply</label>
-                <textarea name="message" class="form-input" style="height: 120px; resize: vertical;" placeholder="Type your response to the client here..."></textarea>
+                <textarea name="message" class="form-input" style="height: 120px; resize: vertical;" placeholder="Type your response to the client here..." required></textarea>
             </div>
 
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <div style="display: flex; align-items: center;">
                     <label style="margin-right: 15px; font-weight: 600; color: var(--text-muted);">Change Status to:</label>
-                    <select name="status_update" class="form-input" style="width: 200px; cursor: pointer;">
+                    <select name="status_update" class="form-input" style="width: 260px; cursor: pointer;">
                         <option value="Answered" <?php if($ticket['status'] != 'Closed') echo 'selected'; ?>>Answered (Awaiting Client)</option>
                         <option value="Open">Open (Still working on it)</option>
                         <option value="Closed" <?php if($ticket['status'] == 'Closed') echo 'selected'; ?>>Closed (Resolved)</option>

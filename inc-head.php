@@ -77,13 +77,13 @@
 
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9553054176028249" crossorigin="anonymous"></script>
 
-    <script defer src="assets/font-awesome/fontawesome.min.js"></script>
-    <script defer src="assets/font-awesome/solid.min.js"></script>
-    <script defer src="assets/font-awesome/brands.min.js"></script>
+    <script defer src="/assets/font-awesome/fontawesome.min.js"></script>
+    <script defer src="/assets/font-awesome/solid.min.js"></script>
+    <script defer src="/assets/font-awesome/brands.min.js"></script>
 
-    <link rel="stylesheet" href="assets/main.css">
-    <script src="assets/jquery.js"></script>
-    <script src="assets/main.js"></script>
+    <link rel="stylesheet" href="/assets/main.css">
+    <script src="/assets/jquery.js" defer></script>
+    <script src="/assets/main.js" defer></script>
 </head>
 <body>
 	<!-- Soft Animated Mesh Gradient Background -->

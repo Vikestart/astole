@@ -50,10 +50,11 @@ if ($action === 'delete_ticket') {
 // --- ACTION: ADMIN REPLY OR CLOSE ---
 if ($action === 'admin_reply') {
     $message = trim(htmlspecialchars($_POST['message'] ?? ''));
-    $status_update = $_POST['status_update'] ?? 'Answered'; // Default to Answered when replying
+    $status_update = $_POST['status_update'] ?? 'Answered';
 
-    if (empty($message) && $status_update !== 'Closed') {
-        returnWithMsg("error", "times-circle", 4500, "Message cannot be empty.", "view-ticket.php?id=" . $ticket_id);
+    // Strictly require a message, no matter what status is chosen!
+    if (empty($message)) {
+        returnWithMsg("error", "times-circle", 4500, "You must provide a reply comment.", "view-ticket.php?id=" . $ticket_id);
     }
 
     if (!empty($message)) {
@@ -61,6 +62,15 @@ if ($action === 'admin_reply') {
         $stmt_msg->bind_param("iss", $ticket_id, $message, $currtime);
         $stmt_msg->execute();
         $stmt_msg->close();
+    }
+
+    // Check if status actually changed
+    if ($t_data['status'] !== $status_update) {
+        $sys_msg = "Status changed from {$t_data['status']} to {$status_update} by Admin.";
+        $stmt_sys = $db->conn->prepare("INSERT INTO ticket_replies (ticket_id, sender_type, message, created_at) VALUES (?, 'System', ?, ?)");
+        $stmt_sys->bind_param("iss", $ticket_id, $sys_msg, $currtime);
+        $stmt_sys->execute();
+        $stmt_sys->close();
     }
 
     $stmt_upd = $db->conn->prepare("UPDATE tickets SET status = ?, updated_at = ? WHERE id = ?");
@@ -82,21 +92,24 @@ if ($action === 'admin_reply') {
         if ($res_stg) { while($r = $res_stg->fetch_assoc()) { $settings[$r['setting_key']] = $r['setting_value']; } }
 
         $site_name = $settings['site_name'] ?? 'Support';
-        $site_email = $settings['site_email'] ?? 'noreply@' . $_SERVER['SERVER_NAME'];
+        $safe_noreply = "noreply@" . $_SERVER['SERVER_NAME'];
         
-        $headers = "From: " . $site_name . " <" . $site_email . ">\r\nReply-To: " . $site_email . "\r\nX-Mailer: PHP/" . phpversion();
+        // Force both 'From' and 'Reply-To' to be the system's noreply address
+        $headers = "From: " . $site_name . " <" . $safe_noreply . ">\r\n" .
+                   "Reply-To: " . $safe_noreply . "\r\n" .
+                   "MIME-Version: 1.0\r\n" .
+                   "Content-Type: text/plain; charset=UTF-8\r\n" .
+                   "X-Mailer: PHP/" . phpversion();
         
         $body_text = "Hello " . $t_data['client_name'] . ",\n\n";
         $send_email = false;
 
-        // If you typed a message, ALWAYS send an email (use default text if setting is missing)
         if (!empty($message)) {
             $msg_reply = !empty($settings['ticket_msg_reply']) ? $settings['ticket_msg_reply'] : "An administrator has replied to your ticket.";
             $body_text .= $msg_reply . "\n\n";
             $send_email = true;
         }
         
-        // If you closed the ticket, ALWAYS send an email (use default text if setting is missing)
         if ($status_update === 'Closed') {
             $msg_closed = !empty($settings['ticket_msg_closed_admin']) ? $settings['ticket_msg_closed_admin'] : "Your ticket has been marked as resolved and closed.";
             $body_text .= $msg_closed . "\n\n";
@@ -104,10 +117,12 @@ if ($action === 'admin_reply') {
         }
 
         if ($send_email) {
-            // Dynamically grab your website URL so they can click it!
             $portal_url = "http" . (isset($_SERVER['HTTPS']) ? "s" : "") . "://" . $_SERVER['HTTP_HOST'];
             
-            $body_text .= "Tracking ID: " . $t_data['tracking_id'] . "\n\nYou can view the full thread and reply on our support portal: \n" . $portal_url;
+            // Add the "Do not reply" warning and the portal link
+            $body_text .= "Tracking ID: " . $t_data['tracking_id'] . "\n\n";
+            $body_text .= "--- Please do not reply directly to this email ---\n";
+            $body_text .= "You can view the full thread and respond on our secure support portal: \n" . $portal_url;
             
             @mail($t_data['client_email'], "Ticket Update: " . $t_data['tracking_id'], $body_text, $headers);
         }

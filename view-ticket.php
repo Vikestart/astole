@@ -79,6 +79,14 @@ if ($res_rc && $res_rc->num_rows === 1) { $rc_site = trim($res_rc->fetch_assoc()
 
         <div style="background: #f8fafc; padding: 30px 25px; border: 1px solid #e2e8f0;">
             <?php foreach ($replies as $reply) { 
+                // SYSTEM HISTORY LOG VIEW
+                if ($reply['sender_type'] === 'System') {
+                    echo '<div style="text-align: center; margin: 20px 0;">';
+                    echo '<span style="background: #fff; color: #64748b; font-size: 12px; padding: 6px 14px; border-radius: 20px; border: 1px solid #e2e8f0; box-shadow: 0 1px 2px rgba(0,0,0,0.05);"><i class="fa-solid fa-clock-rotate-left"></i> ' . htmlspecialchars($reply['message']) . ' &bull; ' . date('M d H:i', strtotime($reply['created_at'])) . '</span>';
+                    echo '</div>';
+                    continue;
+                }
+                // COMMENTS VIEW
                 $is_admin = ($reply['sender_type'] === 'Admin');
                 $bubble_bg = $is_admin ? '#fff' : '#2563eb';
                 $bubble_text = $is_admin ? '#1e293b' : '#fff';

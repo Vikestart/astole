@@ -73,7 +73,15 @@ if ($action === 'new_ticket') {
     $settings = [];
     while($r = $res_stg->fetch_assoc()) { $settings[$r['setting_key']] = $r['setting_value']; }
     
-    $headers = "From: " . $settings['site_name'] . " <noreply@" . $_SERVER['SERVER_NAME'] . ">\r\nReply-To: " . $settings['site_email'] . "\r\nX-Mailer: PHP/" . phpversion();
+    $site_name = $settings['site_name'] ?? 'Support';
+    $safe_noreply = "noreply@" . $_SERVER['SERVER_NAME'];
+    
+    // Force both 'From' and 'Reply-To' to be the system's noreply address
+    $headers = "From: " . $site_name . " <" . $safe_noreply . ">\r\n" .
+                "Reply-To: " . $safe_noreply . "\r\n" .
+                "MIME-Version: 1.0\r\n" .
+                "Content-Type: text/plain; charset=UTF-8\r\n" .
+                "X-Mailer: PHP/" . phpversion();
 
     // 1. Email Client
     if (!empty($settings['ticket_msg_received'])) {
@@ -131,6 +139,13 @@ if ($action === 'reply_ticket') {
 
     returnWithMsg("success", "Your reply has been added to the ticket.");
 }
+
+// Add System History Log
+    $sys_msg = "Ticket was marked as Resolved and Closed by the Client.";
+    $stmt_sys = $db->conn->prepare("INSERT INTO ticket_replies (ticket_id, sender_type, message, created_at) VALUES (?, 'System', ?, ?)");
+    $stmt_sys->bind_param("iss", $ticket_id, $sys_msg, $currtime);
+    $stmt_sys->execute();
+    $stmt_sys->close();
 
 // --- ACTION: CLIENT CLOSE TICKET ---
 if ($action === 'client_close') {

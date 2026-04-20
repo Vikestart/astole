@@ -26,7 +26,7 @@
 			</div>
 			
 			<div class="footer-contact">
-				<a href="mailto:aleksander.stole@outlook.com" class="contact-btn">
+				<a href="/contact" class="contact-btn">
 					<i class="fa-solid fa-envelope"></i> Get in touch
 				</a>
 			</div>

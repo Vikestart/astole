@@ -42,9 +42,22 @@ if ($auto_close_hours > 0) {
         // 2. Fetch email settings
         $res_mail = $db->conn->query("SELECT setting_key, setting_value FROM settings WHERE setting_key IN ('site_email', 'site_name', 'ticket_msg_closed_auto')");
         $m_stg = [];
-        while($r = $res_mail->fetch_assoc()) { $m_stg[$r['setting_key']] = $r['setting_value']; }
+        while($r = $res_mail->fetch_assoc()) {
+            $sys_msg = "Ticket auto-closed by system due to 72 hours of inactivity.";
+            $db->conn->query("INSERT INTO ticket_replies (ticket_id, sender_type, message, created_at) VALUES ({$t['id']}, 'System', '{$sys_msg}', NOW())");
+            $m_stg[$r['setting_key']] = $r['setting_value'];
+        }
         
-        $headers = "From: " . $m_stg['site_name'] . " <noreply@" . $_SERVER['SERVER_NAME'] . ">\r\nReply-To: " . $m_stg['site_email'] . "\r\nX-Mailer: PHP/" . phpversion();
+        $site_name = $settings['site_name'] ?? 'Support';
+        $safe_noreply = "noreply@" . $_SERVER['SERVER_NAME'];
+        
+        // Force both 'From' and 'Reply-To' to be the system's noreply address
+        $headers = "From: " . $site_name . " <" . $safe_noreply . ">\r\n" .
+                   "Reply-To: " . $safe_noreply . "\r\n" .
+                   "MIME-Version: 1.0\r\n" .
+                   "Content-Type: text/plain; charset=UTF-8\r\n" .
+                   "X-Mailer: PHP/" . phpversion();
+        
         $msg_auto = $m_stg['ticket_msg_closed_auto'] ?? 'Your ticket was auto-closed due to inactivity.';
         
         $ids_to_close = [];
@@ -98,7 +111,7 @@ if ((int)$tkt_settings['ticket_system_enabled'] === 0) {
     <div id="ticket-portal-wrapper" style="margin-top: 30px; background: #f8fafc; padding: 30px; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
         
         <div id="tp-selection">
-            <h3 style="margin-top: 0; color: #0f172a; margin-bottom: 25px; text-align: center; font-size: 22px;">Welcome to the Support Portal</h3>
+            <h3 style="margin-top: 0; color: #0f172a; margin-bottom: 25px; text-align: center; font-size: 22px;">What can I help you with?</h3>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
                 
                 ' . $open_ticket_card . '
@@ -183,7 +196,7 @@ require_once "inc-head.php";
         </div>
     <?php } else { ?>
         <div class="hero-section" style="min-height: auto;">
-            <div class="hero-badge" style="margin-bottom: 0; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+            <div class="hero-badge" style="margin-bottom: 0;">
                 <i class="fa-solid fa-chart-line"></i> Technical Consultant & Developer
             </div>
         </div>
