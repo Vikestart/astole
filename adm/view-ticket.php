@@ -62,38 +62,29 @@
             if ($reply['sender_type'] === 'System') {
                 $clean_msg = htmlspecialchars($reply['message']);
                 $formatted_msg = str_replace(['[b]', '[/b]'], ['<strong>', '</strong>'], $clean_msg);
-                echo '<div style="text-align: center; margin: 15px 0;">';
-                echo '<span style="color: var(--text-muted); font-size: 13px;"><i class="fa-solid fa-clock-rotate-left" style="margin-right: 5px;"></i> ' . $formatted_msg . ' &bull; ' . date('M d, Y H:i', strtotime($reply['created_at'])) . '</span>';
-                echo '</div>';
+                echo '<div class="ticket-system-msg"><span><i class="fa-solid fa-clock-rotate-left" style="margin-right: 5px;"></i> ' . $formatted_msg . ' &bull; ' . date('M d, Y H:i', strtotime($reply['created_at'])) . '</span></div>';
                 continue;
             }
 
             $is_admin = ($reply['sender_type'] === 'Admin');
-            $bubble_bg = $is_admin ? 'var(--text-main)' : 'var(--bg-body)';
-            $bubble_text = $is_admin ? '#fff' : 'var(--color-heading)';
-            $bubble_border = $is_admin ? 'none' : '1px solid var(--border)';
-            $align = $is_admin ? 'margin-left: auto;' : 'margin-right: auto;';
+            $role_class = $is_admin ? 'admin' : 'client';
             $name_tag = $is_admin ? 'You (Admin)' : htmlspecialchars($ticket['client_name']);
-            $text_align = $is_admin ? 'right' : 'left';
         ?>
-            <div style="max-width: 80%; <?php echo $align; ?> margin-bottom: 25px;">
-                <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 5px; text-align: <?php echo $text_align; ?>;">
+            <div class="ticket-msg-wrapper <?php echo $role_class; ?>">
+                <div class="ticket-msg-header">
                     <strong><?php echo $name_tag; ?></strong> &bull; <?php echo date('M d, Y H:i', strtotime($reply['created_at'])); ?>
                 </div>
                 
-                <div style="background: <?php echo $bubble_bg; ?>; color: <?php echo $bubble_text; ?>; padding: 15px 20px; border-radius: 8px; border: <?php echo $bubble_border; ?>; box-shadow: 0 2px 4px rgba(0,0,0,0.05); line-height: 1.6; font-size: 15px; white-space: pre-wrap;"><?php echo htmlspecialchars($reply['message']); ?></div>
+                <div class="ticket-bubble"><?php echo htmlspecialchars($reply['message']); ?></div>
                 
                 <?php 
                 if (!empty($reply['attachment'])) { 
                     $files = json_decode($reply['attachment'], true);
                     if (!is_array($files)) { $files = [$reply['attachment']]; }
                     
-                    echo '<div style="margin-top: 8px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: ' . ($is_admin ? 'flex-end' : 'flex-start') . ';">';
+                    echo '<div class="ticket-attachments">';
                     foreach ($files as $file) {
-                        $btn_bg = $is_admin ? 'rgba(255,255,255,0.15)' : 'var(--bg-body-alt)';
-                        $btn_col = $is_admin ? '#fff' : 'var(--text-main)';
-                        $btn_bord = $is_admin ? 'none' : '1px solid var(--border)';
-                        echo '<a href="/uploads/tickets/' . htmlspecialchars($file) . '" target="_blank" style="display: inline-flex; align-items: center; background: ' . $btn_bg . '; color: ' . $btn_col . '; padding: 6px 14px; border: ' . $btn_bord . '; border-radius: 6px; text-decoration: none; font-size: 12px; font-weight: 600; white-space: nowrap;"><i class="fa-solid fa-paperclip" style="margin-right: 6px;"></i> ' . htmlspecialchars($file) . '</a>';
+                        echo '<a href="/uploads/tickets/' . htmlspecialchars($file) . '" target="_blank" class="ticket-attachment-btn"><i class="fa-solid fa-paperclip" style="margin-right: 6px;"></i> ' . htmlspecialchars($file) . '</a>';
                     }
                     echo '</div>';
                 } 

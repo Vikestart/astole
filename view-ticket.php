@@ -79,44 +79,35 @@ require_once "inc-head.php";
             </div>
         </div>
 
-        <div style="background: #f8fafc; padding: 30px 25px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 30px;">
+       <div style="background: #f8fafc; padding: 30px 25px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 30px;">
             <?php foreach ($replies as $reply) { 
+                
                 if ($reply['sender_type'] === 'System') {
                     $clean_msg = htmlspecialchars($reply['message']);
                     $formatted_msg = str_replace(['[b]', '[/b]'], ['<strong>', '</strong>'], $clean_msg);
-                    echo '<div style="text-align: center; margin: 20px 0;">';
-                    echo '<span style="background: #fff; color: #64748b; font-size: 12px; padding: 6px 14px; border-radius: 20px; border: 1px solid #e2e8f0; box-shadow: 0 1px 2px rgba(0,0,0,0.05);"><i class="fa-solid fa-clock-rotate-left" style="margin-right: 5px;"></i> ' . $formatted_msg . ' &bull; ' . date('M d, Y H:i', strtotime($reply['created_at'])) . '</span>';
-                    echo '</div>';
+                    echo '<div class="ticket-system-msg"><span><i class="fa-solid fa-clock-rotate-left" style="margin-right: 5px;"></i> ' . $formatted_msg . ' &bull; ' . date('M d, Y H:i', strtotime($reply['created_at'])) . '</span></div>';
                     continue;
                 }
 
                 $is_client = ($reply['sender_type'] === 'Client');
-                $bubble_bg = $is_client ? '#2563eb' : '#fff';
-                $bubble_text = $is_client ? '#fff' : '#0f172a';
-                $bubble_border = $is_client ? 'none' : '1px solid #e2e8f0';
-                $align = $is_client ? 'margin-left: auto;' : 'margin-right: auto;';
+                $role_class = $is_client ? 'client' : 'admin';
                 $name_tag = $is_client ? 'You' : 'Support Team';
-                $text_align = $is_client ? 'right' : 'left';
-                $shadow = $is_client ? '0 4px 6px -1px rgba(37, 99, 235, 0.2)' : '0 1px 3px rgba(0,0,0,0.05)';
             ?>
-                <div style="max-width: 85%; <?php echo $align; ?> margin-bottom: 25px;">
-                    <div style="font-size: 12px; color: #64748b; margin-bottom: 5px; text-align: <?php echo $text_align; ?>;">
+                <div class="ticket-msg-wrapper <?php echo $role_class; ?>">
+                    <div class="ticket-msg-header">
                         <strong><?php echo $name_tag; ?></strong> &bull; <?php echo date('M d, Y H:i', strtotime($reply['created_at'])); ?>
                     </div>
                     
-                    <div style="background: <?php echo $bubble_bg; ?>; color: <?php echo $bubble_text; ?>; padding: 18px 22px; border-radius: 10px; border: <?php echo $bubble_border; ?>; box-shadow: <?php echo $shadow; ?>; line-height: 1.6; font-size: 15px; white-space: pre-wrap;"><?php echo htmlspecialchars($reply['message']); ?></div>
+                    <div class="ticket-bubble"><?php echo htmlspecialchars($reply['message']); ?></div>
                     
                     <?php 
                     if (!empty($reply['attachment'])) { 
                         $files = json_decode($reply['attachment'], true);
                         if (!is_array($files)) { $files = [$reply['attachment']]; }
                         
-                        echo '<div style="margin-top: 8px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: ' . ($is_client ? 'flex-end' : 'flex-start') . ';">';
+                        echo '<div class="ticket-attachments">';
                         foreach ($files as $file) {
-                            $btn_bg = $is_client ? 'rgba(37,99,235,0.1)' : '#fff';
-                            $btn_col = $is_client ? '#2563eb' : '#475569';
-                            $btn_bord = $is_client ? '#bfdbfe' : '#e2e8f0';
-                            echo '<a href="/uploads/tickets/' . htmlspecialchars($file) . '" target="_blank" style="display: inline-flex; align-items: center; background: ' . $btn_bg . '; color: ' . $btn_col . '; padding: 6px 14px; border: 1px solid ' . $btn_bord . '; border-radius: 6px; text-decoration: none; font-size: 12px; font-weight: 600; white-space: nowrap;"><i class="fa-solid fa-paperclip" style="margin-right: 6px;"></i> ' . htmlspecialchars($file) . '</a>';
+                            echo '<a href="/uploads/tickets/' . htmlspecialchars($file) . '" target="_blank" class="ticket-attachment-btn"><i class="fa-solid fa-paperclip" style="margin-right: 6px;"></i> ' . htmlspecialchars($file) . '</a>';
                         }
                         echo '</div>';
                     } 

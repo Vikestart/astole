@@ -28,37 +28,39 @@ document.addEventListener('DOMContentLoaded', () => {
     // Multi-file attachment preview & deletion logic
     document.querySelectorAll('.multi-file-input').forEach(input => {
         const previewDiv = input.nextElementSibling;
-        let dt = new DataTransfer();
+        let dt = new DataTransfer(); // Persistent memory!
 
         input.addEventListener('change', function() {
-            dt = new DataTransfer(); // Reset memory on new selection
+            // Append newly selected files to our existing memory
             for(let file of this.files) { dt.items.add(file); }
-            input.files = dt.files;
+            input.files = dt.files; // Sync the HTML input with our memory
             renderPreview();
+        });
+
+        // Event Delegation for the Remove Button
+        previewDiv.addEventListener('click', function(e) {
+            if(e.target.classList.contains('remove-file-btn')) {
+                e.preventDefault();
+                let indexToRemove = parseInt(e.target.getAttribute('data-index'));
+                let newDt = new DataTransfer();
+                
+                Array.from(input.files).forEach((f, i) => { 
+                    if (i !== indexToRemove) newDt.items.add(f); 
+                });
+                
+                input.files = newDt.files;
+                dt = newDt; // Update memory
+                renderPreview();
+            }
         });
 
         function renderPreview() {
             previewDiv.innerHTML = '';
             Array.from(input.files).forEach((file, index) => {
                 let fileRow = document.createElement('div');
-                fileRow.style.cssText = "display: inline-flex; align-items: center; background: #f1f5f9; padding: 6px 12px; border-radius: 4px; font-size: 13px; border: 1px solid #e2e8f0; width: max-content; margin-top: 5px; color: #475569;";
-                fileRow.innerHTML = `<span style="margin-right:10px;">${file.name}</span> <i class="fa-solid fa-times remove-file-btn" style="cursor: pointer; color: #dc2626; padding: 2px;" data-index="${index}"></i>`;
+                fileRow.className = 'file-preview-item';
+                fileRow.innerHTML = `<span>${file.name}</span> <i class="fa-solid fa-times remove-file-btn" data-index="${index}"></i>`;
                 previewDiv.appendChild(fileRow);
-            });
-
-            // Re-bind the delete buttons
-            previewDiv.querySelectorAll('.remove-file-btn').forEach(btn => {
-                btn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    let indexToRemove = parseInt(this.getAttribute('data-index'));
-                    let newDt = new DataTransfer();
-                    Array.from(input.files).forEach((f, i) => { 
-                        if (i !== indexToRemove) newDt.items.add(f); 
-                    });
-                    input.files = newDt.files;
-                    dt = newDt;
-                    renderPreview();
-                });
             });
         }
     });

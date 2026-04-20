@@ -330,6 +330,36 @@ body {
     transform: translateY(-2px);
 }
 
+/* --- Ticket System UI --- */
+.ticket-system-msg { text-align: center; margin: 20px 0; }
+.ticket-system-msg span { background: #fff; color: #64748b; font-size: 12px; padding: 6px 14px; border-radius: 20px; border: 1px solid #e2e8f0; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+
+.ticket-msg-wrapper { max-width: 85%; margin-bottom: 25px; }
+.ticket-msg-wrapper.client { margin-left: auto; } /* Right Aligned */
+.ticket-msg-wrapper.admin { margin-right: auto; } /* Left Aligned */
+
+.ticket-msg-header { font-size: 12px; color: #64748b; margin-bottom: 5px; }
+.ticket-msg-wrapper.client .ticket-msg-header { text-align: right; }
+.ticket-msg-wrapper.admin .ticket-msg-header { text-align: left; }
+
+.ticket-bubble { padding: 18px 22px; border-radius: 10px; line-height: 1.6; font-size: 15px; white-space: pre-wrap; }
+.ticket-msg-wrapper.client .ticket-bubble { background: #2563eb; color: #fff; border: none; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2); }
+.ticket-msg-wrapper.admin .ticket-bubble { background: #fff; color: #0f172a; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+
+.ticket-attachments { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 8px; }
+.ticket-msg-wrapper.client .ticket-attachments { justify-content: flex-end; }
+.ticket-msg-wrapper.admin .ticket-attachments { justify-content: flex-start; }
+
+.ticket-attachment-btn { display: inline-flex; align-items: center; padding: 6px 14px; border-radius: 6px; text-decoration: none; font-size: 12px; font-weight: 600; white-space: nowrap; transition: background 0.2s; }
+.ticket-msg-wrapper.client .ticket-attachment-btn { background: rgba(37,99,235,0.1); color: #2563eb; border: 1px solid #bfdbfe; }
+.ticket-msg-wrapper.client .ticket-attachment-btn:hover { background: rgba(37,99,235,0.2); }
+.ticket-msg-wrapper.admin .ticket-attachment-btn { background: #fff; color: #475569; border: 1px solid #e2e8f0; }
+.ticket-msg-wrapper.admin .ticket-attachment-btn:hover { background: #f8fafc; }
+
+/* File Upload Preview UI */
+.file-preview-item { display: inline-flex; align-items: center; background: #f1f5f9; padding: 6px 12px; border-radius: 4px; font-size: 13px; border: 1px solid #e2e8f0; width: max-content; margin-top: 5px; color: #475569; }
+.file-preview-item i { margin-left: 10px; cursor: pointer; color: #dc2626; padding: 2px; }
+
 
 /* --- Mobile / Tablet Responsiveness --- */
 @media screen and (max-width: 768px) {
