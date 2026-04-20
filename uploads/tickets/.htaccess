@@ -1,0 +1,9 @@
+# Prevent execution of scripts in the uploads folder
+<FilesMatch "\.(php|php\.|\.|phtml|php5|php4|php3|cgi|pl|py|jsp|asp|aspx|shtml|sh|cgi)$">
+    Order Deny,Allow
+    Deny from All
+</FilesMatch>
+# Force attachments to download instead of displaying inline (optional but safer)
+<FilesMatch "\.(jpg|jpeg|png|gif|pdf|txt|zip|rar)$">
+    Header set Content-Disposition attachment
+</FilesMatch>
