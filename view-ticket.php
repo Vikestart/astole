@@ -13,7 +13,6 @@ if (empty($track_id) || empty($email)) {
 
 $db = new DBConn();
 
-// Fetch Ticket
 $stmt = $db->conn->prepare("SELECT * FROM tickets WHERE tracking_id = ? AND client_email = ?");
 $stmt->bind_param("ss", $track_id, $email);
 $stmt->execute();
@@ -28,7 +27,6 @@ if ($res->num_rows === 0) {
 $ticket = $res->fetch_assoc();
 $stmt->close();
 
-// Fetch Replies
 $replies = [];
 $stmt_rep = $db->conn->prepare("SELECT * FROM ticket_replies WHERE ticket_id = ? ORDER BY created_at ASC");
 $stmt_rep->bind_param("i", $ticket['id']);
@@ -37,7 +35,6 @@ $res_rep = $stmt_rep->get_result();
 while ($r = $res_rep->fetch_assoc()) { $replies[] = $r; }
 $stmt_rep->close();
 
-// Fetch reCAPTCHA if needed
 $res_rc = $db->conn->query("SELECT setting_value FROM settings WHERE setting_key = 'recaptcha_site'");
 $rc_site = ($res_rc && $res_rc->num_rows === 1) ? trim($res_rc->fetch_assoc()['setting_value']) : '';
 
@@ -46,7 +43,6 @@ require_once "inc-head.php";
 ?>
 
 <main class="page-container">
-    
     <div class="hero-section" style="min-height: auto; padding: 40px 20px 20px 20px;">
         <div class="hero-badge" style="margin-bottom: 0;">
             <i class="fa-solid fa-chart-line"></i> Technical Consultant & Developer
@@ -54,7 +50,6 @@ require_once "inc-head.php";
     </div>
 
     <section class="glass-panel" style="max-width: 900px; margin: -30px auto 40px auto; position: relative; z-index: 10;">
-        
         <?php 
         if (isset($_SESSION['Frontmsg'])) {
             $msgType = $_SESSION['Frontmsg']['type']; 
@@ -86,19 +81,15 @@ require_once "inc-head.php";
 
         <div style="background: #f8fafc; padding: 30px 25px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 30px;">
             <?php foreach ($replies as $reply) { 
-                
-                // SYSTEM HISTORY LOG VIEW
                 if ($reply['sender_type'] === 'System') {
                     $clean_msg = htmlspecialchars($reply['message']);
                     $formatted_msg = str_replace(['[b]', '[/b]'], ['<strong>', '</strong>'], $clean_msg);
-                    
                     echo '<div style="text-align: center; margin: 20px 0;">';
                     echo '<span style="background: #fff; color: #64748b; font-size: 12px; padding: 6px 14px; border-radius: 20px; border: 1px solid #e2e8f0; box-shadow: 0 1px 2px rgba(0,0,0,0.05);"><i class="fa-solid fa-clock-rotate-left" style="margin-right: 5px;"></i> ' . $formatted_msg . ' &bull; ' . date('M d, Y H:i', strtotime($reply['created_at'])) . '</span>';
                     echo '</div>';
                     continue;
                 }
 
-                // CLIENT VIEW: Client is right (Blue), Admin is left (White)
                 $is_client = ($reply['sender_type'] === 'Client');
                 $bubble_bg = $is_client ? '#2563eb' : '#fff';
                 $bubble_text = $is_client ? '#fff' : '#0f172a';
@@ -112,15 +103,24 @@ require_once "inc-head.php";
                     <div style="font-size: 12px; color: #64748b; margin-bottom: 5px; text-align: <?php echo $text_align; ?>;">
                         <strong><?php echo $name_tag; ?></strong> &bull; <?php echo date('M d, Y H:i', strtotime($reply['created_at'])); ?>
                     </div>
+                    
                     <div style="background: <?php echo $bubble_bg; ?>; color: <?php echo $bubble_text; ?>; padding: 18px 22px; border-radius: 10px; border: <?php echo $bubble_border; ?>; box-shadow: <?php echo $shadow; ?>; line-height: 1.6; font-size: 15px; white-space: pre-wrap;"><?php echo htmlspecialchars($reply['message']); ?></div>
                     
-                    <?php if (!empty($reply['attachment'])) { ?>
-                        <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid <?php echo $is_client ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)'; ?>;">
-                            <a href="/uploads/tickets/<?php echo htmlspecialchars($reply['attachment']); ?>" target="_blank" style="display: inline-flex; align-items: center; background: <?php echo $is_client ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.05)'; ?>; color: inherit; padding: 8px 15px; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: 600; transition: background 0.2s;">
-                                <i class="fa-solid fa-file-arrow-down" style="margin-right: 8px; font-size: 16px;"></i> Download Attachment
-                            </a>
-                        </div>
-                    <?php } ?>
+                    <?php 
+                    if (!empty($reply['attachment'])) { 
+                        $files = json_decode($reply['attachment'], true);
+                        if (!is_array($files)) { $files = [$reply['attachment']]; }
+                        
+                        echo '<div style="margin-top: 8px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: ' . ($is_client ? 'flex-end' : 'flex-start') . ';">';
+                        foreach ($files as $file) {
+                            $btn_bg = $is_client ? 'rgba(37,99,235,0.1)' : '#fff';
+                            $btn_col = $is_client ? '#2563eb' : '#475569';
+                            $btn_bord = $is_client ? '#bfdbfe' : '#e2e8f0';
+                            echo '<a href="/uploads/tickets/' . htmlspecialchars($file) . '" target="_blank" style="display: inline-flex; align-items: center; background: ' . $btn_bg . '; color: ' . $btn_col . '; padding: 6px 14px; border: 1px solid ' . $btn_bord . '; border-radius: 6px; text-decoration: none; font-size: 12px; font-weight: 600; white-space: nowrap;"><i class="fa-solid fa-paperclip" style="margin-right: 6px;"></i> ' . htmlspecialchars($file) . '</a>';
+                        }
+                        echo '</div>';
+                    } 
+                    ?>
                 </div>
             <?php } ?>
         </div>
@@ -128,7 +128,6 @@ require_once "inc-head.php";
         <?php if ($ticket['status'] !== 'Closed') { ?>
             <div style="border-top: 1px solid #e2e8f0; padding-top: 25px;">
                 <h3 style="margin-top: 0; color: #0f172a; margin-bottom: 20px;">Send a Reply</h3>
-                
                 <form action="process-ticket.php" method="POST" enctype="multipart/form-data">
                     <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
                     <input type="hidden" name="action" value="reply_ticket">
@@ -141,9 +140,10 @@ require_once "inc-head.php";
                     </div>
                     
                     <div style="margin-bottom: 20px;">
-                        <label style="display: block; font-weight: 600; margin-bottom: 5px; color: #334155; font-size: 14px;"><i class="fa-solid fa-paperclip"></i> Attach File (Optional)</label>
-                        <input type="file" name="attachment[]" multiple accept=".jpg,.jpeg,.png,.webp,.pdf,.txt" class="multi-file-input" style="width: 100%; padding: 8px; border: 1px dashed var(--border); border-radius: 6px; font-size: 13px;">
-                        <div class="file-list-preview" style="margin-top: 10px; display: flex; flex-direction: column; gap: 5px;"></div>
+                        <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #334155; font-size: 14px;"><i class="fa-solid fa-paperclip"></i> Attach Files (Optional)</label>
+                        <input type="file" name="attachment[]" multiple accept=".jpg,.jpeg,.png,.webp,.pdf,.txt" class="multi-file-input" style="width: 100%; padding: 8px; border: 1px dashed #cbd5e1; border-radius: 6px; background: #f8fafc; font-size: 13px;">
+                        <div class="file-list-preview" style="display: flex; flex-direction: column; gap: 5px;"></div>
+                        <div style="font-size: 12px; color: #94a3b8; margin-top: 8px;"><i class="fa-solid fa-circle-info"></i> Max size: 5MB per file. Allowed formats: JPG, PNG, WEBP, PDF, TXT.</div>
                     </div>
 
                     <?php if (!empty($rc_site)) { ?>
@@ -152,16 +152,16 @@ require_once "inc-head.php";
                     <?php } ?>
 
                     <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
-                        <button type="submit" style="background: #2563eb; color: white; padding: 10px 24px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: opacity 0.2s;">Send Reply</button>
+                        <button type="submit" style="background: #2563eb; color: white; padding: 10px 24px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">Send Reply</button>
                 </form>
 
-                <form action="process-ticket.php" method="POST" onsubmit="return confirm('Are you sure you want to close this ticket? You will not be able to send further replies.');">
+                <form action="process-ticket.php" method="POST" onsubmit="return confirm('Are you sure you want to close this ticket?');">
                     <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
                     <input type="hidden" name="action" value="client_close">
                     <input type="hidden" name="ticket_id" value="<?php echo $ticket['id']; ?>">
                     <input type="hidden" name="auth_email" value="<?php echo htmlspecialchars($ticket['client_email']); ?>">
                     <input type="hidden" name="return_url" value="view-ticket.php?id=<?php echo urlencode($track_id); ?>&email=<?php echo urlencode($email); ?>">
-                    <button type="submit" style="background: transparent; color: #dc2626; border: 1px solid #dc2626; padding: 9px 20px; border-radius: 6px; font-weight: 600; cursor: pointer; transition: background 0.2s;">Mark as Resolved</button>
+                    <button type="submit" style="background: transparent; color: #dc2626; border: 1px solid #dc2626; padding: 9px 20px; border-radius: 6px; font-weight: 600; cursor: pointer;">Mark as Resolved</button>
                 </form>
                     </div>
             </div>
@@ -172,7 +172,6 @@ require_once "inc-head.php";
                 <p style="margin: 0; color: #64748b; font-size: 14px;">If you need further assistance, please open a new ticket from the support portal.</p>
             </div>
         <?php } ?>
-
     </section>
 </main>
 

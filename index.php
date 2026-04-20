@@ -154,7 +154,12 @@ if ((int)$tkt_settings['ticket_system_enabled'] === 0) {
                 </div>
                 <div style="margin-bottom: 15px;"><label style="display: block; font-weight: 600; margin-bottom: 5px; color: #334155; font-size: 14px;">Subject <span style="color: #dc2626;">*</span></label><input type="text" name="subject" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit; background: #fff;" required></div>
                 <div style="margin-bottom: 15px;"><label style="display: block; font-weight: 600; margin-bottom: 5px; color: #334155; font-size: 14px;">Message <span style="color: #dc2626;">*</span></label><textarea name="message" style="width: 100%; height: 150px; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit; resize: vertical; background: #fff;" required></textarea></div>
-                <div style="margin-bottom: 20px;"><label style="display: block; font-weight: 600; margin-bottom: 5px; color: #334155; font-size: 14px;"><i class="fa-solid fa-paperclip"></i> Attach File (Optional)</label><input type="file" name="attachment[]" multiple accept=".jpg,.jpeg,.png,.webp,.pdf,.txt" class="multi-file-input" style="width: 100%; padding: 8px; border: 1px dashed var(--border); border-radius: 6px; font-size: 13px;"><div class="file-list-preview" style="margin-top: 10px; display: flex; flex-direction: column; gap: 5px;"></div></div>
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #334155; font-size: 14px;"><i class="fa-solid fa-paperclip"></i> Attach Files (Optional)</label>
+                    <input type="file" name="attachment[]" multiple accept=".jpg,.jpeg,.png,.webp,.pdf,.txt" class="multi-file-input" style="width: 100%; padding: 8px; border: 1px dashed #cbd5e1; border-radius: 6px; background: #fff; font-size: 13px;">
+                    <div class="file-list-preview" style="display: flex; flex-direction: column; gap: 5px;"></div>
+                    <div style="font-size: 12px; color: #94a3b8; margin-top: 8px;"><i class="fa-solid fa-circle-info"></i> Max size: 5MB per file. Allowed formats: JPG, PNG, WEBP, PDF, TXT.</div>
+                </div>
                 ' . $rc_html . '
                 <button type="submit" style="background: #2563eb; color: white; padding: 10px 20px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: opacity 0.2s;">Submit Ticket</button>
             </form>

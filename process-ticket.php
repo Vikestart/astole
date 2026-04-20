@@ -26,7 +26,6 @@ if (!empty($rc_secret) && in_array($action, ['new_ticket', 'reply_ticket'])) {
     
     $verify_url = "https://www.google.com/recaptcha/api/siteverify?secret={$rc_secret}&response={$rc_response}";
     $verify_data = json_decode(file_get_contents($verify_url));
-    
     if (!$verify_data->success || (isset($verify_data->score) && $verify_data->score < 0.5)) { 
         returnWithMsg("error", "Anti-spam verification failed. Our system thinks you might be a bot."); 
     }
@@ -37,7 +36,7 @@ if ($action === 'new_ticket') {
     $name = trim(strip_tags($_POST['client_name'] ?? ''));
     $email = filter_var($_POST['client_email'] ?? '', FILTER_SANITIZE_EMAIL);
     $subject = trim(strip_tags($_POST['subject'] ?? ''));
-    $message = trim(htmlspecialchars($_POST['message'] ?? ''));
+    $message = trim($_POST['message'] ?? ''); // SAVED RAW TO PREVENT DOUBLE ESCAPING BUG
 
     if (empty($name) || empty($email) || empty($subject) || empty($message) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
         returnWithMsg("error", "Please fill out all fields with a valid email address.");
@@ -53,8 +52,8 @@ if ($action === 'new_ticket') {
 
     // Process Attachment
     $attachment = null;
-    if (!empty($_FILES['attachment']['name'])) {
-        $upload_res = processMultipleAttachments($_FILES['attachment'], __DIR__ . '/../uploads/tickets');
+    if (!empty($_FILES['attachment']['name'][0])) {
+        $upload_res = processMultipleAttachments($_FILES['attachment'], __DIR__ . '/uploads/tickets');
         if (is_array($upload_res) && isset($upload_res['error'])) { returnWithMsg("error", $upload_res['error']); }
         $attachment = $upload_res;
     }
@@ -97,11 +96,10 @@ if ($action === 'new_ticket') {
 if ($action === 'reply_ticket') {
     $ticket_id = (int)($_POST['ticket_id'] ?? 0);
     $auth_email = filter_var($_POST['auth_email'] ?? '', FILTER_SANITIZE_EMAIL);
-    $message = trim(htmlspecialchars($_POST['message'] ?? ''));
+    $message = trim($_POST['message'] ?? ''); // SAVED RAW
     $tracking_id = $_POST['tracking_id'] ?? 'Unknown';
     
     if ($return_url == 'home') { $return_url = "view-ticket.php?id=" . urlencode($tracking_id) . "&email=" . urlencode($auth_email); }
-
     if (empty($message) || empty($ticket_id)) { returnWithMsg("error", "Message cannot be empty."); }
 
     $stmt_chk = $db->conn->prepare("SELECT id, status FROM tickets WHERE id = ? AND client_email = ?");
@@ -112,7 +110,6 @@ if ($action === 'reply_ticket') {
     $t_data = $res_chk->fetch_assoc();
     $stmt_chk->close();
 
-    // --- SYSTEM LOG: Wake up ticket ---
     if ($t_data['status'] !== 'Open') {
         $sys_msg = "Status changed from [b]{$t_data['status']}[/b] to [b]Open[/b] by the Client.";
         $stmt_sys = $db->conn->prepare("INSERT INTO ticket_replies (ticket_id, sender_type, message, created_at) VALUES (?, 'System', ?, ?)");
@@ -123,8 +120,8 @@ if ($action === 'reply_ticket') {
 
     // Process Attachment
     $attachment = null;
-    if (!empty($_FILES['attachment']['name'])) {
-        $upload_res = processMultipleAttachments($_FILES['attachment'], __DIR__ . '/../uploads/tickets');
+    if (!empty($_FILES['attachment']['name'][0])) {
+        $upload_res = processMultipleAttachments($_FILES['attachment'], __DIR__ . '/uploads/tickets');
         if (is_array($upload_res) && isset($upload_res['error'])) { returnWithMsg("error", $upload_res['error']); }
         $attachment = $upload_res;
     }
@@ -180,7 +177,6 @@ if ($action === 'client_close') {
     $stmt_upd->execute();
     $stmt_upd->close();
     
-    // Add System History Log
     $sys_msg = "Ticket was marked as [b]Resolved and Closed[/b] by the Client.";
     $stmt_sys = $db->conn->prepare("INSERT INTO ticket_replies (ticket_id, sender_type, message, created_at) VALUES (?, 'System', ?, ?)");
     $stmt_sys->bind_param("iss", $ticket_id, $sys_msg, $currtime);

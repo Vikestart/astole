@@ -17,16 +17,13 @@ if (!isset($_SESSION['UserID'])) { header("Location: login.php"); die(); }
 
 $db = new DBConn();
 
-// Verify Role
 $stmt_auth = $db->conn->prepare("SELECT user_role FROM users WHERE user_id = ?");
 $stmt_auth->bind_param("i", $_SESSION['UserID']);
 $stmt_auth->execute();
 $user_role = (int)$stmt_auth->get_result()->fetch_assoc()['user_role'];
 $stmt_auth->close();
 
-if ($user_role == 3) {
-    returnWithMsg("error", "times-circle", 5000, "Permission denied. You cannot manage tickets.", "index.php");
-}
+if ($user_role == 3) { returnWithMsg("error", "times-circle", 5000, "Permission denied.", "index.php"); }
 
 $action = $_POST['action'] ?? '';
 $ticket_id = (int)($_POST['ticket_id'] ?? 0);
@@ -41,11 +38,8 @@ if ($action === 'delete_ticket') {
     $res_att = $stmt_att->get_result();
     while($r = $res_att->fetch_assoc()) {
         $files = json_decode($r['attachment'], true);
-        if(is_array($files)) {
-            foreach($files as $f) { @unlink(__DIR__ . '/../uploads/tickets/' . $f); }
-        } else {
-            @unlink(__DIR__ . '/../uploads/tickets/' . $r['attachment']); // Fallback for old single files
-        }
+        if(is_array($files)) { foreach($files as $f) { @unlink(__DIR__ . '/../uploads/tickets/' . $f); } } 
+        else { @unlink(__DIR__ . '/../uploads/tickets/' . $r['attachment']); }
     }
     $stmt_att->close();
 
@@ -64,12 +58,10 @@ if ($action === 'delete_ticket') {
 
 // --- ACTION: ADMIN REPLY OR CLOSE ---
 if ($action === 'admin_reply') {
-    $message = trim(htmlspecialchars($_POST['message'] ?? ''));
+    $message = trim($_POST['message'] ?? ''); // SAVED RAW
     $status_update = $_POST['status_update'] ?? 'Answered';
 
-    if (empty($message)) {
-        returnWithMsg("error", "times-circle", 4500, "You must provide a reply comment.", "view-ticket.php?id=" . $ticket_id);
-    }
+    if (empty($message)) { returnWithMsg("error", "times-circle", 4500, "You must provide a reply comment.", "view-ticket.php?id=" . $ticket_id); }
 
     $stmt_tkt = $db->conn->prepare("SELECT client_name, client_email, tracking_id, status FROM tickets WHERE id = ?");
     $stmt_tkt->bind_param("i", $ticket_id);
@@ -78,8 +70,6 @@ if ($action === 'admin_reply') {
     $stmt_tkt->close();
 
     if ($t_data) {
-        
-        // Status History Log
         if ($t_data['status'] !== $status_update) {
             $stmt_admin = $db->conn->prepare("SELECT user_uid FROM users WHERE user_id = ?");
             $stmt_admin->bind_param("i", $_SESSION['UserID']);
@@ -97,11 +87,9 @@ if ($action === 'admin_reply') {
 
         // Process Attachment
         $attachment = null;
-        if (!empty($_FILES['attachment']['name'])) {
+        if (!empty($_FILES['attachment']['name'][0])) {
             $upload_res = processMultipleAttachments($_FILES['attachment'], __DIR__ . '/../uploads/tickets');
-            if (is_array($upload_res) && isset($upload_res['error'])) {
-                returnWithMsg("error", "times-circle", 4500, $upload_res['error'], "view-ticket.php?id=" . $ticket_id);
-            }
+            if (is_array($upload_res) && isset($upload_res['error'])) { returnWithMsg("error", "times-circle", 4500, $upload_res['error'], "view-ticket.php?id=" . $ticket_id); }
             $attachment = $upload_res;
         }
 

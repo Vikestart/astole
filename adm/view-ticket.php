@@ -13,7 +13,6 @@
     $ticket_id = (int)($_GET['id'] ?? 0);
     $db = new DBConn();
 
-    // Fetch Header
     $stmt = $db->conn->prepare("SELECT * FROM tickets WHERE id = ?");
     $stmt->bind_param("i", $ticket_id);
     $stmt->execute();
@@ -22,7 +21,6 @@
     $ticket = $res->fetch_assoc();
     $stmt->close();
 
-    // Fetch Thread
     $replies = [];
     $stmt_rep = $db->conn->prepare("SELECT * FROM ticket_replies WHERE ticket_id = ? ORDER BY created_at ASC");
     $stmt_rep->bind_param("i", $ticket_id);
@@ -61,18 +59,15 @@
     <div style="background: var(--bg-body-alt); padding: 30px 25px; border: 1px solid var(--border);">
         <?php foreach ($replies as $reply) { 
             
-            // SYSTEM HISTORY LOG VIEW
             if ($reply['sender_type'] === 'System') {
                 $clean_msg = htmlspecialchars($reply['message']);
                 $formatted_msg = str_replace(['[b]', '[/b]'], ['<strong>', '</strong>'], $clean_msg);
-                
                 echo '<div style="text-align: center; margin: 15px 0;">';
                 echo '<span style="color: var(--text-muted); font-size: 13px;"><i class="fa-solid fa-clock-rotate-left" style="margin-right: 5px;"></i> ' . $formatted_msg . ' &bull; ' . date('M d, Y H:i', strtotime($reply['created_at'])) . '</span>';
                 echo '</div>';
                 continue;
             }
 
-            // ADMIN VIEW: Admin is on the right (Blue), Client is on the left (White)
             $is_admin = ($reply['sender_type'] === 'Admin');
             $bubble_bg = $is_admin ? 'var(--text-main)' : 'var(--bg-body)';
             $bubble_text = $is_admin ? '#fff' : 'var(--color-heading)';
@@ -85,15 +80,24 @@
                 <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 5px; text-align: <?php echo $text_align; ?>;">
                     <strong><?php echo $name_tag; ?></strong> &bull; <?php echo date('M d, Y H:i', strtotime($reply['created_at'])); ?>
                 </div>
+                
                 <div style="background: <?php echo $bubble_bg; ?>; color: <?php echo $bubble_text; ?>; padding: 15px 20px; border-radius: 8px; border: <?php echo $bubble_border; ?>; box-shadow: 0 2px 4px rgba(0,0,0,0.05); line-height: 1.6; font-size: 15px; white-space: pre-wrap;"><?php echo htmlspecialchars($reply['message']); ?></div>
                 
-                <?php if (!empty($reply['attachment'])) { ?>
-                    <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid <?php echo $is_admin ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)'; ?>;">
-                        <a href="/uploads/tickets/<?php echo htmlspecialchars($reply['attachment']); ?>" target="_blank" style="display: inline-flex; align-items: center; background: <?php echo $is_admin ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.05)'; ?>; color: inherit; padding: 8px 15px; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: 600; transition: background 0.2s;">
-                            <i class="fa-solid fa-file-arrow-down" style="margin-right: 8px; font-size: 16px;"></i> Download Attachment
-                        </a>
-                    </div>
-                <?php } ?>
+                <?php 
+                if (!empty($reply['attachment'])) { 
+                    $files = json_decode($reply['attachment'], true);
+                    if (!is_array($files)) { $files = [$reply['attachment']]; }
+                    
+                    echo '<div style="margin-top: 8px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: ' . ($is_admin ? 'flex-end' : 'flex-start') . ';">';
+                    foreach ($files as $file) {
+                        $btn_bg = $is_admin ? 'rgba(255,255,255,0.15)' : 'var(--bg-body-alt)';
+                        $btn_col = $is_admin ? '#fff' : 'var(--text-main)';
+                        $btn_bord = $is_admin ? 'none' : '1px solid var(--border)';
+                        echo '<a href="/uploads/tickets/' . htmlspecialchars($file) . '" target="_blank" style="display: inline-flex; align-items: center; background: ' . $btn_bg . '; color: ' . $btn_col . '; padding: 6px 14px; border: ' . $btn_bord . '; border-radius: 6px; text-decoration: none; font-size: 12px; font-weight: 600; white-space: nowrap;"><i class="fa-solid fa-paperclip" style="margin-right: 6px;"></i> ' . htmlspecialchars($file) . '</a>';
+                    }
+                    echo '</div>';
+                } 
+                ?>
             </div>
         <?php } ?>
     </div>
@@ -110,9 +114,10 @@
             </div>
             
             <div style="margin-bottom: 20px;">
-                <label style="display: block; font-weight: 600; margin-bottom: 8px; color: var(--color-heading);"><i class="fa-solid fa-paperclip"></i> Attach File (Optional)</label>
-                <input type="file" name="attachment[]" multiple accept=".jpg,.jpeg,.png,.webp,.pdf,.txt" class="multi-file-input" style="width: 100%; padding: 8px; border: 1px dashed var(--border); border-radius: 6px; font-size: 13px;">
-                <div class="file-list-preview" style="margin-top: 10px; display: flex; flex-direction: column; gap: 5px;"></div>
+                <label style="display: block; font-weight: 600; margin-bottom: 8px; color: var(--color-heading);"><i class="fa-solid fa-paperclip"></i> Attach Files (Optional)</label>
+                <input type="file" name="attachment[]" multiple accept=".jpg,.jpeg,.png,.webp,.pdf,.txt" class="multi-file-input" style="width: 100%; padding: 8px; border: 1px dashed var(--border); border-radius: 6px; background: var(--bg-body-alt); font-size: 13px; color: var(--color-heading);">
+                <div class="file-list-preview" style="display: flex; flex-direction: column; gap: 5px;"></div>
+                <div style="font-size: 12px; color: var(--text-muted); margin-top: 8px;"><i class="fa-solid fa-circle-info"></i> Max size: 5MB per file. Allowed formats: JPG, PNG, WEBP, PDF, TXT.</div>
             </div>
 
             <div style="display: flex; justify-content: space-between; align-items: center;">
