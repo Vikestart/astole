@@ -102,17 +102,17 @@ if ($action === 'admin_reply') {
         if ($res_stg) { while($r = $res_stg->fetch_assoc()) { $settings[$r['setting_key']] = $r['setting_value']; } }
 
         $site_name = $settings['site_name'] ?? 'Support';
-        $site_email = $settings['site_email'] ?? 'noreply@' . $_SERVER['SERVER_NAME'];
-        $safe_noreply = "noreply@" . $_SERVER['SERVER_NAME'];
+        $safe_noreply = "noreply@" . $_SERVER['HTTP_HOST'];
         
-        // Enhanced Anti-Spam Headers
-        $headers = "From: " . $site_name . " <" . $safe_noreply . ">\r\n" .
+        // FIX 1: Quote the Site Name to prevent commas/spaces from breaking the headers
+        // FIX 2: Added MIME & Content-Type to prove we aren't a spam bot
+        $headers = "From: \"" . $site_name . "\" <" . $safe_noreply . ">\r\n" .
                    "Reply-To: " . $safe_noreply . "\r\n" .
                    "MIME-Version: 1.0\r\n" .
                    "Content-Type: text/plain; charset=UTF-8\r\n" .
                    "X-Mailer: PHP/" . phpversion();
         
-        $body_text = "Hello " . $t_data['client_name'] . ",\n\n";
+        $body_text = "Hello " . trim($t_data['client_name']) . ",\n\n";
         $send_email = false;
 
         if (!empty($message)) {
@@ -133,8 +133,13 @@ if ($action === 'admin_reply') {
             $body_text .= "--- Please do not reply directly to this email ---\n";
             $body_text .= "You can view the full thread and respond on our secure support portal: \n" . $portal_url;
             
-            // The "-f" parameter forces the Envelope Sender, preventing Plesk from silently dropping it!
-            mail($t_data['client_email'], "Ticket Update: " . $t_data['tracking_id'], $body_text, $headers, "-f " . $safe_noreply);
+            // FIX 3: Remove the space after -f! Plesk usually requires it to be attached.
+            $mail_sent = mail(trim($t_data['client_email']), "Ticket Update: " . $t_data['tracking_id'], $body_text, $headers, "-f" . $safe_noreply);
+            
+            // FIX 4: If Plesk drops it, log the failure instantly so we can see it in your PHP logs!
+            if (!$mail_sent) {
+                error_log("TICKET MAIL FAILED: PHP mail() returned false. To: " . $t_data['client_email']);
+            }
         }
     }
 
