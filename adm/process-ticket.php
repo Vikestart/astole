@@ -1,6 +1,7 @@
 <?php
 session_start();
-require "../db.php";
+require_once "../upload-helper.php";
+require_once "../db.php";
 
 function returnWithMsg($type, $icon, $expire, $message, $redirect) {
     $_SESSION['Sessionmsg'] = array('origin' => 'tickets', 'type' => $type, 'icon' => $icon, 'expire' => $expire, 'message' => $message);
@@ -16,7 +17,7 @@ if (!isset($_SESSION['UserID'])) { header("Location: login.php"); die(); }
 
 $db = new DBConn();
 
-// Verify Role (Only Admins=1 and Mods=2 can handle tickets)
+// Verify Role
 $stmt_auth = $db->conn->prepare("SELECT user_role FROM users WHERE user_id = ?");
 $stmt_auth->bind_param("i", $_SESSION['UserID']);
 $stmt_auth->execute();
@@ -38,7 +39,6 @@ if ($action === 'delete_ticket') {
     $stmt->execute();
     $stmt->close();
     
-    // Also delete all replies associated with it
     $stmt_rep = $db->conn->prepare("DELETE FROM ticket_replies WHERE ticket_id = ?");
     $stmt_rep->bind_param("i", $ticket_id);
     $stmt_rep->execute();
@@ -52,12 +52,10 @@ if ($action === 'admin_reply') {
     $message = trim(htmlspecialchars($_POST['message'] ?? ''));
     $status_update = $_POST['status_update'] ?? 'Answered';
 
-    // 1. Strictly require a message, no matter what status is chosen!
     if (empty($message)) {
         returnWithMsg("error", "times-circle", 4500, "You must provide a reply comment.", "view-ticket.php?id=" . $ticket_id);
     }
 
-    // 2. Fetch current ticket data (including 'status' so we can check if it changes)
     $stmt_tkt = $db->conn->prepare("SELECT client_name, client_email, tracking_id, status FROM tickets WHERE id = ?");
     $stmt_tkt->bind_param("i", $ticket_id);
     $stmt_tkt->execute();
@@ -66,9 +64,8 @@ if ($action === 'admin_reply') {
 
     if ($t_data) {
         
-        // 3. Status History Log: Grab Admin Name & Log Change
+        // Status History Log
         if ($t_data['status'] !== $status_update) {
-            // Fetch Admin Name
             $stmt_admin = $db->conn->prepare("SELECT user_uid FROM users WHERE user_id = ?");
             $stmt_admin->bind_param("i", $_SESSION['UserID']);
             $stmt_admin->execute();
@@ -76,7 +73,6 @@ if ($action === 'admin_reply') {
             $admin_name = $admin_res ? $admin_res['user_uid'] : 'an Administrator';
             $stmt_admin->close();
 
-            // Store message with safe [b] brackets for bolding
             $sys_msg = "Status changed from [b]{$t_data['status']}[/b] to [b]{$status_update}[/b] by {$admin_name}.";
             $stmt_sys = $db->conn->prepare("INSERT INTO ticket_replies (ticket_id, sender_type, message, created_at) VALUES (?, 'System', ?, ?)");
             $stmt_sys->bind_param("iss", $ticket_id, $sys_msg, $currtime);
@@ -84,7 +80,7 @@ if ($action === 'admin_reply') {
             $stmt_sys->close();
         }
 
-        // Process Attachment (Note the path goes up one level `..`)
+        // Process Attachment
         $attachment = null;
         if (!empty($_FILES['attachment']['name'])) {
             $upload_res = processTicketAttachment($_FILES['attachment'], __DIR__ . '/../uploads/tickets');
@@ -95,25 +91,22 @@ if ($action === 'admin_reply') {
         }
 
         $stmt_msg = $db->conn->prepare("INSERT INTO ticket_replies (ticket_id, sender_type, message, attachment, created_at) VALUES (?, 'Admin', ?, ?, ?)");
-        $stmt_msg->bind_param("issss", $ticket_id, $message, $attachment, $currtime);
+        $stmt_msg->bind_param("isss", $ticket_id, $message, $attachment, $currtime);
         $stmt_msg->execute();
         $stmt_msg->close();
 
-        // 5. Update the actual ticket status and timestamp
         $stmt_upd = $db->conn->prepare("UPDATE tickets SET status = ?, updated_at = ? WHERE id = ?");
         $stmt_upd->bind_param("ssi", $status_update, $currtime, $ticket_id);
         $stmt_upd->execute();
         $stmt_upd->close();
 
-        // 6. Send the Anti-Spam Email Notification
+        // Send Email
         $res_stg = $db->conn->query("SELECT setting_key, setting_value FROM settings WHERE setting_key IN ('site_email', 'site_name', 'ticket_msg_reply', 'ticket_msg_closed_admin')");
         $settings = [];
         if ($res_stg) { while($r = $res_stg->fetch_assoc()) { $settings[$r['setting_key']] = $r['setting_value']; } }
 
         $site_name = $settings['site_name'] ?? 'Support';
         $safe_noreply = "noreply@" . $_SERVER['HTTP_HOST'];
-        
-        // FIX: Safely Base64 encode the site name to support Norwegian characters (ø, æ, å)
         $encoded_site_name = '=?UTF-8?B?' . base64_encode($site_name) . '?=';
         
         $headers = "From: " . $encoded_site_name . " <" . $safe_noreply . ">\r\n" .
@@ -138,7 +131,6 @@ if ($action === 'admin_reply') {
         }
 
         if ($send_email) {
-            // FIX: Generate the exact direct link to the ticket!
             $portal_url = "http" . (isset($_SERVER['HTTPS']) ? "s" : "") . "://" . $_SERVER['HTTP_HOST'] . "/view-ticket.php?id=" . urlencode($t_data['tracking_id']) . "&email=" . urlencode($t_data['client_email']);
             
             $body_text .= "Tracking ID: " . $t_data['tracking_id'] . "\n\n";

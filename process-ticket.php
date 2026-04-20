@@ -1,7 +1,7 @@
 <?php
 session_start();
-require "db.php";
 require_once "upload-helper.php";
+require_once "db.php";
 
 $return_url = $_POST['return_url'] ?? 'home';
 
@@ -55,14 +55,12 @@ if ($action === 'new_ticket') {
     $attachment = null;
     if (!empty($_FILES['attachment']['name'])) {
         $upload_res = processTicketAttachment($_FILES['attachment'], __DIR__ . '/uploads/tickets');
-        if (is_array($upload_res) && isset($upload_res['error'])) {
-            returnWithMsg("error", $upload_res['error']);
-        }
+        if (is_array($upload_res) && isset($upload_res['error'])) { returnWithMsg("error", $upload_res['error']); }
         $attachment = $upload_res;
     }
 
     $stmt_msg = $db->conn->prepare("INSERT INTO ticket_replies (ticket_id, sender_type, message, attachment, created_at) VALUES (?, 'Client', ?, ?, ?)");
-    $stmt_msg->bind_param("issss", $ticket_id, $message, $attachment, $currtime);
+    $stmt_msg->bind_param("isss", $ticket_id, $message, $attachment, $currtime);
     $stmt_msg->execute();
     $stmt_msg->close();
 
@@ -114,7 +112,7 @@ if ($action === 'reply_ticket') {
     $t_data = $res_chk->fetch_assoc();
     $stmt_chk->close();
 
-    // --- SYSTEM LOG: Log Client waking up the ticket! ---
+    // --- SYSTEM LOG: Wake up ticket ---
     if ($t_data['status'] !== 'Open') {
         $sys_msg = "Status changed from [b]{$t_data['status']}[/b] to [b]Open[/b] by the Client.";
         $stmt_sys = $db->conn->prepare("INSERT INTO ticket_replies (ticket_id, sender_type, message, created_at) VALUES (?, 'System', ?, ?)");
@@ -123,8 +121,16 @@ if ($action === 'reply_ticket') {
         $stmt_sys->close();
     }
 
-    $stmt_msg = $db->conn->prepare("INSERT INTO ticket_replies (ticket_id, sender_type, message, created_at) VALUES (?, 'Client', ?, ?)");
-    $stmt_msg->bind_param("iss", $ticket_id, $message, $currtime);
+    // Process Attachment
+    $attachment = null;
+    if (!empty($_FILES['attachment']['name'])) {
+        $upload_res = processTicketAttachment($_FILES['attachment'], __DIR__ . '/uploads/tickets');
+        if (is_array($upload_res) && isset($upload_res['error'])) { returnWithMsg("error", $upload_res['error']); }
+        $attachment = $upload_res;
+    }
+
+    $stmt_msg = $db->conn->prepare("INSERT INTO ticket_replies (ticket_id, sender_type, message, attachment, created_at) VALUES (?, 'Client', ?, ?, ?)");
+    $stmt_msg->bind_param("isss", $ticket_id, $message, $attachment, $currtime);
     $stmt_msg->execute();
     $stmt_msg->close();
 
