@@ -35,41 +35,38 @@ if ($res_tkt) {
 // AUTO-CLOSE CRON FUNCTION
 $auto_close_hours = (int)$tkt_settings['ticket_autoclose_hours'];
 if ($auto_close_hours > 0) {
-    // 1. Find tickets that need closing
     $q_close = $db->conn->query("SELECT id, client_email, client_name, tracking_id FROM tickets WHERE status = 'Answered' AND updated_at < DATE_SUB(NOW(), INTERVAL $auto_close_hours HOUR)");
     
     if ($q_close && $q_close->num_rows > 0) {
-        // 2. Fetch email settings
         $res_mail = $db->conn->query("SELECT setting_key, setting_value FROM settings WHERE setting_key IN ('site_email', 'site_name', 'ticket_msg_closed_auto')");
         $m_stg = [];
-        while($r = $res_mail->fetch_assoc()) {
-            $sys_msg = "Ticket auto-closed by system due to 72 hours of inactivity.";
-            $db->conn->query("INSERT INTO ticket_replies (ticket_id, sender_type, message, created_at) VALUES ({$t['id']}, 'System', '{$sys_msg}', NOW())");
-            $m_stg[$r['setting_key']] = $r['setting_value'];
-        }
+        while($r = $res_mail->fetch_assoc()) { $m_stg[$r['setting_key']] = $r['setting_value']; }
         
-        $site_name = $settings['site_name'] ?? 'Support';
-        $safe_noreply = "noreply@" . $_SERVER['SERVER_NAME'];
+        $site_name = $m_stg['site_name'] ?? 'Support';
+        $safe_noreply = "noreply@" . $_SERVER['HTTP_HOST'];
+        $encoded_site_name = '=?UTF-8?B?' . base64_encode($site_name) . '?=';
         
-        // Force both 'From' and 'Reply-To' to be the system's noreply address
-        $headers = "From: " . $site_name . " <" . $safe_noreply . ">\r\n" .
+        $headers = "From: " . $encoded_site_name . " <" . $safe_noreply . ">\r\n" .
                    "Reply-To: " . $safe_noreply . "\r\n" .
                    "MIME-Version: 1.0\r\n" .
                    "Content-Type: text/plain; charset=UTF-8\r\n" .
                    "X-Mailer: PHP/" . phpversion();
-        
+                   
         $msg_auto = $m_stg['ticket_msg_closed_auto'] ?? 'Your ticket was auto-closed due to inactivity.';
-        
         $ids_to_close = [];
         
-        // 3. Email users
         while ($t = $q_close->fetch_assoc()) {
             $ids_to_close[] = $t['id'];
-            $body = "Hello " . $t['client_name'] . ",\n\n" . $msg_auto . "\n\nTracking ID: " . $t['tracking_id'];
-            @mail($t['client_email'], "Ticket Auto-Closed: " . $t['tracking_id'], $body, $headers);
+            $portal_url = "http" . (isset($_SERVER['HTTPS']) ? "s" : "") . "://" . $_SERVER['HTTP_HOST'] . "/view-ticket.php?id=" . urlencode($t['tracking_id']) . "&email=" . urlencode($t['client_email']);
+            
+            $body = "Hello " . trim($t['client_name']) . ",\n\n" . $msg_auto . "\n\nTracking ID: " . $t['tracking_id'] . "\n\nYou can view the ticket thread here: \n" . $portal_url;
+            
+            mail($t['client_email'], "Ticket Auto-Closed: " . $t['tracking_id'], $body, $headers, "-f" . $safe_noreply);
+            
+            $sys_msg = "Ticket auto-closed by system due to " . $auto_close_hours . " hours of inactivity.";
+            $db->conn->query("INSERT INTO ticket_replies (ticket_id, sender_type, message, created_at) VALUES ({$t['id']}, 'System', '{$sys_msg}', NOW())");
         }
         
-        // 4. Batch update their status
         $id_list = implode(',', $ids_to_close);
         $db->conn->query("UPDATE tickets SET status = 'Closed' WHERE id IN ($id_list)");
     }
