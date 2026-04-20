@@ -1,10 +1,15 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Select the toggle button and the navigation links container
+    // Prevent Double-Binding: If we already initialized the menu, stop here!
+    if (window.navMenuInitialized) return;
+    window.navMenuInitialized = true;
+
     const mobileToggle = document.querySelector('.mobile-toggle');
     const navLinks = document.querySelector('.nav-links');
 
     if (mobileToggle && navLinks) {
-        mobileToggle.addEventListener('click', () => {
+        mobileToggle.addEventListener('click', (e) => {
+            e.preventDefault(); // Stop any default button behavior
+            
             // Toggle the visibility class
             navLinks.classList.toggle('nav-active');
             

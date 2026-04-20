@@ -38,7 +38,7 @@ if ($action === 'delete_ticket') {
     $stmt->execute();
     $stmt->close();
     
-    // Also delete all replies
+    // Also delete all replies associated with it
     $stmt_rep = $db->conn->prepare("DELETE FROM ticket_replies WHERE ticket_id = ?");
     $stmt_rep->bind_param("i", $ticket_id);
     $stmt_rep->execute();
@@ -52,49 +52,60 @@ if ($action === 'admin_reply') {
     $message = trim(htmlspecialchars($_POST['message'] ?? ''));
     $status_update = $_POST['status_update'] ?? 'Answered';
 
-    // Strictly require a message, no matter what status is chosen!
+    // 1. Strictly require a message, no matter what status is chosen!
     if (empty($message)) {
         returnWithMsg("error", "times-circle", 4500, "You must provide a reply comment.", "view-ticket.php?id=" . $ticket_id);
     }
 
-    if (!empty($message)) {
-        $stmt_msg = $db->conn->prepare("INSERT INTO ticket_replies (ticket_id, sender_type, message, created_at) VALUES (?, 'Admin', ?, ?)");
-        $stmt_msg->bind_param("iss", $ticket_id, $message, $currtime);
-        $stmt_msg->execute();
-        $stmt_msg->close();
-    }
-
-    // Check if status actually changed
-    if ($t_data['status'] !== $status_update) {
-        $sys_msg = "Status changed from {$t_data['status']} to {$status_update} by Admin.";
-        $stmt_sys = $db->conn->prepare("INSERT INTO ticket_replies (ticket_id, sender_type, message, created_at) VALUES (?, 'System', ?, ?)");
-        $stmt_sys->bind_param("iss", $ticket_id, $sys_msg, $currtime);
-        $stmt_sys->execute();
-        $stmt_sys->close();
-    }
-
-    $stmt_upd = $db->conn->prepare("UPDATE tickets SET status = ?, updated_at = ? WHERE id = ?");
-    $stmt_upd->bind_param("ssi", $status_update, $currtime, $ticket_id);
-    $stmt_upd->execute();
-    $stmt_upd->close();
-
-    // --- EMAIL NOTIFICATIONS (ADMIN ACTION) ---
-    $stmt_tkt = $db->conn->prepare("SELECT client_name, client_email, tracking_id FROM tickets WHERE id = ?");
+    // 2. Fetch current ticket data (including 'status' so we can check if it changes)
+    $stmt_tkt = $db->conn->prepare("SELECT client_name, client_email, tracking_id, status FROM tickets WHERE id = ?");
     $stmt_tkt->bind_param("i", $ticket_id);
     $stmt_tkt->execute();
     $t_data = $stmt_tkt->get_result()->fetch_assoc();
     $stmt_tkt->close();
 
     if ($t_data) {
-        // Fetch Settings safely
+        
+        // 3. Status History Log: Grab Admin Name & Log Change
+        if ($t_data['status'] !== $status_update) {
+            // Fetch Admin Name
+            $stmt_admin = $db->conn->prepare("SELECT user_uid FROM users WHERE user_id = ?");
+            $stmt_admin->bind_param("i", $_SESSION['UserID']);
+            $stmt_admin->execute();
+            $admin_res = $stmt_admin->get_result()->fetch_assoc();
+            $admin_name = $admin_res ? $admin_res['user_uid'] : 'an Administrator';
+            $stmt_admin->close();
+
+            // Store message with safe [b] brackets for bolding
+            $sys_msg = "Status changed from [b]{$t_data['status']}[/b] to [b]{$status_update}[/b] by {$admin_name}.";
+            $stmt_sys = $db->conn->prepare("INSERT INTO ticket_replies (ticket_id, sender_type, message, created_at) VALUES (?, 'System', ?, ?)");
+            $stmt_sys->bind_param("iss", $ticket_id, $sys_msg, $currtime);
+            $stmt_sys->execute();
+            $stmt_sys->close();
+        }
+
+        // 4. Insert the Admin's written reply
+        $stmt_msg = $db->conn->prepare("INSERT INTO ticket_replies (ticket_id, sender_type, message, created_at) VALUES (?, 'Admin', ?, ?)");
+        $stmt_msg->bind_param("iss", $ticket_id, $message, $currtime);
+        $stmt_msg->execute();
+        $stmt_msg->close();
+
+        // 5. Update the actual ticket status and timestamp
+        $stmt_upd = $db->conn->prepare("UPDATE tickets SET status = ?, updated_at = ? WHERE id = ?");
+        $stmt_upd->bind_param("ssi", $status_update, $currtime, $ticket_id);
+        $stmt_upd->execute();
+        $stmt_upd->close();
+
+        // 6. Send the Anti-Spam Email Notification
         $res_stg = $db->conn->query("SELECT setting_key, setting_value FROM settings WHERE setting_key IN ('site_email', 'site_name', 'ticket_msg_reply', 'ticket_msg_closed_admin')");
         $settings = [];
         if ($res_stg) { while($r = $res_stg->fetch_assoc()) { $settings[$r['setting_key']] = $r['setting_value']; } }
 
         $site_name = $settings['site_name'] ?? 'Support';
+        $site_email = $settings['site_email'] ?? 'noreply@' . $_SERVER['SERVER_NAME'];
         $safe_noreply = "noreply@" . $_SERVER['SERVER_NAME'];
         
-        // Force both 'From' and 'Reply-To' to be the system's noreply address
+        // Enhanced Anti-Spam Headers
         $headers = "From: " . $site_name . " <" . $safe_noreply . ">\r\n" .
                    "Reply-To: " . $safe_noreply . "\r\n" .
                    "MIME-Version: 1.0\r\n" .
@@ -118,13 +129,12 @@ if ($action === 'admin_reply') {
 
         if ($send_email) {
             $portal_url = "http" . (isset($_SERVER['HTTPS']) ? "s" : "") . "://" . $_SERVER['HTTP_HOST'];
-            
-            // Add the "Do not reply" warning and the portal link
             $body_text .= "Tracking ID: " . $t_data['tracking_id'] . "\n\n";
             $body_text .= "--- Please do not reply directly to this email ---\n";
             $body_text .= "You can view the full thread and respond on our secure support portal: \n" . $portal_url;
             
-            @mail($t_data['client_email'], "Ticket Update: " . $t_data['tracking_id'], $body_text, $headers);
+            // The "-f" parameter forces the Envelope Sender, preventing Plesk from silently dropping it!
+            mail($t_data['client_email'], "Ticket Update: " . $t_data['tracking_id'], $body_text, $headers, "-f " . $safe_noreply);
         }
     }
 

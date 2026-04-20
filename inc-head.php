@@ -82,8 +82,6 @@
     <script defer src="/assets/font-awesome/brands.min.js"></script>
 
     <link rel="stylesheet" href="/assets/main.css">
-    <script src="/assets/jquery.js" defer></script>
-    <script src="/assets/main.js" defer></script>
 </head>
 <body>
 	<!-- Soft Animated Mesh Gradient Background -->

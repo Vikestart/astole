@@ -86,12 +86,12 @@ if ($action === 'new_ticket') {
     // 1. Email Client
     if (!empty($settings['ticket_msg_received'])) {
         $body = "Hello " . $name . ",\n\n" . $settings['ticket_msg_received'] . "\n\nTracking ID: " . $tracking_id . "\nSubject: " . $subject;
-        @mail($email, "Ticket Received: " . $tracking_id, $body, $headers);
+        mail($email, "Ticket Received: " . $tracking_id, $body, $headers, "-f noreply@" . $_SERVER['SERVER_NAME']);
     }
     // 2. Email Admin
     if ($settings['ticket_notify_admin_new'] == '1' && !empty($settings['site_email'])) {
         $admin_body = "A new support ticket has been opened.\n\nTracking ID: $tracking_id\nClient: $name ($email)\nSubject: $subject\n\nMessage:\n$message";
-        @mail($settings['site_email'], "New Ticket: " . $tracking_id, $admin_body, $headers);
+        mail($settings['site_email'], "New Ticket: " . $tracking_id, $admin_body, $headers, "-f noreply@" . $_SERVER['SERVER_NAME']);
     }
 
     returnWithMsg("success", "Your ticket has been opened! Your Tracking ID is: <strong>" . $tracking_id . "</strong><br><br>Please save this ID and use the tracking form to view replies.");
@@ -134,7 +134,7 @@ if ($action === 'reply_ticket') {
     if ($settings['ticket_notify_admin_reply'] == '1' && !empty($settings['site_email'])) {
         $headers = "From: " . $settings['site_name'] . " <noreply@" . $_SERVER['SERVER_NAME'] . ">\r\nReply-To: " . $auth_email . "\r\nX-Mailer: PHP/" . phpversion();
         $admin_body = "A client has replied to their ticket.\n\nTracking ID: " . ($_POST['tracking_id'] ?? 'Unknown') . "\nClient Email: $auth_email\n\nMessage:\n$message";
-        @mail($settings['site_email'], "Ticket Reply: " . ($_POST['tracking_id'] ?? 'Unknown'), $admin_body, $headers);
+        mail($settings['site_email'], "Ticket Reply: " . ($_POST['tracking_id'] ?? 'Unknown'), $admin_body, $headers, "-f noreply@" . $_SERVER['SERVER_NAME']);
     }
 
     returnWithMsg("success", "Your reply has been added to the ticket.");
