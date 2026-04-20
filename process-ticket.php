@@ -1,6 +1,7 @@
 <?php
 session_start();
 require "db.php";
+require_once "upload-helper.php";
 
 $return_url = $_POST['return_url'] ?? 'home';
 
@@ -50,8 +51,18 @@ if ($action === 'new_ticket') {
     $ticket_id = $db->conn->insert_id;
     $stmt->close();
 
-    $stmt_msg = $db->conn->prepare("INSERT INTO ticket_replies (ticket_id, sender_type, message, created_at) VALUES (?, 'Client', ?, ?)");
-    $stmt_msg->bind_param("iss", $ticket_id, $message, $currtime);
+    // Process Attachment
+    $attachment = null;
+    if (!empty($_FILES['attachment']['name'])) {
+        $upload_res = processTicketAttachment($_FILES['attachment'], __DIR__ . '/uploads/tickets');
+        if (is_array($upload_res) && isset($upload_res['error'])) {
+            returnWithMsg("error", $upload_res['error']);
+        }
+        $attachment = $upload_res;
+    }
+
+    $stmt_msg = $db->conn->prepare("INSERT INTO ticket_replies (ticket_id, sender_type, message, attachment, created_at) VALUES (?, 'Client', ?, ?, ?)");
+    $stmt_msg->bind_param("issss", $ticket_id, $message, $attachment, $currtime);
     $stmt_msg->execute();
     $stmt_msg->close();
 

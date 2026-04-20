@@ -59,7 +59,8 @@
     </div>
 
     <div style="background: var(--bg-body-alt); padding: 30px 25px; border: 1px solid var(--border);">
-        <?php foreach ($replies as $reply) {
+        <?php foreach ($replies as $reply) { 
+            
             // SYSTEM HISTORY LOG VIEW
             if ($reply['sender_type'] === 'System') {
                 $clean_msg = htmlspecialchars($reply['message']);
@@ -70,6 +71,7 @@
                 echo '</div>';
                 continue;
             }
+
             // ADMIN VIEW: Admin is on the right (Blue), Client is on the left (White)
             $is_admin = ($reply['sender_type'] === 'Admin');
             $bubble_bg = $is_admin ? 'var(--text-main)' : 'var(--bg-body)';
@@ -83,13 +85,23 @@
                 <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 5px; text-align: <?php echo $text_align; ?>;">
                     <strong><?php echo $name_tag; ?></strong> &bull; <?php echo date('M d, Y H:i', strtotime($reply['created_at'])); ?>
                 </div>
-                <div style="background: <?php echo $bubble_bg; ?>; color: <?php echo $bubble_text; ?>; padding: 15px 20px; border-radius: 8px; border: <?php echo $bubble_border; ?>; box-shadow: 0 2px 4px rgba(0,0,0,0.05); line-height: 1.6; font-size: 15px; white-space: pre-wrap;"><?php echo htmlspecialchars($reply['message']); ?></div>
+                <div style="background: <?php echo $bubble_bg; ?>; color: <?php echo $bubble_text; ?>; padding: 15px 20px; border-radius: 8px; border: <?php echo $bubble_border; ?>; box-shadow: 0 2px 4px rgba(0,0,0,0.05); line-height: 1.6; font-size: 15px; white-space: pre-wrap;"><?php echo htmlspecialchars($reply['message']); ?>
+                
+                <?php if (!empty($reply['attachment'])) { ?>
+                    <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid <?php echo $is_admin ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)'; ?>;">
+                        <a href="/uploads/tickets/<?php echo htmlspecialchars($reply['attachment']); ?>" target="_blank" style="display: inline-flex; align-items: center; background: <?php echo $is_admin ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.05)'; ?>; color: inherit; padding: 8px 15px; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: 600; transition: background 0.2s;">
+                            <i class="fa-solid fa-file-arrow-down" style="margin-right: 8px; font-size: 16px;"></i> Download Attachment
+                        </a>
+                    </div>
+                <?php } ?>
+                
+                </div>
             </div>
         <?php } ?>
     </div>
 
     <div style="background: var(--bg-body); padding: 25px; border-radius: 0 0 8px 8px; border: 1px solid var(--border); border-top: none;">
-        <form action="process-ticket.php" method="POST">
+        <form action="process-ticket.php" method="POST" enctype="multipart/form-data">
             <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
             <input type="hidden" name="action" value="admin_reply">
             <input type="hidden" name="ticket_id" value="<?php echo $ticket['id']; ?>">
@@ -97,6 +109,12 @@
             <div style="margin-bottom: 15px;">
                 <label style="display: block; font-weight: 600; margin-bottom: 8px; color: var(--color-heading);">Post a Reply</label>
                 <textarea name="message" class="form-input" style="height: 120px; resize: vertical;" placeholder="Type your response to the client here..." required></textarea>
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-weight: 600; margin-bottom: 8px; color: var(--color-heading);"><i class="fa-solid fa-paperclip"></i> Attach File (Optional)</label>
+                <input type="file" name="attachment" accept=".jpg,.jpeg,.png,.pdf,.txt" style="width: 100%; padding: 8px; border: 1px dashed var(--border); border-radius: 6px; background: var(--bg-body-alt); font-size: 13px; color: var(--color-heading);">
+                <div style="font-size: 12px; color: var(--text-muted); margin-top: 5px;">Max size: 5MB. Allowed: JPG, PNG, PDF, TXT.</div>
             </div>
 
             <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -113,7 +131,6 @@
             </div>
         </form>
     </div>
-
 </section>
 
 <?php require "inc-adm-foot.php"; ?>

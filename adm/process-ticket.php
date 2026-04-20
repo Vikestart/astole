@@ -84,9 +84,18 @@ if ($action === 'admin_reply') {
             $stmt_sys->close();
         }
 
-        // 4. Insert the Admin's written reply
-        $stmt_msg = $db->conn->prepare("INSERT INTO ticket_replies (ticket_id, sender_type, message, created_at) VALUES (?, 'Admin', ?, ?)");
-        $stmt_msg->bind_param("iss", $ticket_id, $message, $currtime);
+        // Process Attachment (Note the path goes up one level `..`)
+        $attachment = null;
+        if (!empty($_FILES['attachment']['name'])) {
+            $upload_res = processTicketAttachment($_FILES['attachment'], __DIR__ . '/../uploads/tickets');
+            if (is_array($upload_res) && isset($upload_res['error'])) {
+                returnWithMsg("error", "times-circle", 4500, $upload_res['error'], "view-ticket.php?id=" . $ticket_id);
+            }
+            $attachment = $upload_res;
+        }
+
+        $stmt_msg = $db->conn->prepare("INSERT INTO ticket_replies (ticket_id, sender_type, message, attachment, created_at) VALUES (?, 'Admin', ?, ?, ?)");
+        $stmt_msg->bind_param("issss", $ticket_id, $message, $attachment, $currtime);
         $stmt_msg->execute();
         $stmt_msg->close();
 
