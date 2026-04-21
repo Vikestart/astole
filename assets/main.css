@@ -331,12 +331,30 @@ body {
 }
 
 /* --- Ticket System UI --- */
+
+/* 1. Layout & Header */
+.ticket-view-header { display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 20px; border-bottom: 1px solid #e2e8f0; margin-bottom: 25px; }
+.ticket-view-title { margin: 0 0 10px 0; color: var(--color-heading); font-size: 22px; }
+.ticket-view-meta { color: #64748b; font-size: 14px; }
+
+.ticket-badge-pill { padding: 6px 14px; border-radius: 20px; font-size: 14px; font-weight: 600; }
+.ticket-badge-blue { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
+.ticket-badge-green { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+.ticket-badge-gray { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
+
+.ticket-thread-container { background: #f8fafc; padding: 30px 25px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 30px; }
+
+/* 2. Messages & Session Alerts */
+.front-msgbox { padding: 15px; border-radius: 6px; margin-bottom: 20px; font-weight: 500; }
+.front-msgbox-success { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+.front-msgbox-error { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+
 .ticket-system-msg { text-align: center; margin: 20px 0; }
 .ticket-system-msg span { background: #fff; color: #64748b; font-size: 12px; padding: 6px 14px; border-radius: 20px; border: 1px solid #e2e8f0; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
 
 .ticket-msg-wrapper { max-width: 85%; margin-bottom: 25px; }
-.ticket-msg-wrapper.client { margin-left: auto; } /* Right Aligned */
-.ticket-msg-wrapper.admin { margin-right: auto; } /* Left Aligned */
+.ticket-msg-wrapper.client { margin-left: auto; }
+.ticket-msg-wrapper.admin { margin-right: auto; }
 
 .ticket-msg-header { font-size: 12px; color: #64748b; margin-bottom: 5px; }
 .ticket-msg-wrapper.client .ticket-msg-header { text-align: right; }
@@ -346,6 +364,7 @@ body {
 .ticket-msg-wrapper.client .ticket-bubble { background: #2563eb; color: #fff; border: none; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2); }
 .ticket-msg-wrapper.admin .ticket-bubble { background: #fff; color: #0f172a; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
 
+/* 3. Attachments */
 .ticket-attachments { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 8px; }
 .ticket-msg-wrapper.client .ticket-attachments { justify-content: flex-end; }
 .ticket-msg-wrapper.admin .ticket-attachments { justify-content: flex-start; }
@@ -356,10 +375,48 @@ body {
 .ticket-msg-wrapper.admin .ticket-attachment-btn { background: #fff; color: #475569; border: 1px solid #e2e8f0; }
 .ticket-msg-wrapper.admin .ticket-attachment-btn:hover { background: #f8fafc; }
 
-/* File Upload Preview UI */
-.file-preview-item { display: inline-flex; align-items: center; background: #f1f5f9; padding: 6px 12px; border-radius: 4px; font-size: 13px; border: 1px solid #e2e8f0; width: max-content; margin-top: 5px; color: #475569; }
-.file-preview-item i { margin-left: 10px; cursor: pointer; color: #dc2626; padding: 2px; }
+/* 4. Form & Reply Area */
+.ticket-reply-container { border-top: 1px solid #e2e8f0; padding-top: 25px; }
+.ticket-reply-title { margin-top: 0; color: var(--color-heading); margin-bottom: 20px; font-size: 1.25rem; }
 
+.ticket-form-label { display: block; font-weight: 600; margin-bottom: 8px; color: #334155; font-size: 14px; }
+.ticket-textarea { width: 100%; height: 120px; padding: 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit; resize: vertical; transition: border-color 0.2s ease; }
+.ticket-textarea:focus { border-color: var(--color-primary); outline: none; }
+
+/* The interactive dashed dropzone! */
+.ticket-file-drop { width: 100%; padding: 10px; border: 2px dashed #cbd5e1; border-radius: 6px; background: #fff; font-size: 13px; color: #334155; transition: border-color 0.2s ease, background 0.2s ease; cursor: pointer; }
+.ticket-file-drop:hover { border-color: var(--color-primary); background: #f8fafc; }
+.ticket-file-helper { font-size: 12px; color: #94a3b8; margin-top: 8px; }
+
+.ticket-action-row { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; margin-top: 20px; }
+.ticket-btn-primary { background: var(--color-primary); color: white; padding: 10px 24px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: opacity 0.2s; }
+.ticket-btn-primary:hover { opacity: 0.9; }
+.ticket-btn-danger { background: transparent; color: #dc2626; border: 1px solid #dc2626; padding: 9px 20px; border-radius: 6px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+.ticket-btn-danger:hover { background: #fee2e2; }
+
+/* 5. Closed State */
+.ticket-closed-panel { background: #f8fafc; border: 1px dashed #cbd5e1; padding: 25px; text-align: center; border-radius: 8px; }
+.ticket-closed-icon { font-size: 24px; color: #94a3b8; margin-bottom: 10px; }
+.ticket-closed-title { margin: 0 0 5px 0; color: #475569; font-size: 18px; }
+.ticket-closed-text { margin: 0; color: #64748b; font-size: 14px; }
+
+/* 6. File Upload Preview UI */
+.file-preview-item { display: inline-flex; align-items: center; background: #f1f5f9; padding: 8px 14px; border-radius: 6px; font-size: 13px; border: 1px solid #e2e8f0; width: fit-content; margin-top: 5px; color: #334155; font-weight: 500; box-shadow: 0 1px 2px rgba(0,0,0,0.02); }
+.file-preview-item span { margin-right: 20px; }
+.file-preview-item i { cursor: pointer; color: white; background: #ef4444; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; border-radius: 4px; transition: background 0.2s ease; margin-left: auto; }
+.file-preview-item i:hover { background: #dc2626; }
+
+/* 7. Selection Cards */
+.ticket-choice-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; max-width: 700px; margin: 0 auto; }
+.ticket-choice-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 25px; text-align: left; cursor: pointer; transition: all 0.2s ease; display: flex; flex-direction: column; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+.ticket-choice-card:hover { border-color: var(--color-primary); box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.1); transform: translateY(-2px); }
+
+.ticket-choice-icon { background: #eff6ff; color: var(--color-primary); width: 48px; height: 48px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-bottom: 15px; }
+.ticket-choice-title { color: #0f172a; font-size: 18px; font-weight: 600; margin: 0 0 8px 0; }
+.ticket-choice-desc { color: #64748b; font-size: 14px; margin: 0 0 20px 0; line-height: 1.5; flex-grow: 1; }
+
+.ticket-choice-arrow { align-self: flex-end; color: #94a3b8; transition: color 0.2s ease, transform 0.2s ease; font-size: 16px; margin-top: auto; }
+.ticket-choice-card:hover .ticket-choice-arrow { color: var(--color-primary); transform: translateX(5px); }
 
 /* --- Mobile / Tablet Responsiveness --- */
 @media screen and (max-width: 768px) {

@@ -54,32 +54,31 @@ require_once "inc-head.php";
         if (isset($_SESSION['Frontmsg'])) {
             $msgType = $_SESSION['Frontmsg']['type']; 
             $msgTxt = $_SESSION['Frontmsg']['message'];
-            $bgColor = ($msgType === 'success') ? '#dcfce7' : '#fee2e2';
-            $textColor = ($msgType === 'success') ? '#166534' : '#991b1b';
-            echo "<div style='background: $bgColor; color: $textColor; padding: 15px; border-radius: 6px; margin-bottom: 20px; font-weight: 500; border: 1px solid " . (($msgType === 'success') ? '#bbf7d0' : '#fecaca') . ";'>$msgTxt</div>";
+            $msgClass = ($msgType === 'success') ? 'front-msgbox-success' : 'front-msgbox-error';
+            echo "<div class='front-msgbox $msgClass'>$msgTxt</div>";
             unset($_SESSION['Frontmsg']);
         }
         ?>
 
-        <div style="display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 20px; border-bottom: 1px solid #e2e8f0; margin-bottom: 25px;">
+        <div class="ticket-view-header">
             <div>
-                <h2 style="margin: 0 0 10px 0; color: #0f172a; font-size: 22px;"><?php echo htmlspecialchars($ticket['subject']); ?></h2>
-                <div style="color: #64748b; font-size: 14px;">
+                <h2 class="ticket-view-title"><?php echo htmlspecialchars($ticket['subject']); ?></h2>
+                <div class="ticket-view-meta">
                     Tracking ID: <strong><?php echo htmlspecialchars($ticket['tracking_id']); ?></strong> &bull; 
                     Created: <?php echo date('M d, Y', strtotime($ticket['created_at'])); ?>
                 </div>
             </div>
             <div>
                 <?php 
-                    $badge_bg = '#dbeafe'; $badge_col = '#1e40af'; $badge_border = '#bfdbfe';
-                    if ($ticket['status'] == 'Answered') { $badge_bg = '#dcfce7'; $badge_col = '#166534'; $badge_border = '#bbf7d0'; }
-                    if ($ticket['status'] == 'Closed') { $badge_bg = '#f1f5f9'; $badge_col = '#475569'; $badge_border = '#e2e8f0'; }
+                    $badge_class = 'ticket-badge-blue';
+                    if ($ticket['status'] == 'Answered') { $badge_class = 'ticket-badge-green'; }
+                    if ($ticket['status'] == 'Closed') { $badge_class = 'ticket-badge-gray'; }
                 ?>
-                <span style="background: <?php echo $badge_bg; ?>; color: <?php echo $badge_col; ?>; border: 1px solid <?php echo $badge_border; ?>; padding: 6px 14px; border-radius: 20px; font-size: 14px; font-weight: 600;"><?php echo $ticket['status']; ?></span>
+                <span class="ticket-badge-pill <?php echo $badge_class; ?>"><?php echo $ticket['status']; ?></span>
             </div>
         </div>
 
-       <div style="background: #f8fafc; padding: 30px 25px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 30px;">
+        <div class="ticket-thread-container">
             <?php foreach ($replies as $reply) { 
                 
                 if ($reply['sender_type'] === 'System') {
@@ -117,8 +116,9 @@ require_once "inc-head.php";
         </div>
 
         <?php if ($ticket['status'] !== 'Closed') { ?>
-            <div style="border-top: 1px solid #e2e8f0; padding-top: 25px;">
-                <h3 style="margin-top: 0; color: #0f172a; margin-bottom: 20px;">Send a Reply</h3>
+            <div class="ticket-reply-container">
+                <h3 class="ticket-reply-title">Send a Reply</h3>
+                
                 <form action="process-ticket.php" method="POST" enctype="multipart/form-data">
                     <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
                     <input type="hidden" name="action" value="reply_ticket">
@@ -127,14 +127,14 @@ require_once "inc-head.php";
                     <input type="hidden" name="tracking_id" value="<?php echo htmlspecialchars($ticket['tracking_id']); ?>">
 
                     <div style="margin-bottom: 15px;">
-                        <textarea name="message" style="width: 100%; height: 120px; padding: 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit; resize: vertical;" placeholder="Type your message here..." required></textarea>
+                        <textarea name="message" class="ticket-textarea" placeholder="Type your message here..." required></textarea>
                     </div>
                     
                     <div style="margin-bottom: 20px;">
-                        <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #334155; font-size: 14px;"><i class="fa-solid fa-paperclip"></i> Attach Files (Optional)</label>
-                        <input type="file" name="attachment[]" multiple accept=".jpg,.jpeg,.png,.webp,.pdf,.txt" class="multi-file-input" style="width: 100%; padding: 8px; border: 1px dashed #cbd5e1; border-radius: 6px; background: #f8fafc; font-size: 13px;">
-                        <div class="file-list-preview" style="display: flex; flex-direction: column; gap: 5px;"></div>
-                        <div style="font-size: 12px; color: #94a3b8; margin-top: 8px;"><i class="fa-solid fa-circle-info"></i> Max size: 5MB per file. Allowed formats: JPG, PNG, WEBP, PDF, TXT.</div>
+                        <label class="ticket-form-label"><i class="fa-solid fa-paperclip"></i> Attach Files (Optional)</label>
+                        <input type="file" name="attachment[]" multiple accept=".jpg,.jpeg,.png,.webp,.pdf,.txt" class="multi-file-input ticket-file-drop">
+                        <div class="file-list-preview" style="display: flex; flex-direction: column; gap: 5px; margin-top: 8px;"></div>
+                        <div class="ticket-file-helper"><i class="fa-solid fa-circle-info"></i> Max size: 5MB per file. Allowed formats: JPG, PNG, WEBP, PDF, TXT.</div>
                     </div>
 
                     <?php if (!empty($rc_site)) { ?>
@@ -142,8 +142,8 @@ require_once "inc-head.php";
                         <div class="g-recaptcha" data-sitekey="<?php echo htmlspecialchars($rc_site); ?>" data-action="reply_ticket" style="margin-bottom: 15px;"></div>
                     <?php } ?>
 
-                    <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
-                        <button type="submit" style="background: #2563eb; color: white; padding: 10px 24px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">Send Reply</button>
+                    <div class="ticket-action-row">
+                        <button type="submit" class="ticket-btn-primary">Send Reply</button>
                 </form>
 
                 <form action="process-ticket.php" method="POST" onsubmit="return confirm('Are you sure you want to close this ticket?');">
@@ -152,15 +152,15 @@ require_once "inc-head.php";
                     <input type="hidden" name="ticket_id" value="<?php echo $ticket['id']; ?>">
                     <input type="hidden" name="auth_email" value="<?php echo htmlspecialchars($ticket['client_email']); ?>">
                     <input type="hidden" name="return_url" value="view-ticket.php?id=<?php echo urlencode($track_id); ?>&email=<?php echo urlencode($email); ?>">
-                    <button type="submit" style="background: transparent; color: #dc2626; border: 1px solid #dc2626; padding: 9px 20px; border-radius: 6px; font-weight: 600; cursor: pointer;">Mark as Resolved</button>
+                    <button type="submit" class="ticket-btn-danger">Mark as Resolved</button>
                 </form>
                     </div>
             </div>
         <?php } else { ?>
-            <div style="background: #f8fafc; border: 1px dashed #cbd5e1; padding: 25px; text-align: center; border-radius: 8px;">
-                <i class="fa-solid fa-lock" style="font-size: 24px; color: #94a3b8; margin-bottom: 10px;"></i>
-                <h3 style="margin: 0 0 5px 0; color: #475569;">This ticket is closed</h3>
-                <p style="margin: 0; color: #64748b; font-size: 14px;">If you need further assistance, please open a new ticket from the support portal.</p>
+            <div class="ticket-closed-panel">
+                <i class="fa-solid fa-lock ticket-closed-icon"></i>
+                <h3 class="ticket-closed-title">This ticket is closed</h3>
+                <p class="ticket-closed-text">If you need further assistance, please open a new ticket from the support portal.</p>
             </div>
         <?php } ?>
     </section>

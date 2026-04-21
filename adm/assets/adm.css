@@ -591,6 +591,24 @@ ul li i, ul li svg {
 }
 
 /* --- Ticket System UI --- */
+
+/* 1. Layout Panels */
+.ticket-page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
+.ticket-page-header h1 { margin: 0; font-size: 22px; color: var(--color-heading); }
+
+/* REVERTED: Grey Header */
+.ticket-details-panel { background: var(--bg-body); padding: 25px; border-radius: 8px 8px 0 0; border: 1px solid var(--border); border-bottom: none; display: flex; justify-content: space-between; align-items: flex-start; }
+.ticket-details-title { margin: 0 0 5px 0; font-size: 20px; color: var(--color-heading); }
+.ticket-details-meta { color: var(--text-muted); font-size: 14px; }
+.ticket-details-meta a { color: var(--primary); margin-left: 5px; text-decoration: none; font-weight: 500; }
+
+/* REVERTED: White Thread Area */
+.ticket-thread-panel { background: var(--bg-surface); padding: 30px 25px; border: 1px solid var(--border); }
+
+/* REVERTED: Grey Reply Footer */
+.ticket-reply-panel { background: var(--bg-body); padding: 25px; border-radius: 0 0 8px 8px; border: 1px solid var(--border); border-top: none; }
+
+/* 2. Chat Thread & Bubbles */
 .ticket-system-msg { text-align: center; margin: 15px 0; }
 .ticket-system-msg span { color: var(--text-muted); font-size: 13px; }
 
@@ -602,21 +620,36 @@ ul li i, ul li svg {
 .ticket-msg-wrapper.admin .ticket-msg-header { text-align: right; }
 .ticket-msg-wrapper.client .ticket-msg-header { text-align: left; }
 
-.ticket-bubble { padding: 15px 20px; border-radius: 8px; line-height: 1.6; font-size: 15px; white-space: pre-wrap; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-.ticket-msg-wrapper.admin .ticket-bubble { background: var(--text-main); color: #fff; border: none; }
-.ticket-msg-wrapper.client .ticket-bubble { background: var(--bg-body); color: var(--color-heading); border: 1px solid var(--border); }
+.ticket-bubble { padding: 15px 20px; border-radius: 10px; line-height: 1.6; font-size: 15px; white-space: pre-wrap; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+
+/* Admin Bubbles (Blue with Solid Grey-ish attachment buttons) */
+.ticket-msg-wrapper.admin .ticket-bubble { background: var(--primary); color: #fff; border: none; }
+.ticket-msg-wrapper.admin .ticket-attachment-btn { background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; }
+.ticket-msg-wrapper.admin .ticket-attachment-btn:hover { background: #e2e8f0; color: #0f172a; }
+
+/* Client Bubbles (Grey with White/Blue attachment buttons) */
+.ticket-msg-wrapper.client .ticket-bubble { background: var(--bg-body); color: var(--text-main); border: 1px solid var(--border); }
+.ticket-msg-wrapper.client .ticket-attachment-btn { background: var(--bg-surface); color: var(--primary); border: 1px solid var(--border); }
+.ticket-msg-wrapper.client .ticket-attachment-btn:hover { background: var(--border); }
 
 .ticket-attachments { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 8px; }
 .ticket-msg-wrapper.admin .ticket-attachments { justify-content: flex-end; }
 .ticket-msg-wrapper.client .ticket-attachments { justify-content: flex-start; }
+.ticket-attachment-btn { display: inline-flex; align-items: center; padding: 6px 14px; border-radius: 6px; text-decoration: none; font-size: 12px; font-weight: 600; white-space: nowrap; transition: background 0.2s; }
 
-.ticket-attachment-btn { display: inline-flex; align-items: center; padding: 6px 14px; border-radius: 6px; text-decoration: none; font-size: 12px; font-weight: 600; white-space: nowrap; transition: opacity 0.2s; }
-.ticket-attachment-btn:hover { opacity: 0.8; }
-.ticket-msg-wrapper.admin .ticket-attachment-btn { background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.2); }
-.ticket-msg-wrapper.client .ticket-attachment-btn { background: var(--bg-body-alt); color: var(--text-main); border: 1px solid var(--border); }
+/* 3. Reply Form Elements */
+.ticket-form-label { display: block; font-weight: 600; margin-bottom: 8px; color: var(--color-heading); }
+.ticket-file-drop { width: 100%; padding: 10px; border: 2px dashed var(--border); border-radius: 6px; background: var(--bg-surface); font-size: 13px; color: var(--text-main); transition: border-color 0.2s; cursor: pointer; }
+.ticket-file-drop:hover { border-color: var(--primary); }
+.ticket-file-helper { font-size: 12px; color: var(--text-muted); margin-top: 8px; }
+
+.ticket-form-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; border-top: 1px solid var(--border); padding-top: 20px; }
+.ticket-status-group { display: flex; align-items: center; }
+.ticket-status-group label { margin-right: 15px; font-weight: 600; color: var(--text-muted); }
+.ticket-status-group select { width: 260px; cursor: pointer; }
 
 /* File Upload Preview UI */
-.file-preview-item { display: inline-flex; align-items: center; background: var(--bg-body); padding: 6px 12px; border-radius: 4px; font-size: 13px; border: 1px solid var(--border); width: max-content; margin-top: 5px; color: var(--text-muted); }
+.file-preview-item { display: inline-flex; align-items: center; background: var(--bg-surface); padding: 6px 12px; border-radius: 4px; font-size: 13px; border: 1px solid var(--border); width: max-content; margin-top: 8px; color: var(--text-main); }
 .file-preview-item i { margin-left: 10px; cursor: pointer; color: var(--danger); padding: 2px; }
 
 @media screen and (min-width: 769px) {
