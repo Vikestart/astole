@@ -68,13 +68,22 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- 4. Mobile Menu Logic ---
-    const mobileToggleBtn = document.querySelector('.mobile-menu-btn');
-    const sidebar = document.querySelector('.admin-sidebar');
+    // --- 4. Mobile Menu Toggle & Overlay ---
+    const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+    const overlay = document.getElementById('mobile-overlay');
     
-    if(mobileToggleBtn && sidebar) {
-        mobileToggleBtn.addEventListener('click', () => {
-            sidebar.classList.toggle('sidebar-open');
+    if (mobileMenuBtn) {
+        mobileMenuBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('mobile-open');
+            if(overlay) overlay.classList.toggle('active');
+        });
+    }
+    
+    // Close menu when clicking the darkened overlay
+    if (overlay) {
+        overlay.addEventListener('click', () => {
+            sidebar.classList.remove('mobile-open');
+            overlay.classList.remove('active');
         });
     }
 
@@ -269,3 +278,67 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+document.addEventListener('DOMContentLoaded', () => {
+    // Settings Tabs Logic
+    const tabBtns = document.querySelectorAll('.admin-tab-btn');
+    const tabPanes = document.querySelectorAll('.admin-tab-pane');
+
+    if (tabBtns.length > 0) {
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                
+                // Remove active classes from everything
+                tabBtns.forEach(b => b.classList.remove('active'));
+                tabPanes.forEach(p => p.classList.remove('active'));
+                
+                // Add active class to clicked button and target pane
+                btn.classList.add('active');
+                const targetId = btn.getAttribute('data-tab');
+                document.getElementById(targetId).classList.add('active');
+            });
+        });
+    }
+});
+// --- Settings Change Detection Logic ---
+const settingsForm = document.querySelector('form[action="process-settings.php"]');
+const saveBtn = document.getElementById('save-settings-btn');
+
+if (settingsForm && saveBtn) {
+    // Capture the exact state of the form on page load
+    let initialData = new FormData(settingsForm);
+
+    // Listen for ANY change in the form (typing, clicking, toggling)
+    settingsForm.addEventListener('input', checkFormChanges);
+    settingsForm.addEventListener('change', checkFormChanges);
+
+    function checkFormChanges() {
+        let currentData = new FormData(settingsForm);
+        let hasChanged = false;
+        
+        // 1. Check if any initial value has changed
+        for (let [key, value] of initialData.entries()) {
+            if (currentData.get(key) !== value) {
+                hasChanged = true;
+                break;
+            }
+        }
+        
+        // 2. Check if any NEW values were added (handles checkboxes turning on)
+        if (!hasChanged) {
+            for (let [key, value] of currentData.entries()) {
+                if (initialData.get(key) !== value) {
+                    hasChanged = true;
+                    break;
+                }
+            }
+        }
+
+        // Toggle the disabled attribute based on the result
+        if (hasChanged) {
+            saveBtn.removeAttribute('disabled');
+        } else {
+            saveBtn.setAttribute('disabled', 'disabled');
+        }
+    }
+}

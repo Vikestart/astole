@@ -7,6 +7,8 @@
 ?>
 <div class="admin-wrapper <?php echo $sidebar_class; ?>" id="admin-layout">
 
+    <div class="mobile-overlay" id="mobile-overlay"></div>
+
     <aside class="admin-sidebar">
         <div class="sidebar-brand">
             <div class="brand-icon">A.S</div>
@@ -75,3 +77,17 @@
         </header>
 
         <main class="admin-content">
+            <?php
+            // Lightweight check for Maintenance Mode to display the global banner
+            require_once "../db.php";
+            $nav_db = new DBConn();
+            $res_maint = $nav_db->conn->query("SELECT setting_value FROM settings WHERE setting_key = 'maintenance_mode'");
+            if ($res_maint && $res_maint->num_rows > 0) {
+                if ($res_maint->fetch_assoc()['setting_value'] == '1') {
+                    echo '<div style="background: #fee2e2; color: #991b1b; padding: 14px 20px; border-radius: 8px; border: 1px solid #fecaca; margin-bottom: 25px; display: flex; align-items: center; font-weight: 500; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                            <i class="fa-solid fa-triangle-exclamation" style="font-size: 20px; margin-right: 15px;"></i>
+                            Maintenance Mode is currently active. The front-end website is hidden from public visitors.
+                          </div>';
+                }
+            }
+            ?>
