@@ -47,7 +47,7 @@ body {
 .mesh-bg {
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
-    z-index: -1; /* Keep it behind everything */
+    z-index: -1; 
     overflow: hidden;
     background-color: var(--color-bg);
 }
@@ -55,45 +55,45 @@ body {
 .mesh-blob {
     position: absolute;
     border-radius: 50%;
-    filter: blur(90px); /* Massive blur for a soft light effect */
-    opacity: 0.5; /* Keep it subtle so text remains readable */
-    animation: floatBlob 20s infinite alternate ease-in-out;
-    will-change: transform; /* Optimizes the animation performance */
+    filter: blur(70px); /* Tighter blur so the color core is more visible */
+    opacity: 0.8; /* Increased opacity to make them pop */
+    animation: floatBlob 14s infinite alternate ease-in-out; /* Faster animation */
+    will-change: transform; 
 }
 
 /* Primary Blue Orb */
 .blob-1 {
-    width: 50vw; height: 50vw;
-    max-width: 600px; max-height: 600px;
+    width: 60vw; height: 60vw; /* Made them significantly larger */
+    max-width: 800px; max-height: 800px;
     background: var(--color-primary-light);
-    top: -10%; left: -10%;
+    top: -20%; left: -10%;
     animation-delay: 0s;
 }
 
 /* Soft Purple Orb */
 .blob-2 {
-    width: 40vw; height: 40vw;
-    max-width: 500px; max-height: 500px;
+    width: 50vw; height: 50vw;
+    max-width: 700px; max-height: 700px;
     background: #a78bfa; 
-    bottom: -10%; right: -5%;
-    animation-delay: -5s; /* Offset so they don't move together */
+    bottom: -20%; right: -10%;
+    animation-delay: -5s; 
 }
 
 /* Cyan/Teal Orb */
 .blob-3 {
-    width: 35vw; height: 35vw;
-    max-width: 450px; max-height: 450px;
+    width: 45vw; height: 45vw;
+    max-width: 600px; max-height: 600px;
     background: #38bdf8; 
-    top: 30%; left: 50%;
-    animation-delay: -10s;
+    top: 20%; left: 40%;
+    animation-delay: -9s;
 }
 
-/* The smooth, wandering floating animation */
+/* Vastly wider, sweeping movement using viewport units */
 @keyframes floatBlob {
     0% { transform: translate(0px, 0px) scale(1); }
-    33% { transform: translate(30px, -50px) scale(1.1); }
-    66% { transform: translate(-20px, 20px) scale(0.9); }
-    100% { transform: translate(50px, 40px) scale(1.05); }
+    33% { transform: translate(10vw, -15vh) scale(1.15); }
+    66% { transform: translate(-12vw, 10vh) scale(0.85); }
+    100% { transform: translate(15vw, 8vh) scale(1.1); }
 }
 
 /* --- Layout Architecture --- */

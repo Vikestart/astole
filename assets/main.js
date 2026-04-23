@@ -10,16 +10,17 @@ document.addEventListener('DOMContentLoaded', () => {
         // Toggle menu on button click
         mobileToggle.addEventListener('click', (e) => {
             e.preventDefault(); 
+            e.stopPropagation(); // <-- THIS IS THE FIX! Stops the click from instantly triggering the document listener below.
+            
             navLinks.classList.toggle('nav-active');
             updateMenuIcon();
         });
 
         // Close menu when clicking ANYWHERE outside of it
         document.addEventListener('click', (e) => {
-            // If the menu is currently open
             if (navLinks.classList.contains('nav-active')) {
-                // And the click was NOT inside the menu, and NOT on the toggle button
-                if (!navLinks.contains(e.target) && !mobileToggle.contains(e.target)) {
+                // If the click was NOT inside the menu links
+                if (!navLinks.contains(e.target)) {
                     navLinks.classList.remove('nav-active');
                     updateMenuIcon();
                 }
