@@ -442,9 +442,13 @@ ul li i, ul li svg {
 .badge {
     padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600;
 }
-.badge-blue { background: #eff6ff; color: #2563eb; }
+.badge-blue { background: #eef5ff; color: #2563eb; border: 1px solid #d7e2ff; }
 .badge-gray { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
 .badge-green { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+.badge-red { background: #fcdcdc; color: #651616; border: 1px solid #f7bbbb; }
+.badge-purple { background: #f2dcfc; color: #551665; border: 1px solid #edbbf7; }
+.badge-yellow { background: #fcfbdc; color: #656516; border: 1px solid #f7f1bb; }
+.bage-noborder { border-width:0; }
 
 .table-actions a { 
     color: var(--text-muted); 

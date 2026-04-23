@@ -1,11 +1,10 @@
 <?php
 	session_start();
+	require "admin-functions.php";
 
-	// --- STRICT POST CSRF CHECK ---
 	if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 		if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
-			$_SESSION['Sessionmsg'] = array('origin' => 'settings', 'type' => 'error', 'icon' => 'times-circle', 'expire' => 5000, 'message' => "Security validation failed (CSRF).");
-			header("Location: settings.php"); die();
+			returnWithMsg('settings', 'error', 'times-circle', 5000, "Security validation failed (CSRF).", "settings.php");
 		}
 	} else {
 		header("Location: settings.php"); die();
@@ -14,11 +13,8 @@
 	require "../db.php";
 	$db_connection = new DBConn();
 
-	if (!isset($_SESSION['UserID'])) {
-		header("Location: login.php"); die();
-	}
+	if (!isset($_SESSION['UserID'])) { header("Location: login.php"); die(); }
 
-	// Security: Only Admins (Role 1) can change global settings
 	$active_user_id = (int)$_SESSION['UserID'];
 	$stmt_auth = $db_connection->conn->prepare("SELECT user_role FROM users WHERE user_id = ?");
 	$stmt_auth->bind_param("i", $active_user_id);
@@ -27,12 +23,9 @@
 	$stmt_auth->close();
 
 	if ($user_role !== 1) {
-		$_SESSION['Sessionmsg'] = array('origin' => 'settings', 'type' => 'error', 'icon' => 'times-circle', 'expire' => 5000, 'message' => "Only Administrators can modify system settings.");
-		header("Location: settings.php"); die();
+		returnWithMsg('settings', 'error', 'times-circle', 5000, "Only Administrators can modify system settings.", "settings.php");
 	}
 
-	// --- PROCESS UPDATES ---
-    // Map the POST data to the exact database keys
 	$updates = [
 		'site_name' => trim($_POST['site_name'] ?? ''),
 		'site_email' => trim($_POST['site_email'] ?? ''),
@@ -41,13 +34,10 @@
 		'ga_id' => trim($_POST['ga_id'] ?? ''),
 		'recaptcha_site' => trim($_POST['recaptcha_site'] ?? ''),
 		'recaptcha_secret' => trim($_POST['recaptcha_secret'] ?? ''),
-		
-		// CHANGED: These checkboxes now default to 0 if not sent (unticked)
 		'ticket_system_enabled' => (int)($_POST['ticket_system_enabled'] ?? 0),
 		'ticket_creation_enabled' => (int)($_POST['ticket_creation_enabled'] ?? 0),
 		'ticket_notify_admin_new' => (int)($_POST['ticket_notify_admin_new'] ?? 0),
 		'ticket_notify_admin_reply' => (int)($_POST['ticket_notify_admin_reply'] ?? 0),
-		
 		'ticket_autoclose_hours' => (int)($_POST['ticket_autoclose_hours'] ?? 72),
 		'ticket_msg_received' => trim($_POST['ticket_msg_received'] ?? ''),
 		'ticket_msg_reply' => trim($_POST['ticket_msg_reply'] ?? ''),
@@ -56,25 +46,19 @@
 		'attachment_retention_days' => (int)($_POST['attachment_retention_days'] ?? 365)
 	];
 
-	// Prepare a single update statement that we will loop through
 	$stmt = $db_connection->conn->prepare("UPDATE settings SET setting_value = ? WHERE setting_key = ?");
-	
 	$changes_made = 0;
 	foreach ($updates as $key => $value) {
 		$stmt->bind_param("ss", $value, $key);
 		$stmt->execute();
-		if ($stmt->affected_rows > 0) {
-			$changes_made++;
-		}
+		if ($stmt->affected_rows > 0) { $changes_made++; }
 	}
 	$stmt->close();
 
 	if ($changes_made > 0) {
-		$_SESSION['Sessionmsg'] = array('origin' => 'settings', 'type' => 'success', 'icon' => 'check-circle', 'expire' => 4500, 'message' => "System settings have been successfully updated.");
+        // Boom! Look how clean the logging is here!
+		returnWithMsg("settings", "success", "check-circle", 4500, "System settings have been successfully updated.", "settings.php", $db_connection->conn, 'Settings', 'Updated system settings.');
 	} else {
-		$_SESSION['Sessionmsg'] = array('origin' => 'settings', 'type' => 'success', 'icon' => 'check-circle', 'expire' => 4500, 'message' => "No changes were made to the settings.");
+		returnWithMsg("settings", "success", "check-circle", 4500, "No changes were made to the settings.", "settings.php");
 	}
-
-	header("Location: settings.php");
-	die();
 ?>

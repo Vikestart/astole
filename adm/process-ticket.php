@@ -2,15 +2,10 @@
 session_start();
 require_once "../upload-helper.php";
 require_once "../db.php";
-
-function returnWithMsg($type, $icon, $expire, $message, $redirect) {
-    $_SESSION['Sessionmsg'] = array('origin' => 'tickets', 'type' => $type, 'icon' => $icon, 'expire' => $expire, 'message' => $message);
-    header("Location: " . $redirect);
-    die();
-}
+require_once "admin-functions.php";
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
-    returnWithMsg("error", "times-circle", 5000, "Security validation failed.", "tickets.php");
+    returnWithMsg("tickets", "error", "times-circle", 5000, "Security validation failed.", "tickets.php");
 }
 
 if (!isset($_SESSION['UserID'])) { header("Location: login.php"); die(); }
@@ -23,15 +18,13 @@ $stmt_auth->execute();
 $user_role = (int)$stmt_auth->get_result()->fetch_assoc()['user_role'];
 $stmt_auth->close();
 
-if ($user_role == 3) { returnWithMsg("error", "times-circle", 5000, "Permission denied.", "index.php"); }
+if ($user_role == 3) { returnWithMsg("tickets", "error", "times-circle", 5000, "Permission denied.", "index.php"); }
 
 $action = $_POST['action'] ?? '';
 $ticket_id = (int)($_POST['ticket_id'] ?? 0);
 $currtime = gmdate("Y-m-d H:i:s");
 
-// --- ACTION: DELETE TICKET ---
 if ($action === 'delete_ticket') {
-    // Delete physical files to save server space
     $stmt_att = $db->conn->prepare("SELECT attachment FROM ticket_replies WHERE ticket_id = ? AND attachment IS NOT NULL");
     $stmt_att->bind_param("i", $ticket_id);
     $stmt_att->execute();
@@ -53,15 +46,14 @@ if ($action === 'delete_ticket') {
     $stmt_rep->execute();
     $stmt_rep->close();
 
-    returnWithMsg("success", "check-circle", 4500, "Ticket and all replies deleted.", "tickets.php");
+    returnWithMsg("tickets", "success", "check-circle", 4500, "Ticket and all replies deleted.", "tickets.php", $db->conn, 'Ticket', "Deleted ticket ID: {$ticket_id} and all associated attachments.");
 }
 
-// --- ACTION: ADMIN REPLY OR CLOSE ---
 if ($action === 'admin_reply') {
-    $message = trim($_POST['message'] ?? ''); // SAVED RAW
+    $message = trim($_POST['message'] ?? '');
     $status_update = $_POST['status_update'] ?? 'Answered';
 
-    if (empty($message)) { returnWithMsg("error", "times-circle", 4500, "You must provide a reply comment.", "view-ticket.php?id=" . $ticket_id); }
+    if (empty($message)) { returnWithMsg("tickets", "error", "times-circle", 4500, "You must provide a reply comment.", "view-ticket.php?id=" . $ticket_id); }
 
     $stmt_tkt = $db->conn->prepare("SELECT client_name, client_email, tracking_id, status FROM tickets WHERE id = ?");
     $stmt_tkt->bind_param("i", $ticket_id);
@@ -85,11 +77,10 @@ if ($action === 'admin_reply') {
             $stmt_sys->close();
         }
 
-        // Process Attachment
         $attachment = null;
         if (!empty($_FILES['attachment']['name'][0])) {
             $upload_res = processMultipleAttachments($_FILES['attachment'], __DIR__ . '/../uploads/tickets');
-            if (is_array($upload_res) && isset($upload_res['error'])) { returnWithMsg("error", "times-circle", 4500, $upload_res['error'], "view-ticket.php?id=" . $ticket_id); }
+            if (is_array($upload_res) && isset($upload_res['error'])) { returnWithMsg("tickets", "error", "times-circle", 4500, $upload_res['error'], "view-ticket.php?id=" . $ticket_id); }
             $attachment = $upload_res;
         }
 
@@ -103,7 +94,6 @@ if ($action === 'admin_reply') {
         $stmt_upd->execute();
         $stmt_upd->close();
 
-        // Send Email
         $res_stg = $db->conn->query("SELECT setting_key, setting_value FROM settings WHERE setting_key IN ('site_email', 'site_name', 'ticket_msg_reply', 'ticket_msg_closed_admin')");
         $settings = [];
         if ($res_stg) { while($r = $res_stg->fetch_assoc()) { $settings[$r['setting_key']] = $r['setting_value']; } }
@@ -111,40 +101,28 @@ if ($action === 'admin_reply') {
         $site_name = $settings['site_name'] ?? 'Support';
         $safe_noreply = "noreply@" . $_SERVER['HTTP_HOST'];
         $encoded_site_name = '=?UTF-8?B?' . base64_encode($site_name) . '?=';
-        
-        $headers = "From: " . $encoded_site_name . " <" . $safe_noreply . ">\r\n" .
-                   "Reply-To: " . $safe_noreply . "\r\n" .
-                   "MIME-Version: 1.0\r\n" .
-                   "Content-Type: text/plain; charset=UTF-8\r\n" .
-                   "X-Mailer: PHP/" . phpversion();
+        $headers = "From: " . $encoded_site_name . " <" . $safe_noreply . ">\r\nReply-To: " . $safe_noreply . "\r\nMIME-Version: 1.0\r\nContent-Type: text/plain; charset=UTF-8\r\n";
         
         $body_text = "Hello " . trim($t_data['client_name']) . ",\n\n";
         $send_email = false;
 
         if (!empty($message)) {
-            $msg_reply = !empty($settings['ticket_msg_reply']) ? $settings['ticket_msg_reply'] : "An administrator has replied to your ticket.";
-            $body_text .= $msg_reply . "\n\n";
+            $body_text .= (!empty($settings['ticket_msg_reply']) ? $settings['ticket_msg_reply'] : "An administrator has replied to your ticket.") . "\n\n";
             $send_email = true;
         }
         
         if ($status_update === 'Closed') {
-            $msg_closed = !empty($settings['ticket_msg_closed_admin']) ? $settings['ticket_msg_closed_admin'] : "Your ticket has been marked as resolved and closed.";
-            $body_text .= $msg_closed . "\n\n";
+            $body_text .= (!empty($settings['ticket_msg_closed_admin']) ? $settings['ticket_msg_closed_admin'] : "Your ticket has been marked as resolved and closed.") . "\n\n";
             $send_email = true;
         }
 
         if ($send_email) {
             $portal_url = "http" . (isset($_SERVER['HTTPS']) ? "s" : "") . "://" . $_SERVER['HTTP_HOST'] . "/view-ticket.php?id=" . urlencode($t_data['tracking_id']) . "&email=" . urlencode($t_data['client_email']);
-            
-            $body_text .= "Tracking ID: " . $t_data['tracking_id'] . "\n\n";
-            $body_text .= "--- Please do not reply directly to this email ---\n";
-            $body_text .= "You can view the full thread and respond securely via this direct link: \n" . $portal_url;
-            
-            $mail_sent = mail(trim($t_data['client_email']), "Ticket Update: " . $t_data['tracking_id'], $body_text, $headers, "-f" . $safe_noreply);
-            if (!$mail_sent) { error_log("TICKET MAIL FAILED: PHP mail() returned false. To: " . $t_data['client_email']); }
+            $body_text .= "Tracking ID: " . $t_data['tracking_id'] . "\n\n--- Please do not reply directly to this email ---\nYou can view the full thread and respond securely via this direct link: \n" . $portal_url;
+            mail(trim($t_data['client_email']), "Ticket Update: " . $t_data['tracking_id'], $body_text, $headers, "-f" . $safe_noreply);
         }
     }
 
-    returnWithMsg("success", "check-circle", 4500, "Ticket updated successfully.", "view-ticket.php?id=" . $ticket_id);
+    returnWithMsg("tickets", "success", "check-circle", 4500, "Ticket updated successfully.", "view-ticket.php?id=" . $ticket_id, $db->conn, 'Ticket', "Replied to ticket ID: {$ticket_id} and set status to: {$status_update}");
 }
 ?>

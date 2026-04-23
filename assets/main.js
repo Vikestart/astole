@@ -7,21 +7,33 @@ document.addEventListener('DOMContentLoaded', () => {
     const navLinks = document.querySelector('.nav-links');
 
     if (mobileToggle && navLinks) {
+        // Toggle menu on button click
         mobileToggle.addEventListener('click', (e) => {
-            e.preventDefault(); // Stop any default button behavior
-            
-            // Toggle the visibility class
+            e.preventDefault(); 
             navLinks.classList.toggle('nav-active');
-            
-            // Check if the menu is now active
+            updateMenuIcon();
+        });
+
+        // Close menu when clicking ANYWHERE outside of it
+        document.addEventListener('click', (e) => {
+            // If the menu is currently open
             if (navLinks.classList.contains('nav-active')) {
-                // Menu is open, inject the X mark
-                mobileToggle.innerHTML = '<i class="fa-solid fa-xmark"></i>';
-            } else {
-                // Menu is closed, inject the hamburger bars
-                mobileToggle.innerHTML = '<i class="fa-solid fa-bars"></i>';
+                // And the click was NOT inside the menu, and NOT on the toggle button
+                if (!navLinks.contains(e.target) && !mobileToggle.contains(e.target)) {
+                    navLinks.classList.remove('nav-active');
+                    updateMenuIcon();
+                }
             }
         });
+
+        // Helper function to swap the icon
+        function updateMenuIcon() {
+            if (navLinks.classList.contains('nav-active')) {
+                mobileToggle.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+            } else {
+                mobileToggle.innerHTML = '<i class="fa-solid fa-bars"></i>';
+            }
+        }
     }
 });
 document.addEventListener('DOMContentLoaded', () => {

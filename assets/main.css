@@ -43,30 +43,57 @@ body {
     position: relative;
 }
 
-/* --- Soft Mesh Background Animation --- */
+/* --- Elegant Animated Mesh Background --- */
 .mesh-bg {
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
-    z-index: -1;
+    z-index: -1; /* Keep it behind everything */
     overflow: hidden;
-    background: #f8fafc;
+    background-color: var(--color-bg);
 }
 
 .mesh-blob {
     position: absolute;
-    filter: blur(90px);
     border-radius: 50%;
-    opacity: 0.6;
-    animation: float 20s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
+    filter: blur(90px); /* Massive blur for a soft light effect */
+    opacity: 0.5; /* Keep it subtle so text remains readable */
+    animation: floatBlob 20s infinite alternate ease-in-out;
+    will-change: transform; /* Optimizes the animation performance */
 }
 
-.blob-1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: #e0e7ff; }
-.blob-2 { bottom: -20%; right: -10%; width: 60vw; height: 60vw; background: #bae6fd; animation-delay: -5s; }
-.blob-3 { top: 30%; left: 40%; width: 40vw; height: 40vw; background: #ddd6fe; animation-delay: -10s; }
+/* Primary Blue Orb */
+.blob-1 {
+    width: 50vw; height: 50vw;
+    max-width: 600px; max-height: 600px;
+    background: var(--color-primary-light);
+    top: -10%; left: -10%;
+    animation-delay: 0s;
+}
 
-@keyframes float {
-    0% { transform: translate(0, 0) scale(1); }
-    100% { transform: translate(10%, 10%) scale(1.1); }
+/* Soft Purple Orb */
+.blob-2 {
+    width: 40vw; height: 40vw;
+    max-width: 500px; max-height: 500px;
+    background: #a78bfa; 
+    bottom: -10%; right: -5%;
+    animation-delay: -5s; /* Offset so they don't move together */
+}
+
+/* Cyan/Teal Orb */
+.blob-3 {
+    width: 35vw; height: 35vw;
+    max-width: 450px; max-height: 450px;
+    background: #38bdf8; 
+    top: 30%; left: 50%;
+    animation-delay: -10s;
+}
+
+/* The smooth, wandering floating animation */
+@keyframes floatBlob {
+    0% { transform: translate(0px, 0px) scale(1); }
+    33% { transform: translate(30px, -50px) scale(1.1); }
+    66% { transform: translate(-20px, 20px) scale(0.9); }
+    100% { transform: translate(50px, 40px) scale(1.05); }
 }
 
 /* --- Layout Architecture --- */
@@ -403,8 +430,8 @@ body {
 /* 6. File Upload Preview UI */
 .file-preview-item { display: inline-flex; align-items: center; background: #f1f5f9; padding: 8px 14px; border-radius: 6px; font-size: 13px; border: 1px solid #e2e8f0; width: fit-content; margin-top: 5px; color: #334155; font-weight: 500; box-shadow: 0 1px 2px rgba(0,0,0,0.02); }
 .file-preview-item span { margin-right: 20px; }
-.file-preview-item i { cursor: pointer; color: white; background: #ef4444; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; border-radius: 4px; transition: background 0.2s ease; margin-left: auto; }
-.file-preview-item i:hover { background: #dc2626; }
+.file-preview-item i, .file-preview-item svg { cursor: pointer; color: white; background: #ef4444; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; border-radius: 4px; transition: background 0.2s ease; margin-left: auto; }
+.file-preview-item i:hover, .file-preview-item svg:hover { background: #b11e1e; }
 
 /* 7. Selection Cards */
 .ticket-choice-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; max-width: 700px; margin: 0 auto; }

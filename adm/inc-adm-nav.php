@@ -36,6 +36,9 @@
             </a>
             
             <?php if ($userdata->row['user_role'] == 1) { ?>
+                <a href="activity-log.php" class="menu-item <?php if(basename($_SERVER['PHP_SELF']) == 'activity-log.php') echo 'active'; ?>">
+                    <i class="fa-solid fa-clipboard-list"></i> <span>Activity Log</span>
+                </a>
                 <a href="settings.php" class="menu-item <?php if(basename($_SERVER['PHP_SELF']) == 'settings.php') echo 'active'; ?>">
                     <i class="fa-solid fa-cog"></i> <span>Settings</span>
                 </a>

@@ -55,7 +55,7 @@ if (isset($_SESSION['Sessionmsg'])) {
                                     <strong style="color: var(--color-heading); font-weight: 700;"><?php echo htmlspecialchars($row['page_title']); ?></strong>
                                 <?php } ?>
 							</td>
-                            <td><span class="badge badge-blue">/<?php echo htmlspecialchars($row['page_slug']); ?></span></td>
+                            <td><span class="badge badge-blue bage-noborder">/<?php echo htmlspecialchars($row['page_slug']); ?></span></td>
                             <td><?php echo htmlspecialchars($row['page_author']); ?></td>
                             <td><?php echo htmlspecialchars(date('M d, Y', strtotime($row['page_updated']))); ?></td>
                             <td style="text-align: right;" class="table-actions">
