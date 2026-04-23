@@ -71,8 +71,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 4. Mobile Menu Toggle & Overlay ---
     const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
     const overlay = document.getElementById('mobile-overlay');
+    const sidebar = document.querySelector('.admin-sidebar'); // <-- Added missing variable!
     
-    if (mobileMenuBtn) {
+    if (mobileMenuBtn && sidebar) {
         mobileMenuBtn.addEventListener('click', () => {
             sidebar.classList.toggle('mobile-open');
             if(overlay) overlay.classList.toggle('active');
@@ -80,7 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     // Close menu when clicking the darkened overlay
-    if (overlay) {
+    if (overlay && sidebar) {
         overlay.addEventListener('click', () => {
             sidebar.classList.remove('mobile-open');
             overlay.classList.remove('active');

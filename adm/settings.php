@@ -1,5 +1,5 @@
 <?php
-	$site_title = "Global Settings";
+	$site_title = "System Settings";
 	require "inc-adm-head.php";
 	require "inc-adm-nav.php";
 
@@ -51,7 +51,7 @@
 
 <section>
 	<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
-		<h1 style="margin: 0; font-size: 24px; color: var(--color-heading);"><i class="fa-solid fa-sliders"></i> Global Settings</h1>
+		<h1 style="margin: 0; font-size: 24px; color: var(--color-heading);"><i class="fa-solid fa-sliders"></i> System Settings</h1>
 	</div>
 
 	<?php if (isset($msgtxt) && $msgorigin == 'settings') {

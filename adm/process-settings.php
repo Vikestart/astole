@@ -27,7 +27,7 @@
 	$stmt_auth->close();
 
 	if ($user_role !== 1) {
-		$_SESSION['Sessionmsg'] = array('origin' => 'settings', 'type' => 'error', 'icon' => 'times-circle', 'expire' => 5000, 'message' => "Only Administrators can modify global settings.");
+		$_SESSION['Sessionmsg'] = array('origin' => 'settings', 'type' => 'error', 'icon' => 'times-circle', 'expire' => 5000, 'message' => "Only Administrators can modify system settings.");
 		header("Location: settings.php"); die();
 	}
 
@@ -41,11 +41,14 @@
 		'ga_id' => trim($_POST['ga_id'] ?? ''),
 		'recaptcha_site' => trim($_POST['recaptcha_site'] ?? ''),
 		'recaptcha_secret' => trim($_POST['recaptcha_secret'] ?? ''),
-		'ticket_system_enabled' => (int)($_POST['ticket_system_enabled'] ?? 1),
-		'ticket_creation_enabled' => (int)($_POST['ticket_creation_enabled'] ?? 1),
+		
+		// CHANGED: These checkboxes now default to 0 if not sent (unticked)
+		'ticket_system_enabled' => (int)($_POST['ticket_system_enabled'] ?? 0),
+		'ticket_creation_enabled' => (int)($_POST['ticket_creation_enabled'] ?? 0),
+		'ticket_notify_admin_new' => (int)($_POST['ticket_notify_admin_new'] ?? 0),
+		'ticket_notify_admin_reply' => (int)($_POST['ticket_notify_admin_reply'] ?? 0),
+		
 		'ticket_autoclose_hours' => (int)($_POST['ticket_autoclose_hours'] ?? 72),
-		'ticket_notify_admin_new' => (int)($_POST['ticket_notify_admin_new'] ?? 1),
-		'ticket_notify_admin_reply' => (int)($_POST['ticket_notify_admin_reply'] ?? 1),
 		'ticket_msg_received' => trim($_POST['ticket_msg_received'] ?? ''),
 		'ticket_msg_reply' => trim($_POST['ticket_msg_reply'] ?? ''),
 		'ticket_msg_closed_admin' => trim($_POST['ticket_msg_closed_admin'] ?? ''),
@@ -67,7 +70,7 @@
 	$stmt->close();
 
 	if ($changes_made > 0) {
-		$_SESSION['Sessionmsg'] = array('origin' => 'settings', 'type' => 'success', 'icon' => 'check-circle', 'expire' => 4500, 'message' => "Global settings have been successfully updated.");
+		$_SESSION['Sessionmsg'] = array('origin' => 'settings', 'type' => 'success', 'icon' => 'check-circle', 'expire' => 4500, 'message' => "System settings have been successfully updated.");
 	} else {
 		$_SESSION['Sessionmsg'] = array('origin' => 'settings', 'type' => 'success', 'icon' => 'check-circle', 'expire' => 4500, 'message' => "No changes were made to the settings.");
 	}

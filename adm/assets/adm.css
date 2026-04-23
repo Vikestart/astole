@@ -656,7 +656,7 @@ ul li i, ul li svg {
 .settings-layout { display: flex; gap: 30px; align-items: flex-start; }
 
 /* CHANGED: Background changed to bg-body for contrast, margin-top explicitly 0 for perfect alignment */
-.settings-sidebar { width: 260px; flex-shrink: 0; background: var(--bg-body); padding: 15px; border-radius: 8px; border: 1px solid var(--border); position: sticky; top: 80px; margin-top: 0; }
+.settings-sidebar { width: 260px; flex-shrink: 0; background: var(--bg-body); padding: 15px; border-radius: 8px; border: 1px solid var(--border); position: sticky; top: 0; margin-top: 0; }
 .settings-content { flex-grow: 1; min-width: 0; margin-top: 0; }
 
 .admin-tabs-nav { display: flex; flex-direction: column; gap: 5px; margin: 0; padding: 0; }
@@ -677,17 +677,18 @@ ul li i, ul li svg {
     to { opacity: 1; transform: translateY(0); } 
 }
 
-/* Floating Save Bar (Glassmorphism) */
+/* Floating Save Bar (High Glassmorphism) */
 .settings-save-bar { 
     position: sticky; 
     bottom: 20px; 
-    background: rgba(255, 255, 255, 0.85); /* Translucent White */
-    backdrop-filter: blur(12px); /* Frosted Glass Blur Effect */
-    -webkit-backdrop-filter: blur(12px); /* Safari support */
+    background: rgba(255, 255, 255, 0.55); /* More transparent to let colors through */
+    backdrop-filter: blur(24px); /* Double the blur for a thick glass look */
+    -webkit-backdrop-filter: blur(24px); 
     padding: 15px 25px; 
     border-radius: 8px; 
-    border: 1px solid rgba(226, 232, 240, 0.8); 
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05); 
+    border: 1px solid rgba(255, 255, 255, 0.4); /* White frosted edge */
+    border-top: 1px solid rgba(255, 255, 255, 0.8); /* Stronger light reflection on top */
+    box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.05); 
     display: flex; 
     justify-content: space-between; 
     align-items: center; 
@@ -847,7 +848,6 @@ ul li i, ul li svg {
 
 /* --- Mobile Responsiveness --- */
 @media screen and (max-width: 768px) {
-    @media screen and (max-width: 768px) {
     .admin-sidebar {
         position: fixed;
         left: 0;
