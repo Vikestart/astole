@@ -55,45 +55,84 @@ body {
 .mesh-blob {
     position: absolute;
     border-radius: 50%;
-    filter: blur(70px); /* Tighter blur so the color core is more visible */
-    opacity: 0.8; /* Increased opacity to make them pop */
-    animation: floatBlob 14s infinite alternate ease-in-out; /* Faster animation */
     will-change: transform; 
+    
+    /* Mobile-first defaults: Stronger opacity, tighter blur, larger relative size */
+    filter: blur(50px); 
+    opacity: 0.85; 
 }
 
-/* Primary Blue Orb */
+/* Mobile Sizes & Independent Animations */
 .blob-1 {
-    width: 60vw; height: 60vw; /* Made them significantly larger */
-    max-width: 800px; max-height: 800px;
+    width: 80vw; height: 80vw; 
     background: var(--color-primary-light);
-    top: -20%; left: -10%;
-    animation-delay: 0s;
+    top: -10%; left: -20%;
+    animation: floatMobile1 12s infinite alternate ease-in-out;
 }
-
-/* Soft Purple Orb */
 .blob-2 {
-    width: 50vw; height: 50vw;
-    max-width: 700px; max-height: 700px;
+    width: 70vw; height: 70vw;
     background: #a78bfa; 
-    bottom: -20%; right: -10%;
-    animation-delay: -5s; 
+    bottom: -10%; right: -20%;
+    animation: floatMobile2 14s infinite alternate ease-in-out; 
 }
-
-/* Cyan/Teal Orb */
 .blob-3 {
-    width: 45vw; height: 45vw;
-    max-width: 600px; max-height: 600px;
+    width: 60vw; height: 60vw;
     background: #38bdf8; 
-    top: 20%; left: 40%;
-    animation-delay: -9s;
+    top: 30%; left: 10%;
+    animation: floatMobile3 16s infinite alternate ease-in-out;
 }
 
-/* Vastly wider, sweeping movement using viewport units */
-@keyframes floatBlob {
-    0% { transform: translate(0px, 0px) scale(1); }
-    33% { transform: translate(10vw, -15vh) scale(1.15); }
-    66% { transform: translate(-12vw, 10vh) scale(0.85); }
-    100% { transform: translate(15vw, 8vh) scale(1.1); }
+@keyframes floatMobile1 {
+    0% { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(15vw, 15vh) scale(1.1); }
+}
+@keyframes floatMobile2 {
+    0% { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(-15vw, -10vh) scale(1.15); }
+}
+@keyframes floatMobile3 {
+    0% { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(15vw, -15vh) scale(1.05); }
+}
+
+
+/* --- Desktop Overrides (Screens larger than 768px) --- */
+@media screen and (min-width: 768px) {
+    .mesh-blob {
+        filter: blur(90px); /* Softer, highly elegant blur */
+        opacity: 0.55; /* More subtle so it doesn't distract from content */
+    }
+    
+    /* Switch to fixed pixel sizes so they don't blow up on massive 4K monitors */
+    .blob-1 {
+        width: 600px; height: 600px; 
+        top: -10%; left: -5%;
+        animation: floatDesk1 18s infinite alternate ease-in-out;
+    }
+    .blob-2 {
+        width: 500px; height: 500px;
+        bottom: -10%; right: -5%;
+        animation: floatDesk2 20s infinite alternate ease-in-out;
+    }
+    .blob-3 {
+        width: 450px; height: 450px;
+        top: 15%; left: 40%;
+        animation: floatDesk3 22s infinite alternate ease-in-out;
+    }
+
+    /* Pixel-based movement instead of viewport-based */
+    @keyframes floatDesk1 {
+        0% { transform: translate(0, 0) scale(1); }
+        100% { transform: translate(120px, 80px) scale(1.05); }
+    }
+    @keyframes floatDesk2 {
+        0% { transform: translate(0, 0) scale(1); }
+        100% { transform: translate(-100px, -100px) scale(1.1); }
+    }
+    @keyframes floatDesk3 {
+        0% { transform: translate(0, 0) scale(1); }
+        100% { transform: translate(150px, -60px) scale(0.95); }
+    }
 }
 
 /* --- Layout Architecture --- */
