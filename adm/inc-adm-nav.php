@@ -26,6 +26,10 @@
                 <i class="fa-solid fa-file-alt"></i> <span>Pages</span>
             </a>
             
+            <a href="menus.php" class="menu-item <?php if(basename($_SERVER['PHP_SELF']) == 'menus.php') echo 'active'; ?>">
+                <i class="fa-solid fa-list-ul"></i> <span>Menus</span>
+            </a>
+            
             <a href="tickets.php" class="menu-item <?php if(basename($_SERVER['PHP_SELF']) == 'tickets.php' || basename($_SERVER['PHP_SELF']) == 'view-ticket.php') echo 'active'; ?>">
                 <i class="fa-solid fa-ticket-alt"></i> <span>Tickets</span>
             </a>

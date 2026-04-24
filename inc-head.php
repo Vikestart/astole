@@ -56,6 +56,71 @@
     // --- 3. DYNAMIC SEO VARIABLES ---
     $final_title = isset($page_title) ? $page_title . " | " . $site_name : $site_name;
     $final_desc = isset($page_desc) ? $page_desc : $seo_desc;
+
+    // --- 4. FETCH MAIN NAVIGATION ---
+    // Safely build a lookup array for page slugs to prevent JOIN crashes
+    $page_slugs = [];
+    $res_pages = $header_db->conn->query("SELECT * FROM pages");
+    if ($res_pages) {
+        while ($p = $res_pages->fetch_assoc()) {
+            $pid = $p['id'] ?? $p['page_id'] ?? 0;
+            $pslug = $p['page_slug'] ?? $p['slug'] ?? '';
+            if ($pid) { $page_slugs[$pid] = $pslug; }
+        }
+    }
+
+    $nav_items = [];
+    $stmt_nav = $header_db->conn->prepare("
+        SELECT mi.* FROM menu_items mi 
+        JOIN menus m ON mi.menu_id = m.id 
+        WHERE m.identifier = 'main_nav' 
+        ORDER BY mi.sort_order ASC
+    ");
+    
+    if ($stmt_nav) {
+        $stmt_nav->execute();
+        $res_nav = $stmt_nav->get_result();
+        while($row = $res_nav->fetch_assoc()) {
+            $slug = '';
+            if (!empty($row['page_id']) && isset($page_slugs[$row['page_id']])) {
+                $slug = $page_slugs[$row['page_id']];
+            }
+            
+            // Resolve the true URL (Page Slug vs Custom URL)
+            $final_url = (!empty($row['page_id']) && !empty($slug)) ? '/' . ltrim($slug, '/') : $row['url'];
+            $row['final_url'] = $final_url;
+            $nav_items[] = $row;
+        }
+        $stmt_nav->close();
+    }
+
+    // Recursive function to build standard links and nested glass dropdowns
+    function buildFrontendMenu($items, $parent_id = null, $current_route = '') {
+        $html = '';
+        foreach ($items as $item) {
+            if ($item['parent_id'] == $parent_id) {
+                // Check if this specific item has children
+                $has_children = false;
+                foreach ($items as $sub) { if ($sub['parent_id'] == $item['id']) { $has_children = true; break; } }
+                
+                // Active State & Target mapping
+                $route_match = trim(str_replace('/', '', $item['final_url']));
+                $active_class = ($current_route === $route_match || ($current_route === '' && $route_match === 'home')) ? 'active' : '';
+                $target = ($item['target'] === '_blank') ? ' target="_blank" rel="noopener noreferrer"' : '';
+                
+                if ($has_children) {
+                    $html .= '<div class="nav-dropdown">';
+                    $html .= '<a href="'.htmlspecialchars($item['final_url']).'" class="nav-item '.$active_class.'"'.$target.'>'.htmlspecialchars($item['title']).' <i class="fa-solid fa-chevron-down" style="font-size: 10px; margin-left: 4px; opacity: 0.7;"></i></a>';
+                    $html .= '<div class="nav-dropdown-menu">';
+                    $html .= buildFrontendMenu($items, $item['id'], $current_route);
+                    $html .= '</div></div>';
+                } else {
+                    $html .= '<a href="'.htmlspecialchars($item['final_url']).'" class="nav-item '.$active_class.'"'.$target.'>'.htmlspecialchars($item['title']).'</a>';
+                }
+            }
+        }
+        return $html;
+    }
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -102,10 +167,7 @@
 				</a>
 				
 				<nav class="nav-links">
-					<a href="/home" class="nav-item <?php echo ($route === 'home' || $route === '') ? 'active' : ''; ?>">Home</a>
-					<a href="/experience" class="nav-item <?php echo ($route === 'experience') ? 'active' : ''; ?>">Experience</a>
-					<a href="/projects" class="nav-item <?php echo ($route === 'projects') ? 'active' : ''; ?>">Projects</a>
-					<a href="/contact" class="nav-item <?php echo ($route === 'contact') ? 'active' : ''; ?>">Contact</a>
+					<?php echo buildFrontendMenu($nav_items, null, $route ?? ''); ?>
 				</nav>
 				
 				<button class="mobile-toggle"><i class="fa-solid fa-bars"></i></button>

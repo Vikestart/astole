@@ -224,6 +224,72 @@ body {
     cursor: pointer;
 }
 
+/* --- Dynamic Dropdown Navigation (Glassmorphism) --- */
+.nav-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.nav-dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    min-width: 200px;
+    
+    /* Frosted Glass Effect */
+    background: rgba(255, 255, 255, 0.15); 
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    
+    padding: 10px 0;
+    z-index: 100;
+    
+    /* Smooth entrance animation setup */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(15px);
+    transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s;
+}
+
+/* Hover trigger */
+.nav-dropdown:hover .nav-dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.nav-dropdown-menu .nav-item {
+    display: block;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #334155;
+    text-decoration: none;
+    transition: background 0.2s, color 0.2s, padding-left 0.2s;
+}
+
+/* Internal hover effect */
+.nav-dropdown-menu .nav-item:hover {
+    background: rgba(255, 255, 255, 0.3);
+    padding-left: 24px; /* Slight indent bump on hover */
+}
+
+/* Handle infinite nesting (Sub-sub-menus) */
+.nav-dropdown-menu .nav-dropdown {
+    display: block;
+}
+.nav-dropdown-menu .nav-dropdown-menu {
+    top: 0;
+    left: 100%;
+    transform: translateX(15px);
+}
+.nav-dropdown-menu .nav-dropdown:hover .nav-dropdown-menu {
+    transform: translateX(0);
+}
+
 /* --- Main Content Area --- */
 .main-content {
     width: 90%;

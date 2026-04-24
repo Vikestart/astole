@@ -343,3 +343,223 @@ if (settingsForm && saveBtn) {
         }
     }
 }
+/* =========================================
+   Menu Builder AJAX & Drag-and-Drop System
+========================================= */
+
+const sortableContainer = document.getElementById('sortable-menu');
+const saveOrderBtn = document.getElementById('ajax-save-order-btn');
+const msgBox = document.getElementById('ajax-msgbox');
+const csrfInput = document.getElementById('menu-csrf');
+const activeMenuInput = document.getElementById('active-menu-id');
+
+// Dynamic Radio Listeners
+function setupRadioToggles(formId, radioName, urlWrapId, pageWrapId) {
+    const form = document.getElementById(formId);
+    if(!form) return;
+    const radios = form.querySelectorAll(`input[name="${radioName}"]`);
+    radios.forEach(radio => {
+        radio.addEventListener('change', (e) => {
+            if(e.target.checked) {
+                document.getElementById(urlWrapId).style.display = e.target.value === 'url' ? 'block' : 'none';
+                document.getElementById(pageWrapId).style.display = e.target.value === 'page' ? 'block' : 'none';
+            }
+        });
+    });
+}
+setupRadioToggles('ajax-add-menu-form', 'link_type', 'wrapper-url', 'wrapper-page');
+setupRadioToggles('ajax-edit-item-form', 'link_type', 'edit-wrapper-url', 'edit-wrapper-page');
+
+function showMenuMsg(type, msg) {
+    msgBox.className = `msgbox msgbox-${type}`;
+    msgBox.innerHTML = `<i class="fa-solid fa-${type === 'success' ? 'check-circle' : 'times-circle'}"></i> ${msg}`;
+    msgBox.style.display = 'block';
+    setTimeout(() => { msgBox.style.display = 'none'; }, 4000);
+}
+
+function loadMenuAjax() {
+    if (!sortableContainer) return;
+    const formData = new FormData();
+    formData.append('action', 'get_html'); 
+    formData.append('menu_id', activeMenuInput ? activeMenuInput.value : 1); 
+    formData.append('csrf_token', csrfInput.value);
+
+    fetch('ajax-menu.php', { method: 'POST', body: formData })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === 'success') {
+            sortableContainer.innerHTML = data.html;
+            bindDragEvents();
+            document.querySelectorAll('.dynamic-parent-select').forEach(select => {
+                const currentVal = select.value;
+                select.innerHTML = data.parent_opts;
+                if(currentVal) select.value = currentVal; 
+            });
+        }
+    });
+}
+
+// Add Item
+const addMenuForm = document.getElementById('ajax-add-menu-form');
+if (addMenuForm) {
+    addMenuForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        fetch('ajax-menu.php', { method: 'POST', body: new FormData(addMenuForm) })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === 'success') {
+                loadMenuAjax();
+                addMenuForm.reset();
+                document.getElementById('add_type_url').checked = true;
+                document.getElementById('add_type_url').dispatchEvent(new Event('change'));
+                showMenuMsg('success', 'Link added successfully.');
+            } else { showMenuMsg('error', data.message); }
+        });
+    });
+}
+
+// Edit Item
+const editMenuForm = document.getElementById('ajax-edit-item-form');
+if (editMenuForm) {
+    editMenuForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        fetch('ajax-menu.php', { method: 'POST', body: new FormData(editMenuForm) })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === 'success') {
+                loadMenuAjax();
+                document.getElementById('edit-item-modal').style.display = 'none';
+                showMenuMsg('success', 'Link updated successfully.');
+            } else { showMenuMsg('error', data.message); }
+        });
+    });
+}
+
+// Event Delegation (Edit/Delete)
+if (sortableContainer) {
+    sortableContainer.addEventListener('click', (e) => {
+        const delBtn = e.target.closest('.ajax-delete-btn');
+        if (delBtn && confirm('Are you sure you want to delete this link?')) {
+            const formData = new FormData();
+            formData.append('action', 'delete_item');
+            formData.append('item_id', delBtn.dataset.id);
+            formData.append('csrf_token', csrfInput.value);
+
+            fetch('ajax-menu.php', { method: 'POST', body: formData })
+            .then(res => res.json())
+            .then(data => { if (data.status === 'success') { loadMenuAjax(); showMenuMsg('success', 'Link deleted.'); } });
+        }
+
+        const editBtn = e.target.closest('.ajax-edit-btn');
+        if (editBtn) {
+            const ds = editBtn.dataset;
+            document.getElementById('edit-item-id').value = ds.id;
+            document.getElementById('edit-title').value = ds.title;
+            document.getElementById('edit-parent').value = ds.parent;
+            document.getElementById('edit-url').value = ds.url;
+            
+            const isPage = (ds.page && ds.page !== '0' && ds.page !== '');
+            document.getElementById('edit-page').value = isPage ? ds.page : '';
+            
+            const targetRadio = isPage ? document.getElementById('edit_type_page') : document.getElementById('edit_type_url');
+            targetRadio.checked = true;
+            targetRadio.dispatchEvent(new Event('change'));
+
+            if (ds.target === '_blank') document.getElementById('edit_target_blank').checked = true;
+            else document.getElementById('edit_target_self').checked = true;
+
+            document.getElementById('edit-item-modal').style.display = 'flex';
+        }
+    });
+}
+
+// Drag & Drop: Save Order & Intelligently Reassign Parents
+if (saveOrderBtn) {
+    saveOrderBtn.addEventListener('click', () => {
+        const rows = document.querySelectorAll('.menu-item-row');
+        const newOrder = [];
+        let currentParent = null;
+
+        rows.forEach((row, index) => {
+            if (row.classList.contains('is-top-item')) {
+                currentParent = row.dataset.id;
+                newOrder.push({ id: row.dataset.id, parent_id: null, order: index });
+            } else {
+                // It's a sub-item. Adopt the closest preceding top-level item as parent.
+                newOrder.push({ id: row.dataset.id, parent_id: currentParent, order: index });
+            }
+        });
+
+        const formData = new FormData();
+        formData.append('action', 'update_order');
+        formData.append('sort_order_data', JSON.stringify(newOrder));
+        formData.append('csrf_token', csrfInput.value);
+
+        fetch('ajax-menu.php', { method: 'POST', body: formData })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === 'success') {
+                saveOrderBtn.style.display = 'none';
+                loadMenuAjax(); // Pull fresh structure from DB
+                showMenuMsg('success', 'Menu order and hierarchy saved.');
+            }
+        });
+    });
+}
+
+function bindDragEvents() {
+    const draggables = document.querySelectorAll('.draggable');
+    let draggedChildren = []; // Array to hold sub-items during drag
+
+    draggables.forEach(draggable => {
+        draggable.addEventListener('dragstart', () => { 
+            draggable.classList.add('dragging'); 
+            draggedChildren = [];
+            
+            // If it's a top-level item, grab its sub-items
+            if (draggable.classList.contains('is-top-item')) {
+                let next = draggable.nextElementSibling;
+                // Loop through all following elements until we hit another top-item
+                while (next && next.classList.contains('is-sub-item') && !next.classList.contains('dragging')) {
+                    draggedChildren.push(next);
+                    next.style.display = 'none'; // Hide them to keep the drop zone clean
+                    next = next.nextElementSibling;
+                }
+            }
+        });
+        
+        draggable.addEventListener('dragend', () => {
+            draggable.classList.remove('dragging');
+            
+            // Snap children back into place immediately after the dropped parent
+            let refNode = draggable;
+            draggedChildren.forEach(child => {
+                child.style.display = 'flex'; // Restore flex visibility
+                refNode.parentNode.insertBefore(child, refNode.nextSibling);
+                refNode = child; // Update reference to maintain their original order
+            });
+
+            saveOrderBtn.style.display = 'inline-block'; 
+        });
+    });
+
+    sortableContainer.addEventListener('dragover', e => {
+        e.preventDefault();
+        const afterElement = getDragAfterElement(sortableContainer, e.clientY);
+        const draggable = document.querySelector('.dragging');
+        if (draggable) {
+            if (afterElement == null) { sortableContainer.appendChild(draggable); } 
+            else { sortableContainer.insertBefore(draggable, afterElement); }
+        }
+    });
+}
+
+function getDragAfterElement(container, y) {
+    const draggableElements = [...container.querySelectorAll('.draggable:not(.dragging)')];
+    return draggableElements.reduce((closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offset = y - box.top - box.height / 2;
+        if (offset < 0 && offset > closest.offset) return { offset: offset, element: child };
+        else return closest;
+    }, { offset: Number.NEGATIVE_INFINITY }).element;
+}
