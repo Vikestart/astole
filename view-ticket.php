@@ -13,7 +13,7 @@ if (empty($track_id) || empty($email)) {
 
 $db = new DBConn();
 
-$stmt = $db->conn->prepare("SELECT * FROM tickets WHERE tracking_id = ? AND client_email = ?");
+$stmt = $db->conn->prepare("SELECT t.*, u.user_uid AS assigned_name FROM tickets t LEFT JOIN users u ON t.assigned_to = u.user_id WHERE t.tracking_id = ? AND t.client_email = ?");
 $stmt->bind_param("ss", $track_id, $email);
 $stmt->execute();
 $res = $stmt->get_result();
@@ -68,7 +68,13 @@ require_once "inc-head.php";
                     Created: <?php echo date('M d, Y', strtotime($ticket['created_at'])); ?>
                 </div>
             </div>
-            <div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <?php if (!empty($ticket['assigned_name'])) { ?>
+                    <span class="ticket-badge-pill ticket-badge-gray" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);">
+                        <i class="fa-solid fa-user-tie"></i> Agent: <?php echo htmlspecialchars($ticket['assigned_name']); ?>
+                    </span>
+                <?php } ?>
+                
                 <?php 
                     $badge_class = 'ticket-badge-blue';
                     if ($ticket['status'] == 'Answered') { $badge_class = 'ticket-badge-green'; }

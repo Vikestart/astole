@@ -11,8 +11,8 @@
     }
 
     $db = new DBConn();
-    // Sort logic: Open = 1, Answered = 2, Closed = 3. Then by newest first.
-    $tickets = $db->conn->query("SELECT * FROM tickets ORDER BY FIELD(status, 'Open', 'Answered', 'Closed'), updated_at DESC");
+    // Fetch tickets with assigned staff name
+    $tickets = $db->conn->query("SELECT t.*, u.user_uid AS assigned_name FROM tickets t LEFT JOIN users u ON t.assigned_to = u.user_id ORDER BY FIELD(t.status, 'Open', 'Answered', 'Closed'), t.updated_at DESC");
 ?>
 
 <section>
@@ -28,6 +28,7 @@
                 <th style="padding: 15px; color: var(--text-muted); font-size: 13px; text-transform: uppercase;">Tracking ID</th>
                 <th style="padding: 15px; color: var(--text-muted); font-size: 13px; text-transform: uppercase;">Subject / Client</th>
                 <th style="padding: 15px; color: var(--text-muted); font-size: 13px; text-transform: uppercase;">Status</th>
+                <th style="padding: 15px; color: var(--text-muted); font-size: 13px; text-transform: uppercase;">Staff</th>
                 <th style="padding: 15px; color: var(--text-muted); font-size: 13px; text-transform: uppercase;">Last Updated</th>
                 <th style="padding: 15px; text-align: right; color: var(--text-muted); font-size: 13px; text-transform: uppercase;">Actions</th>
             </tr>
@@ -50,6 +51,13 @@
                             <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;"><?php echo htmlspecialchars($row['client_name']) . ' (' . htmlspecialchars($row['client_email']) . ')'; ?></div>
                         </td>
                         <td style="padding: 15px;"><span class="badge <?php echo $badge_class; ?>"><?php echo $row['status']; ?></span></td>
+                        <td style="padding: 15px;">
+                            <?php if(!empty($row['assigned_name'])) { ?>
+                                <span class="badge badge-gray"><i class="fa-solid fa-user-tie"></i> <?php echo htmlspecialchars($row['assigned_name']); ?></span>
+                            <?php } else { ?>
+                                <span style="color: var(--text-muted); font-style: italic; font-size: 13px;">Unassigned</span>
+                            <?php } ?>
+                        </td>
                         <td style="padding: 15px; color: var(--text-muted); font-size: 14px;"><?php echo date('M d, Y H:i', strtotime($row['updated_at'])); ?></td>
                         <td style="padding: 15px; text-align: right;" class="table-actions">
                             <a href="view-ticket.php?id=<?php echo $row['id']; ?>" title="View"><i class="fa-solid fa-reply"></i></a>

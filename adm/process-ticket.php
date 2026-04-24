@@ -25,6 +25,14 @@ $ticket_id = (int)($_POST['ticket_id'] ?? 0);
 $currtime = gmdate("Y-m-d H:i:s");
 
 if ($action === 'delete_ticket') {
+    // Fetch tracking_id before deleting for the Activity Log
+    $stmt_trk = $db->conn->prepare("SELECT tracking_id FROM tickets WHERE id = ?");
+    $stmt_trk->bind_param("i", $ticket_id);
+    $stmt_trk->execute();
+    $trk_res = $stmt_trk->get_result()->fetch_assoc();
+    $tracking_id_del = $trk_res ? $trk_res['tracking_id'] : 'Unknown';
+    $stmt_trk->close();
+
     $stmt_att = $db->conn->prepare("SELECT attachment FROM ticket_replies WHERE ticket_id = ? AND attachment IS NOT NULL");
     $stmt_att->bind_param("i", $ticket_id);
     $stmt_att->execute();
@@ -46,7 +54,8 @@ if ($action === 'delete_ticket') {
     $stmt_rep->execute();
     $stmt_rep->close();
 
-    returnWithMsg("tickets", "success", "check-circle", 4500, "Ticket and all replies deleted.", "tickets.php", $db->conn, 'Ticket', "Deleted ticket ID: {$ticket_id} and all associated attachments.");
+    // Updated log message to use Tracking ID
+    returnWithMsg("tickets", "success", "check-circle", 4500, "Ticket and all replies deleted.", "tickets.php", $db->conn, 'Ticket', "Deleted Tracking ID: {$tracking_id_del} and all associated attachments.");
 }
 
 if ($action === 'admin_reply') {
@@ -123,6 +132,58 @@ if ($action === 'admin_reply') {
         }
     }
 
-    returnWithMsg("tickets", "success", "check-circle", 4500, "Ticket updated successfully.", "view-ticket.php?id=" . $ticket_id, $db->conn, 'Ticket', "Replied to ticket ID: {$ticket_id} and set status to: {$status_update}");
+    // Updated log message to use Tracking ID
+    returnWithMsg("tickets", "success", "check-circle", 4500, "Ticket updated successfully.", "view-ticket.php?id=" . $ticket_id, $db->conn, 'Ticket', "Replied to Tracking ID: {$t_data['tracking_id']} and set status to: {$status_update}");
+}
+
+if ($action === 'assign_ticket') {
+    $new_assignee = (int)($_POST['assigned_to'] ?? 0);
+    $assignee_val = ($new_assignee === 0) ? null : $new_assignee;
+
+    // Modified to also fetch the tracking_id for the log
+    $stmt_check = $db->conn->prepare("SELECT assigned_to, tracking_id FROM tickets WHERE id = ?");
+    $stmt_check->bind_param("i", $ticket_id);
+    $stmt_check->execute();
+    $t_info = $stmt_check->get_result()->fetch_assoc();
+    $curr_assigned = $t_info['assigned_to'] ?? null;
+    $tracking_id = $t_info['tracking_id'] ?? 'Unknown';
+    $stmt_check->close();
+
+    if ($curr_assigned !== $assignee_val) {
+        // Update ticket
+        $stmt_upd = $db->conn->prepare("UPDATE tickets SET assigned_to = ?, updated_at = ? WHERE id = ?");
+        $stmt_upd->bind_param("isi", $assignee_val, $currtime, $ticket_id);
+        $stmt_upd->execute();
+        $stmt_upd->close();
+
+        // Get names for the logging/messages
+        $staff_name = "Unassigned";
+        if ($assignee_val) {
+            $stmt_u = $db->conn->prepare("SELECT user_uid FROM users WHERE user_id = ?");
+            $stmt_u->bind_param("i", $assignee_val);
+            $stmt_u->execute();
+            $staff_name = $stmt_u->get_result()->fetch_assoc()['user_uid'] ?? 'Unknown';
+            $stmt_u->close();
+        }
+
+        $stmt_admin = $db->conn->prepare("SELECT user_uid FROM users WHERE user_id = ?");
+        $stmt_admin->bind_param("i", $_SESSION['UserID']);
+        $stmt_admin->execute();
+        $admin_name = $stmt_admin->get_result()->fetch_assoc()['user_uid'] ?? 'Admin';
+        $stmt_admin->close();
+
+        // Add System Message to Ticket Thread
+        $sys_msg = "Ticket assigned to [b]{$staff_name}[/b] by {$admin_name}.";
+        $stmt_sys = $db->conn->prepare("INSERT INTO ticket_replies (ticket_id, sender_type, message, created_at) VALUES (?, 'System', ?, ?)");
+        $stmt_sys->bind_param("iss", $ticket_id, $sys_msg, $currtime);
+        $stmt_sys->execute();
+        $stmt_sys->close();
+
+        // Updated log message to use Tracking ID
+        returnWithMsg("tickets", "success", "user-check", 3000, "Ticket assignment updated to: $staff_name", "view-ticket.php?id=" . $ticket_id, $db->conn, 'Ticket', "Assigned ticket {$tracking_id} to {$staff_name}");
+    }
+
+    header("Location: view-ticket.php?id=" . $ticket_id);
+    exit();
 }
 ?>

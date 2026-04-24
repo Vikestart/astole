@@ -28,6 +28,12 @@
     $res_rep = $stmt_rep->get_result();
     while ($r = $res_rep->fetch_assoc()) { $replies[] = $r; }
     $stmt_rep->close();
+
+    $staff_members = [];
+    $res_staff = $db->conn->query("SELECT user_id, user_uid, user_role FROM users WHERE user_role IN (1, 2) ORDER BY user_uid ASC");
+    if ($res_staff) {
+        while($row = $res_staff->fetch_assoc()) { $staff_members[] = $row; }
+    }
 ?>
 
 <section>
@@ -44,6 +50,24 @@
             <div class="ticket-details-meta">
                 <i class="fa-solid fa-user"></i> <?php echo htmlspecialchars($ticket['client_name']); ?> 
                 <a href="mailto:<?php echo htmlspecialchars($ticket['client_email']); ?>">(&lt;<?php echo htmlspecialchars($ticket['client_email']); ?>&gt;)</a>
+            </div>
+            <div class="ticket-assign-panel" style="margin-top: 15px; padding-top: 15px; border-top: 1px dashed var(--border);">
+                <form action="process-ticket.php" method="POST" style="display: flex; align-items: center; gap: 10px;">
+                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
+                    <input type="hidden" name="action" value="assign_ticket">
+                    <input type="hidden" name="ticket_id" value="<?php echo $ticket['id']; ?>">
+                    
+                    <label style="font-size: 14px; font-weight: 500;"><i class="fa-solid fa-user-tie"></i> Assigned To:</label>
+                    <select name="assigned_to" class="form-input" style="width: auto; padding: 6px 12px; height: auto;" onchange="this.form.submit()">
+                        <option value="0">-- Unassigned --</option>
+                        <?php foreach($staff_members as $staff) { ?>
+                            <option value="<?php echo $staff['user_id']; ?>" <?php if($ticket['assigned_to'] == $staff['user_id']) echo 'selected'; ?>>
+                                <?php echo htmlspecialchars($staff['user_uid']) . ' (' . ($staff['user_role'] == 1 ? 'Admin' : 'Mod') . ')'; ?>
+                            </option>
+                        <?php } ?>
+                    </select>
+                    <noscript><button type="submit" class="btn btn-secondary btn-sm">Save</button></noscript>
+                </form>
             </div>
         </div>
         <div>
