@@ -839,6 +839,7 @@ ul li i, ul li svg {
 
 .menu-item-row:hover {
     border-color: var(--color-primary);
+    border-style: dashed;
 }
 
 .menu-item-row.draggable { cursor: grab; }
