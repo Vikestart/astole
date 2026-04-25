@@ -224,7 +224,7 @@ body {
     cursor: pointer;
 }
 
-/* --- Dynamic Dropdown Navigation (Glassmorphism) --- */
+/* --- Desktop Dropdown Navigation (Glassmorphism) --- */
 .nav-dropdown {
     position: relative;
     display: inline-block;
@@ -232,29 +232,28 @@ body {
 
 .nav-dropdown-menu {
     position: absolute;
-    top: 100%;
+    top: calc(100% + 10px); /* Pushed down slightly for a detached look */
     left: 0;
-    min-width: 200px;
+    min-width: 220px;
     
-    /* Frosted Glass Effect */
-    background: rgba(255, 255, 255, 0.15); 
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    /* Stronger Frosted Glass Effect for Readability */
+    background: rgba(255, 255, 255, 0.7); 
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
     border-radius: 12px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
     
-    padding: 10px 0;
+    padding: 8px 0;
     z-index: 100;
     
-    /* Smooth entrance animation setup */
+    /* Smooth entrance animation */
     opacity: 0;
     visibility: hidden;
     transform: translateY(15px);
-    transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Hover trigger */
 .nav-dropdown:hover .nav-dropdown-menu {
     opacity: 1;
     visibility: visible;
@@ -262,32 +261,87 @@ body {
 }
 
 .nav-dropdown-menu .nav-item {
-    display: block;
+    display: flex;
+    align-items: center;
     padding: 10px 20px;
     font-size: 14px;
     font-weight: 500;
-    color: #334155;
+    color: #475569;
     text-decoration: none;
-    transition: background 0.2s, color 0.2s, padding-left 0.2s;
+    transition: all 0.2s ease;
+    border-left: 3px solid transparent; /* Prep for hover accent */
 }
 
-/* Internal hover effect */
 .nav-dropdown-menu .nav-item:hover {
-    background: rgba(255, 255, 255, 0.3);
-    padding-left: 24px; /* Slight indent bump on hover */
+    background: rgba(255, 255, 255, 0.6);
+    color: #0f172a;
+    padding-left: 24px; /* Slight indent bump */
+    border-left-color: #2563eb; /* Primary blue accent */
 }
 
-/* Handle infinite nesting (Sub-sub-menus) */
-.nav-dropdown-menu .nav-dropdown {
-    display: block;
-}
+/* Sub-sub-menu nesting */
+.nav-dropdown-menu .nav-dropdown { display: block; }
 .nav-dropdown-menu .nav-dropdown-menu {
-    top: 0;
-    left: 100%;
-    transform: translateX(15px);
+    top: 0; left: 100%; transform: translateX(15px);
 }
 .nav-dropdown-menu .nav-dropdown:hover .nav-dropdown-menu {
     transform: translateX(0);
+}
+
+/* Chevron Icon Styling (Bigger hit area for mobile) */
+.nav-dropdown > .nav-item .fa-chevron-down {
+    padding: 5px;
+    transition: transform 0.3s ease;
+}
+
+/* --- Mobile Submenu Overrides --- */
+@media screen and (max-width: 768px) {
+    .nav-dropdown-menu {
+        position: relative; /* Stop it from floating */
+        top: 0; left: 0; min-width: 100%;
+        
+        /* Remove the glass box on mobile to blend with the parent menu */
+        background: transparent;
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+        border: none;
+        box-shadow: none;
+        padding: 0;
+        margin-top: 5px;
+        
+        /* Accordion hiding state */
+        display: none;
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+    }
+
+    /* Triggered by JavaScript */
+    .nav-dropdown.mobile-expanded .nav-dropdown-menu {
+        display: block;
+        animation: slideDown 0.3s ease forwards;
+    }
+
+    .nav-dropdown.mobile-expanded > .nav-item .fa-chevron-down {
+        transform: rotate(180deg);
+    }
+
+    .nav-dropdown-menu .nav-item {
+        padding: 10px 15px 10px 30px; /* Indent mobile sub-items */
+        font-size: 13px;
+        border-left: 2px solid rgba(0,0,0,0.05);
+        margin-left: 15px;
+    }
+    
+    .nav-dropdown-menu .nav-item:hover {
+        padding-left: 30px; /* Disable the desktop hover push */
+        border-left-color: #2563eb;
+    }
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 /* --- Main Content Area --- */
