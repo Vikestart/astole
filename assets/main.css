@@ -297,6 +297,7 @@ body {
     text-decoration: none;
     transition: all 0.2s ease;
     border-left: 3px solid transparent;
+    border-bottom: none !important; /* Fixes the double-border bug on hover */
 }
 
 .nav-dropdown-menu .nav-item:hover,
@@ -319,62 +320,95 @@ body {
 
 /* --- Mobile Submenu Overrides (True Accordion) --- */
 @media screen and (max-width: 768px) {
+    /* 1. Center all navigation elements and fix border widths */
+    .nav-links {
+        display: flex;
+        flex-direction: column;
+        align-items: center; /* Centers the list */
+        gap: 5px;
+    }
+
+    .nav-item {
+        width: max-content; /* Shrinks the border-bottom to exactly match text width */
+        margin: 0 auto;
+        justify-content: center;
+    }
+
+    .nav-dropdown {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+    }
+
+    /* 2. Position the toggle arrow right next to the centered text */
+    .nav-dropdown-trigger {
+        justify-content: center;
+        width: max-content;
+        position: relative;
+    }
+    
+    .submenu-toggle {
+        padding: 10px;
+        position: absolute;
+        right: -35px; /* Puts the arrow securely just outside the centered text */
+        top: 50%;
+        transform: translateY(-50%);
+    }
+
+    /* Active Accordion Arrow Rotation */
+    .nav-dropdown.mobile-expanded > .nav-dropdown-trigger .submenu-toggle {
+        transform: translateY(-50%) rotate(180deg);
+        color: #2563eb;
+    }
+
+    /* 3. Darker Inset Background & Sliding Animation */
     .nav-dropdown-menu {
-        position: relative; /* Natural document flow, pushes content down */
-        top: 0; left: 0; min-width: 100%;
+        position: relative;
+        top: 0; left: 0; 
+        width: 90%; /* Slight indent look relative to screen */
         
-        background: transparent;
+        background: rgba(0, 0, 0, 0.03); /* Slightly darker inset background */
+        border-radius: 8px;
+        box-shadow: inset 0 2px 5px rgba(0,0,0,0.02); /* Inner depth shadow */
+        border: none;
         backdrop-filter: none;
         -webkit-backdrop-filter: none;
-        border: none;
-        box-shadow: none;
-        padding: 0;
         
-        /* Accordion Setup */
+        /* Smooth Sliding Animation Setup */
         max-height: 0;
         overflow: hidden;
         opacity: 0;
         visibility: hidden;
-        transform: none;
-        transition: max-height 0.4s ease, opacity 0.3s ease, visibility 0.4s;
+        padding: 0; /* Remove padding when closed so height is truly 0 */
+        margin: 0;
+        transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease, padding 0.4s ease;
     }
 
-    /* Active Accordion State */
+    /* Active Sliding Accordion State */
     .nav-dropdown.mobile-expanded > .nav-dropdown-menu {
-        max-height: 1500px; /* Large enough to hold nested menus */
+        max-height: 800px; /* Expands smoothly */
         opacity: 1;
         visibility: visible;
+        padding: 10px 0;
+        margin-top: 10px;
     }
 
-    .nav-dropdown.mobile-expanded > .nav-dropdown-trigger .submenu-toggle {
-        transform: rotate(180deg);
-        color: #2563eb;
-    }
-
-    /* Split Touch Target Sizing */
-    .nav-dropdown-trigger {
-        justify-content: space-between;
-        width: 100%;
-    }
-    .submenu-toggle {
-        padding: 10px 20px; /* Massive hit area for thumbs */
-        font-size: 14px;
-        opacity: 0.5;
-    }
-
-    /* Indent mobile sub-items so hierarchy is obvious */
+    /* 4. Submenu Item Polishing */
     .nav-dropdown-menu .nav-item, 
     .nav-dropdown-menu .nav-dropdown-trigger .nav-item {
-        padding: 10px 15px 10px 30px;
+        padding: 10px 15px;
         font-size: 13px;
-        border-left: 2px solid rgba(0,0,0,0.05);
-        margin-left: 15px;
+        border-left: none; /* Remove desktop left border */
+        border-bottom: none !important;
+        margin: 2px auto; /* Keep text centered */
     }
     
     .nav-dropdown-menu .nav-item:hover,
     .nav-dropdown-menu .nav-dropdown-trigger:hover .nav-item {
-        padding-left: 30px; /* Disable the desktop hover push */
-        border-left-color: #2563eb;
+        padding-left: 15px; /* Disable the desktop hover push */
+        background: rgba(0, 0, 0, 0.05); /* Soft highlight on mobile tap */
+        border-radius: 6px;
     }
 }
 
