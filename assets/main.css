@@ -407,15 +407,16 @@ body {
     .nav-dropdown-menu .nav-dropdown-trigger .nav-item {
         padding: 10px 15px;
         font-size: 13px;
-        border-left: none; /* Remove desktop left border */
+        border-left: none; 
         border-bottom: none !important;
-        margin: 2px auto; /* Keep text centered */
+        margin: 2px auto; 
     }
     
-    .nav-dropdown-menu .nav-item:hover,
-    .nav-dropdown-menu .nav-dropdown-trigger:hover .nav-item {
-        padding-left: 15px; /* Disable the desktop hover push */
-        background: rgba(0, 0, 0, 0.05); /* Soft highlight on mobile tap */
+    /* FIX: Changed :hover to :active to bypass the iOS double-tap requirement */
+    .nav-dropdown-menu .nav-item:active,
+    .nav-dropdown-menu .nav-dropdown-trigger:active .nav-item {
+        padding-left: 15px; 
+        background: rgba(0, 0, 0, 0.05); /* Keeps the highlight when actively tapped */
         border-radius: 6px;
     }
 }
@@ -689,9 +690,9 @@ body {
 
     /* Hide by default using reversible transitions instead of display:none */
     .nav-links {
-        display: flex; /* Always flex now, allowing transitions to work */
+        display: flex; 
         flex-direction: column;
-        align-items: center; /* Ensures centered layout */
+        align-items: center; 
         position: absolute;
         top: 100%;
         left: 0;
@@ -706,11 +707,10 @@ body {
         padding: 1.5rem;
         
         box-shadow: 0 10px 40px rgba(31, 38, 135, 0.15); 
-        gap: 5px; 
+        gap: 1.5rem; /* FIX: Restored from 5px to 1.5rem for proper breathing room */
         text-align: center;
         margin-top: 1rem;
 
-        /* Smooth Opening & Closing Transitions */
         opacity: 0;
         visibility: hidden;
         transform: translateY(-10px);
@@ -722,6 +722,13 @@ body {
         opacity: 1;
         visibility: visible;
         transform: translateY(0);
+    }
+
+    .nav-item {
+        width: max-content; 
+        margin: 0 auto;
+        justify-content: center;
+        padding: 5px 0; /* Adds top/bottom breathing room for thumbs */
     }
 
     .mobile-toggle {
