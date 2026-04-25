@@ -80,21 +80,16 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 document.addEventListener('DOMContentLoaded', () => {
     // Mobile Submenu Accordion Logic
-    const dropdownLinks = document.querySelectorAll('.nav-dropdown > .nav-item');
+    const submenuToggles = document.querySelectorAll('.submenu-toggle');
     
-    dropdownLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
-            // Only apply accordion logic on mobile screens
+    submenuToggles.forEach(toggle => {
+        toggle.addEventListener('click', function(e) {
+            e.preventDefault(); // Prevents accidental page jumps
             if (window.innerWidth <= 768) {
-                // If the user tapped the Chevron Icon specifically
-                if (e.target.tagName.toLowerCase() === 'i' && e.target.classList.contains('fa-chevron-down')) {
-                    e.preventDefault(); // Stop the page from navigating
-                    this.parentElement.classList.toggle('mobile-expanded'); // Expand/Collapse
-                } 
-                // Alternatively, if the link is empty/just a hashtag, expand it anyway
-                else if (this.getAttribute('href') === '#' || this.getAttribute('href') === '') {
-                    e.preventDefault();
-                    this.parentElement.classList.toggle('mobile-expanded');
+                // Find the parent dropdown wrapper and toggle the expanded class
+                const parentDropdown = this.closest('.nav-dropdown');
+                if (parentDropdown) {
+                    parentDropdown.classList.toggle('mobile-expanded');
                 }
             }
         });

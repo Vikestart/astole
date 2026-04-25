@@ -99,18 +99,21 @@
         $html = '';
         foreach ($items as $item) {
             if ($item['parent_id'] == $parent_id) {
-                // Check if this specific item has children
                 $has_children = false;
                 foreach ($items as $sub) { if ($sub['parent_id'] == $item['id']) { $has_children = true; break; } }
                 
-                // Active State & Target mapping
                 $route_match = trim(str_replace('/', '', $item['final_url']));
                 $active_class = ($current_route === $route_match || ($current_route === '' && $route_match === 'home')) ? 'active' : '';
                 $target = ($item['target'] === '_blank') ? ' target="_blank" rel="noopener noreferrer"' : '';
                 
                 if ($has_children) {
                     $html .= '<div class="nav-dropdown">';
-                    $html .= '<a href="'.htmlspecialchars($item['final_url']).'" class="nav-item '.$active_class.'"'.$target.'>'.htmlspecialchars($item['title']).' <i class="fa-solid fa-chevron-down" style="font-size: 10px; margin-left: 4px; opacity: 0.7;"></i></a>';
+                    // Split the link and the toggle button for mobile accessibility
+                    $html .= '<div class="nav-dropdown-trigger">';
+                    $html .= '<a href="'.htmlspecialchars($item['final_url']).'" class="nav-item '.$active_class.'"'.$target.'>'.htmlspecialchars($item['title']).'</a>';
+                    $html .= '<button class="submenu-toggle" aria-label="Toggle Submenu"><i class="fa-solid fa-chevron-down"></i></button>';
+                    $html .= '</div>';
+                    // Dropdown menu content
                     $html .= '<div class="nav-dropdown-menu">';
                     $html .= buildFrontendMenu($items, $item['id'], $current_route);
                     $html .= '</div></div>';
