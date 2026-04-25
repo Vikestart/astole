@@ -215,6 +215,11 @@ body {
     transform: scaleX(1);
 }
 
+/* Prevent the main navigation underline effect from leaking into the dropdown menus */
+.nav-dropdown-menu .nav-item::after {
+    display: none !important;
+}
+
 .mobile-toggle {
     display: none;
     background: none;
@@ -249,7 +254,7 @@ body {
 
 .nav-dropdown-menu {
     position: absolute;
-    top: calc(100% + 15px); /* Pushed down for a detached look */
+    top: calc(100% + 25px); /* Pushed down for a detached look */
     left: 0;
     min-width: 220px;
     
@@ -273,10 +278,10 @@ body {
 .nav-dropdown-menu::before {
     content: '';
     position: absolute;
-    top: -20px; /* Extends upwards to meet the parent link */
+    top: -30px; /* Extends upwards to meet the parent link */
     left: 0;
     right: 0;
-    height: 20px;
+    height: 30px;
     background: transparent;
 }
 
@@ -305,7 +310,6 @@ body {
     background: rgba(255, 255, 255, 0.6);
     color: #0f172a;
     padding-left: 24px;
-    border-left-color: #2563eb; 
 }
 
 /* Sub-sub-menu nesting */
@@ -362,16 +366,19 @@ body {
         color: #2563eb;
     }
 
-    /* 3. Darker Inset Background & Sliding Animation */
+    /* 3. Darker Inset Background, Pop Styling & Sliding Animation */
     .nav-dropdown-menu {
         position: relative;
         top: 0; left: 0; 
-        width: 90%; /* Slight indent look relative to screen */
+        width: 90%; 
         
-        background: rgba(0, 0, 0, 0.03); /* Slightly darker inset background */
+        background: rgba(0, 0, 0, 0.03); 
         border-radius: 8px;
-        box-shadow: inset 0 2px 5px rgba(0,0,0,0.02); /* Inner depth shadow */
-        border: none;
+        
+        /* New: White border and inset shadow to make it pop */
+        border: 1px solid rgba(255, 255, 255, 0.6);
+        box-shadow: inset 0 2px 8px rgba(0,0,0,0.04), 0 4px 10px rgba(0,0,0,0.02);
+        
         backdrop-filter: none;
         -webkit-backdrop-filter: none;
         
@@ -380,18 +387,19 @@ body {
         overflow: hidden;
         opacity: 0;
         visibility: hidden;
-        padding: 0; /* Remove padding when closed so height is truly 0 */
-        margin: 0;
-        transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease, padding 0.4s ease;
+        padding: 0; 
+        margin: 0; /* Margin starts at 0 */
+        /* Note: Adding 'margin' to the transition fixes the snapping when closing */
+        transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease, padding 0.4s ease, margin 0.4s ease;
     }
 
     /* Active Sliding Accordion State */
     .nav-dropdown.mobile-expanded > .nav-dropdown-menu {
-        max-height: 800px; /* Expands smoothly */
+        max-height: 800px; 
         opacity: 1;
         visibility: visible;
         padding: 10px 0;
-        margin-top: 10px;
+        margin-top: 10px; /* Slides open to this margin */
     }
 
     /* 4. Submenu Item Polishing */
