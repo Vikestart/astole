@@ -79,19 +79,36 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 document.addEventListener('DOMContentLoaded', () => {
-    // Mobile Submenu Accordion Logic
-    const submenuToggles = document.querySelectorAll('.submenu-toggle');
+    // Mobile Submenu Accordion Logic (Double-Tap to Navigate)
+    const dropdownTriggers = document.querySelectorAll('.nav-dropdown-trigger');
     
-    submenuToggles.forEach(toggle => {
-        toggle.addEventListener('click', function(e) {
-            e.preventDefault(); // Prevents accidental page jumps
-            if (window.innerWidth <= 768) {
-                // Find the parent dropdown wrapper and toggle the expanded class
-                const parentDropdown = this.closest('.nav-dropdown');
-                if (parentDropdown) {
+    dropdownTriggers.forEach(trigger => {
+        const link = trigger.querySelector('.nav-item');
+        const arrow = trigger.querySelector('.submenu-toggle');
+        const parentDropdown = trigger.closest('.nav-dropdown');
+
+        // 1. Logic for clicking the actual text link
+        if (link) {
+            link.addEventListener('click', function(e) {
+                if (window.innerWidth <= 768) {
+                    // First click: If closed, prevent navigation and expand it instead
+                    if (!parentDropdown.classList.contains('mobile-expanded')) {
+                        e.preventDefault();
+                        parentDropdown.classList.add('mobile-expanded');
+                    }
+                    // Second click: If already expanded, do nothing (it will naturally follow the href!)
+                }
+            });
+        }
+
+        // 2. Logic for clicking the arrow icon specifically (always toggles)
+        if (arrow) {
+            arrow.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (window.innerWidth <= 768) {
                     parentDropdown.classList.toggle('mobile-expanded');
                 }
-            }
-        });
+            });
+        }
     });
 });

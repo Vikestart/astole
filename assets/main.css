@@ -687,16 +687,16 @@ body {
         position: relative; /* Required for the absolute positioning of the menu */
     }
 
-    /* Hide by default, but set up the styling for when it's active */
+    /* Hide by default using reversible transitions instead of display:none */
     .nav-links {
-        display: none; 
+        display: flex; /* Always flex now, allowing transitions to work */
         flex-direction: column;
+        align-items: center; /* Ensures centered layout */
         position: absolute;
         top: 100%;
         left: 0;
         width: 100%;
         
-        /* THE FIX: Make it 95% opaque instead of using the highly transparent var(--glass-bg) */
         background: rgba(255, 255, 255, 0.95); 
         backdrop-filter: blur(24px);
         -webkit-backdrop-filter: blur(24px);
@@ -705,18 +705,23 @@ body {
         border-radius: var(--radius-md);
         padding: 1.5rem;
         
-        /* Make the shadow slightly darker so it pops off the text underneath */
         box-shadow: 0 10px 40px rgba(31, 38, 135, 0.15); 
-        
-        gap: 1.5rem;
+        gap: 5px; 
         text-align: center;
         margin-top: 1rem;
+
+        /* Smooth Opening & Closing Transitions */
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-10px);
+        transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.3s;
     }
 
-    /* This class will be toggled by our JavaScript */
+    /* Toggled by your existing JavaScript */
     .nav-links.nav-active {
-        display: flex;
-        animation: fadeInDown 0.3s ease forwards;
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
     }
 
     .mobile-toggle {
@@ -731,12 +736,6 @@ body {
 
     .mobile-toggle:active {
         transform: scale(0.9);
-    }
-
-    /* Smooth dropdown animation */
-    @keyframes fadeInDown {
-        from { opacity: 0; transform: translateY(-10px); }
-        to { opacity: 1; transform: translateY(0); }
     }
 
     .hero-title {
