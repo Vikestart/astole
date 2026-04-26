@@ -94,13 +94,18 @@ if (isset($_SESSION['Frontmsg'])) {
     unset($_SESSION['Frontmsg']);
 }
 
-// --- DYNAMIC INJECTION OF TICKET PORTAL ---
-ob_start();
-require_once "inc-ticket-form.php";
-$ticket_portal_html = ob_get_clean();
-
-// Safely swap the tag with our compiled HTML block
-$page_contents = str_replace("[TICKET_PORTAL]", $ticket_portal_html, $page_contents);
+// --- TEMPLATE / PAGE TYPE ROUTER ---
+if (isset($pageData['page_type']) && $pageData['page_type'] === 'Ticket portal') {
+    ob_start();
+    require_once "inc-ticket-form.php";
+    $page_contents = ob_get_clean(); // Instantly replaces all content with the portal
+} 
+// Legacy fallback (just in case)
+else if (strpos($page_contents, "[TICKET_PORTAL]") !== false) {
+    ob_start();
+    require_once "inc-ticket-form.php";
+    $page_contents = str_replace("[TICKET_PORTAL]", ob_get_clean(), $page_contents);
+}
 
 require_once "inc-head.php";
 ?>

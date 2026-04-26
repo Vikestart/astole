@@ -4,6 +4,9 @@
     if (isset($_COOKIE['sidebar_collapsed']) && $_COOKIE['sidebar_collapsed'] === 'true') {
         $sidebar_class = "collapsed";
     }
+    
+    // Clean the active page URL for the menu highlight logic
+    $current_page = basename($_SERVER['PHP_SELF'], '.php');
 ?>
 <div class="admin-wrapper <?php echo $sidebar_class; ?>" id="admin-layout">
 
@@ -17,34 +20,35 @@
         
         <div class="sidebar-menu">
             <span class="menu-label">System</span>
-            <a href="index.php" class="menu-item <?php if(basename($_SERVER['PHP_SELF']) == 'index.php') echo 'active'; ?>">
+            <a href="/adm" class="menu-item <?php if($current_page == 'index') echo 'active'; ?>">
                 <i class="fa-solid fa-gauge"></i> <span>Dashboard</span>
             </a>
             
             <span class="menu-label">Content</span>
-            <a href="pages.php" class="menu-item <?php if(basename($_SERVER['PHP_SELF']) == 'pages.php' || basename($_SERVER['PHP_SELF']) == 'edit-page.php') echo 'active'; ?>">
+            <a href="pages" class="menu-item <?php if($current_page == 'pages') echo 'active'; ?>">
                 <i class="fa-solid fa-file-alt"></i> <span>Pages</span>
             </a>
             
-            <a href="menus.php" class="menu-item <?php if(basename($_SERVER['PHP_SELF']) == 'menus.php') echo 'active'; ?>">
+            <a href="menus" class="menu-item <?php if($current_page == 'menus') echo 'active'; ?>">
                 <i class="fa-solid fa-list-ul"></i> <span>Menus</span>
             </a>
             
-            <a href="tickets.php" class="menu-item <?php if(basename($_SERVER['PHP_SELF']) == 'tickets.php' || basename($_SERVER['PHP_SELF']) == 'view-ticket.php') echo 'active'; ?>">
+            <a href="tickets" class="menu-item <?php if($current_page == 'tickets' || $current_page == 'view-ticket') echo 'active'; ?>">
                 <i class="fa-solid fa-ticket-alt"></i> <span>Tickets</span>
             </a>
-            
+
             <span class="menu-label">Administration</span>
-            <a href="users.php" class="menu-item <?php if(basename($_SERVER['PHP_SELF']) == 'users.php' || basename($_SERVER['PHP_SELF']) == 'edit-user.php') echo 'active'; ?>">
+            <a href="users" class="menu-item <?php if($current_page == 'users') echo 'active'; ?>">
                 <i class="fa-solid fa-users"></i> <span>Users</span>
             </a>
             
             <?php if ($userdata->row['user_role'] == 1) { ?>
-                <a href="activity-log.php" class="menu-item <?php if(basename($_SERVER['PHP_SELF']) == 'activity-log.php') echo 'active'; ?>">
-                    <i class="fa-solid fa-clipboard-list"></i> <span>Activity Log</span>
+                <a href="settings" class="menu-item <?php if($current_page == 'settings') echo 'active'; ?>">
+                    <i class="fa-solid fa-cogs"></i> <span>Settings</span>
                 </a>
-                <a href="settings.php" class="menu-item <?php if(basename($_SERVER['PHP_SELF']) == 'settings.php') echo 'active'; ?>">
-                    <i class="fa-solid fa-cog"></i> <span>Settings</span>
+                
+                <a href="activity-log" class="menu-item <?php if($current_page == 'activity-log') echo 'active'; ?>">
+                    <i class="fa-solid fa-list-check"></i> <span>Activity Log</span>
                 </a>
             <?php } ?>
         </div>

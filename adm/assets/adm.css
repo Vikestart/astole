@@ -312,8 +312,8 @@ h1.h1_underscore i { margin-right: 10px; color: var(--text-muted); }
 }
 .btn-primary { background: var(--primary); color: white; }
 .btn-primary:hover { background: var(--primary-hover); }
-.btn-secondary { background: var(--secondary); color: #fff; border: 1px solid var(--secondary); }
-.btn-secondary:hover { background: var(--secondary-hover); border-color: var(--secondary-hover); }
+.btn-secondary { background: var(--secondary); color: #fff; }
+.btn-secondary:hover { background: var(--secondary-hover); }
 .btn-red { background: #fee2e2; color: var(--danger); }
 .btn-red:hover { background: #fecaca; }
 .btn-green { background: #d1fae5; color: var(--success); }

@@ -6,7 +6,7 @@ class PageManager {
         $db = new DBConn();
         
         // Added page_desc to the SELECT query
-        $stmt = $db->conn->prepare("SELECT page_title, page_desc, page_contents, page_updated FROM pages WHERE page_slug = ? LIMIT 1");
+        $stmt = $db->conn->prepare("SELECT page_title, page_desc, page_type, page_contents, page_updated FROM pages WHERE page_slug = ? LIMIT 1");
         $stmt->bind_param("s", $slug);
         $stmt->execute();
         $result = $stmt->get_result();

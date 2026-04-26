@@ -1,1 +1,13 @@
+RewriteEngine On
+
+# 1. Force removing trailing slashes (so /adm/pages/ goes to /adm/pages)
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)/$ /$1 [L,R=301]
+
+# 2. Transparently map extensionless URLs to their .php equivalents
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}\.php -f
+RewriteRule ^(.*)$ $1.php [L]
+
+# 3. 404 Fallback
 ErrorDocument 404 /adm/404.php
