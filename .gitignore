@@ -2,3 +2,4 @@
 .env
 adm/emergency-unlock.php
 Instructions.md
+site/config/config.php
