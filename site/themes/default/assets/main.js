@@ -112,3 +112,33 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+document.addEventListener('DOMContentLoaded', () => {
+    // Unobtrusive confirmation dialog for forms (Extracting inline JS)
+    document.querySelectorAll('.confirm-close-form').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            if (!confirm('Are you sure you want to close this ticket?')) {
+                e.preventDefault();
+            }
+        });
+    });
+});
+// --- Ticket Portal Form Toggles ---
+window.showTicketForm = function(type) {
+    const selection = document.getElementById('tp-selection');
+    const newTicket = document.getElementById('tp-new-ticket');
+    const checkStatus = document.getElementById('tp-check-status');
+    
+    if (!selection) return; // Prevent errors on standard pages
+
+    selection.style.display = 'none';
+    newTicket.style.display = 'none';
+    checkStatus.style.display = 'none';
+    
+    if (type === 'new') {
+        newTicket.style.display = 'block';
+    } else if (type === 'status') {
+        checkStatus.style.display = 'block';
+    } else {
+        selection.style.display = 'block';
+    }
+};

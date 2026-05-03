@@ -1,13 +1,11 @@
 <?php
-    if (session_status() === PHP_SESSION_NONE) {
-        session_start();
-    }
+    if (session_status() === PHP_SESSION_NONE) { session_start(); }
     
-    require_once __DIR__ . "/db.php";
-    $header_db = new DBConn();
+    // Use the new Autoloaded Database Class
+    $header_db = new \Core\Lib\Database();
 
     // --- 1. FETCH GLOBAL SETTINGS ---
-    $res = $header_db->conn->query("SELECT setting_key, setting_value FROM settings");
+    $res = $header_db->getConnection()->query("SELECT setting_key, setting_value FROM settings");
     $global_settings = [];
     if ($res) {
         while ($row = $res->fetch_assoc()) {
@@ -23,7 +21,7 @@
     // --- 2. MAINTENANCE MODE CHECK ---
     $is_admin = false;
     if (isset($_SESSION['UserID'])) {
-        $stmt_role = $header_db->conn->prepare("SELECT user_role FROM users WHERE user_id = ?");
+        $stmt_role = $header_db->getConnection()->prepare("SELECT user_role FROM users WHERE user_id = ?");
         $stmt_role->bind_param("i", $_SESSION['UserID']);
         $stmt_role->execute();
         $res_role = $stmt_role->get_result();
@@ -34,6 +32,8 @@
     }
 
     if ($maintenance_mode === 1 && !$is_admin) {
+        // Keeping inline CSS here is actually a best practice for Maintenance Mode 
+        // to ensure it renders even if the main stylesheet is broken/updating.
         die("<!DOCTYPE html>
         <html lang='en'>
         <head>
@@ -58,9 +58,8 @@
     $final_desc = isset($page_desc) ? $page_desc : $seo_desc;
 
     // --- 4. FETCH MAIN NAVIGATION ---
-    // Safely build a lookup array for page slugs to prevent JOIN crashes
     $page_slugs = [];
-    $res_pages = $header_db->conn->query("SELECT * FROM pages");
+    $res_pages = $header_db->getConnection()->query("SELECT * FROM pages");
     if ($res_pages) {
         while ($p = $res_pages->fetch_assoc()) {
             $pid = $p['id'] ?? $p['page_id'] ?? 0;
@@ -70,7 +69,7 @@
     }
 
     $nav_items = [];
-    $stmt_nav = $header_db->conn->prepare("
+    $stmt_nav = $header_db->getConnection()->prepare("
         SELECT mi.* FROM menu_items mi 
         JOIN menus m ON mi.menu_id = m.id 
         WHERE m.identifier = 'main_nav' 
@@ -85,8 +84,6 @@
             if (!empty($row['page_id']) && isset($page_slugs[$row['page_id']])) {
                 $slug = $page_slugs[$row['page_id']];
             }
-            
-            // Resolve the true URL (Page Slug vs Custom URL)
             $final_url = (!empty($row['page_id']) && !empty($slug)) ? '/' . ltrim($slug, '/') : $row['url'];
             $row['final_url'] = $final_url;
             $nav_items[] = $row;
@@ -94,7 +91,6 @@
         $stmt_nav->close();
     }
 
-    // Recursive function to build standard links and nested glass dropdowns
     function buildFrontendMenu($items, $parent_id = null, $current_route = '') {
         $html = '';
         foreach ($items as $item) {
@@ -108,12 +104,10 @@
                 
                 if ($has_children) {
                     $html .= '<div class="nav-dropdown">';
-                    // Split the link and the toggle button for mobile accessibility
                     $html .= '<div class="nav-dropdown-trigger">';
                     $html .= '<a href="'.htmlspecialchars($item['final_url']).'" class="nav-item '.$active_class.'"'.$target.'>'.htmlspecialchars($item['title']).'</a>';
                     $html .= '<button class="submenu-toggle" aria-label="Toggle Submenu"><i class="fa-solid fa-chevron-down"></i></button>';
                     $html .= '</div>';
-                    // Dropdown menu content
                     $html .= '<div class="nav-dropdown-menu">';
                     $html .= buildFrontendMenu($items, $item['id'], $current_route);
                     $html .= '</div></div>';
@@ -145,24 +139,19 @@
 
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9553054176028249" crossorigin="anonymous"></script>
 
-    <script defer src="/assets/font-awesome/fontawesome.min.js"></script>
-    <script defer src="/assets/font-awesome/solid.min.js"></script>
-    <script defer src="/assets/font-awesome/brands.min.js"></script>
-
-    <link rel="stylesheet" href="/assets/main.css">
+    <script defer src="/core/assets/font-awesome/fontawesome.min.js"></script>
+    <script defer src="/core/assets/font-awesome/solid.min.js"></script>
+    <script defer src="/core/assets/font-awesome/brands.min.js"></script>
+    <link rel="stylesheet" href="<?= $this->asset('main.css') ?>">
 </head>
 <body>
-	<!-- Soft Animated Mesh Gradient Background -->
 	<div class="mesh-bg">
 		<div class="mesh-blob blob-1"></div>
 		<div class="mesh-blob blob-2"></div>
 		<div class="mesh-blob blob-3"></div>
 	</div>
 
-	<!-- App Layout Wrapper -->
 	<div class="page-wrapper">
-		
-		<!-- Glassmorphism Floating Navigation -->
 		<header class="glass-header">
 			<div class="header-container">
 				<a href="/" class="nav-brand">
@@ -177,5 +166,4 @@
 			</div>
 		</header>
 
-		<!-- Main Content Wrapper -->
 		<main class="main-content">

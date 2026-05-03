@@ -4,7 +4,7 @@
 	session_start();
 
 	$_SESSION['LastPage'] = $_SERVER['REQUEST_URI'] ?? '';
-	require "../db.php";
+	require_once __DIR__ . '/../init.php'; // Load the engine
     require "admin-functions.php";
     require_once "activity-logger.php";
 
@@ -80,7 +80,8 @@
                 $_SESSION['UserID'] = $userquery_row['user_id'];
                 
                 // MANUALLY LOG THE SUCCESSFUL LOGIN
-                logAdminActivity($db_connection->conn, $userquery_row['user_id'], 'Security', "Logged into the control panel.");
+                $logger = new \Core\Lib\ActivityLogger();
+                $logger->logAdminActivity($user_id, 'Login', 'Admin logged in');
 
                 $db_connection->conn->close();
                 header("Location: index.php");

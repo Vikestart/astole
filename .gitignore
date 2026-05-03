@@ -1,5 +1,3 @@
 # Ignore database configuration file
-.env
 adm/emergency-unlock.php
-Instructions.md
 site/config/config.php

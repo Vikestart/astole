@@ -1,16 +1,31 @@
-# Turn on the URL rewriting engine
-RewriteEngine On
+# / .htaccess
 
-# Security: Prevent directory listing (so users can't browse your file folders)
+# 1. Disable directory listing (Security)
 Options -Indexes
 
-# Condition 1: If the user requests an actual file (like a .css, .js, or .png file), serve it normally.
-RewriteCond %{REQUEST_FILENAME} !-f
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
 
-# Condition 2: If the user requests an actual directory (like your /adm/ folder), serve it normally.
-RewriteCond %{REQUEST_FILENAME} !-d
+    # 2. Hard-Block direct access to the engine and configuration
+    # EXEMPTIONS: Allow public access to assets and action endpoints
+    RewriteCond %{REQUEST_URI} !^/core/admin/assets/ [NC]
+    RewriteCond %{REQUEST_URI} !^/core/assets/ [NC]
+    RewriteCond %{REQUEST_URI} !^/core/actions/ [NC]
+    RewriteRule ^core/ - [F,L]
+    
+    RewriteRule ^site/config/ - [F,L]
+    
+    # Block execution of any PHP files that might get uploaded maliciously
+    RewriteRule ^site/uploads/.*\.php$ - [F,L]
 
-# The Rule: If it's NOT a real file or directory, grab whatever they typed and send it to index.php
-# The QSA flag (Query String Append) ensures that if you ever use ?var=true, it doesn't get erased.
-# The L flag (Last) tells the server to stop processing any more rules below this one.
-RewriteRule ^(.*)$ index.php?route=$1 [QSA,L]
+    # 3. Allow direct access to static assets (CSS, JS, Images, Fonts)
+    RewriteCond %{REQUEST_URI} \.(css|js|jpg|jpeg|png|gif|svg|woff|woff2|ttf|eot|ico)$ [NC]
+    RewriteRule ^ - [L]
+
+    # 4. Master Routing: Send everything else to index.php
+    # If the request is not a real file or a real directory, route it!
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]
+</IfModule>

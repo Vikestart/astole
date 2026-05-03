@@ -1,6 +1,5 @@
 <div class="glass-ad-container">
-				<ins class="adsbygoogle"
-					 style="display:block"
+				<ins class="adsbygoogle ad-block"
 					 data-ad-client="ca-pub-9553054176028249"
 					 data-ad-slot="4814454732"
 					 data-ad-format="auto"
@@ -10,11 +9,7 @@
 				</script>
 			</div>
 
-		</main> <!-- /.main-content -->
-	</div> <!-- /.page-wrapper -->
-
-	<!-- Modern Glass Footer -->
-	<footer class="glass-footer">
+		</main> </div> <footer class="glass-footer">
 		<div class="footer-inner">
 			<div class="footer-brand-info">
 				<span class="footer-name">Aleksander Støle</span>
@@ -33,6 +28,6 @@
 		</div>
 	</footer>
 
-	<script type='text/javascript' src='/assets/main.js' defer></script>
+    <script type='text/javascript' src='<?= $this->asset('main.js') ?>' defer></script>
 </body>
 </html>

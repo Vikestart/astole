@@ -55,11 +55,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 3. Sidebar Collapse Logic (Now using Cookies!) ---
     const adminLayout = document.getElementById('admin-layout');
-    const desktopToggleBtn = document.querySelector('.desktop-menu-btn');
+    const sidebarToggleBtn = document.getElementById('sidebar-toggle');
     
     // PHP handles the initial load state. JS only handles the button clicks now.
-    if(desktopToggleBtn && adminLayout) {
-        desktopToggleBtn.addEventListener('click', () => {
+    if(sidebarToggleBtn && adminLayout) {
+        sidebarToggleBtn.addEventListener('click', () => {
             adminLayout.classList.toggle('collapsed');
             
             // Save the state to a cookie for 365 days

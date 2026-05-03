@@ -692,6 +692,93 @@ body {
 .ticket-choice-arrow { align-self: flex-end; color: #94a3b8; transition: color 0.2s ease, transform 0.2s ease; font-size: 16px; margin-top: auto; }
 .ticket-choice-card:hover .ticket-choice-arrow { color: var(--color-primary); transform: translateX(5px); }
 
+/* --- Phase 3: Utility Classes & Extracted Inline Styles --- */
+.ticket-hero { min-height: auto; padding: 40px 20px 20px 20px; }
+.ticket-hero .hero-badge { margin-bottom: 0; }
+.ticket-main-panel { max-width: 900px; margin: -30px auto 40px auto; position: relative; z-index: 10; }
+
+/* Flexbox Utilities */
+.d-flex { display: flex; }
+.align-center { align-items: center; }
+.flex-col { flex-direction: column; }
+.gap-5 { gap: 5px; }
+.gap-10 { gap: 10px; }
+
+/* Spacing Utilities */
+.mb-15 { margin-bottom: 15px; }
+.mb-20 { margin-bottom: 20px; }
+.mt-8 { margin-top: 8px; }
+.mr-5 { margin-right: 5px; }
+.mr-6 { margin-right: 6px; }
+
+/* Component Styles */
+.ticket-badge-ghost { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); }
+.ad-block { display: block; }
+
+/* --- Text & Display Utilities --- */
+.text-center { text-align: center; }
+.no-underline { text-decoration: none; }
+.d-inline-block { display: inline-block; }
+
+/* --- Empty State / 404 Components --- */
+.empty-state-icon { 
+    font-size: 3rem; 
+    color: #94a3b8; 
+    margin-bottom: 20px; 
+}
+.empty-state-title { 
+    margin-bottom: 20px; 
+    color: var(--color-heading); 
+}
+
+/* --- Theme Specifics --- */
+.ticket-choice-icon.icon-purple { 
+    background: #f3e8ff; 
+    color: #9333ea; 
+}
+
+/* --- Page Content Styling --- */
+.page-content { 
+    line-height: 1.8; 
+}
+
+/* --- Ticket Portal Specific Utilities --- */
+.mt-20 { margin-top: 20px; }
+.mb-30 { margin-bottom: 30px; }
+.w-100 { width: 100%; }
+
+.portal-title { font-size: 24px; color: var(--color-heading); margin-bottom: 10px; }
+.portal-subtitle { color: #64748b; margin: 0; }
+
+.ticket-form-card { 
+    background: #f8fafc; 
+    padding: 30px; 
+    border-radius: 8px; 
+    border: 1px solid #e2e8f0; 
+    margin: 0 auto; 
+}
+.max-w-650 { max-width: 650px; }
+.max-w-600 { max-width: 600px; }
+
+.justify-between { justify-content: space-between; }
+.grid-2-col { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+
+.btn-back { 
+    background: none; 
+    border: none; 
+    color: #64748b; 
+    cursor: pointer; 
+    font-size: 14px; 
+    font-weight: 600; 
+    padding: 5px; 
+    transition: color 0.2s; 
+}
+.btn-back:hover { color: #0f172a; }
+
+.ticket-input { height: auto; padding: 10px; }
+.btn-secondary { background: #475569; }
+.btn-secondary:hover { background: #334155; }
+
 /* --- Mobile / Tablet Responsiveness --- */
 @media screen and (max-width: 768px) {
     .header-container {

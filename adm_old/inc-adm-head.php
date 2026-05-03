@@ -9,7 +9,7 @@ if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-require "../db.php";
+require_once __DIR__ . '/../init.php'; // Load the engine
 $mysqli = new DBConn();
 
 // Check Login Status & Fetch User Data

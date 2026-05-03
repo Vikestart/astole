@@ -41,6 +41,16 @@ body {
 
 a { text-decoration: none; color: var(--primary); }
 
+/* --- Global Utilities --- */
+.d-flex { display: flex; }
+.flex-col { flex-direction: column; }
+.align-center { align-items: center; }
+.gap-10 { gap: 10px; }
+.mb-0 { margin-bottom: 0; }
+.clean-list { list-style: none; padding: 0; line-height: 2; }
+.icon-muted { color: var(--text-muted); width: 20px; text-align: center; margin-right: 5px; }
+.action-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+
 /* --- Global Layout Architecture --- */
 .admin-wrapper {
     display: flex;
@@ -114,10 +124,11 @@ a { text-decoration: none; color: var(--primary); }
     font-weight: 500;
 }
 
-.menu-item i {
+.menu-item i, .menu-item svg {
     width: 20px;
-    margin-right: 10px;
+    margin-right: 12px;
     font-size: 16px;
+    text-align: center;
 }
 
 .menu-item:hover {
@@ -155,40 +166,52 @@ a { text-decoration: none; color: var(--primary); }
     gap: 20px;
 }
 
-.mobile-menu-btn {
-    display: none;
+/* Topbar Interactive Elements */
+.sidebar-toggle, .mobile-menu-btn {
     background: none;
     border: none;
     font-size: 20px;
-    color: var(--text-muted);
+    color: var(--text-main);
     cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 6px;
+    transition: background 0.2s;
 }
+.sidebar-toggle:hover { background: var(--border); }
+.mobile-menu-btn { display: none; color: var(--text-muted); }
 
 .topbar-search {
     position: relative;
     display: flex;
     align-items: center;
+    margin-left: 0; /* Reduced gap */
 }
 
-.topbar-search i {
+.topbar-search i, .topbar-search svg {
     position: absolute;
-    left: 12px;
+    left: 14px;
     color: var(--text-muted);
+    z-index: 10;
 }
 
 .topbar-search input {
     background: var(--bg-body);
     border: 1px solid var(--border);
-    border-radius: 50px;
-    padding: 8px 15px 8px 35px;
-    font-family: var(--font);
+    border-radius: 20px;
+    padding: 8px 15px 8px 38px;
+    font-family: inherit;
     font-size: 14px;
-    width: 250px;
+    color: var(--text-main);
+    width: 300px;
     outline: none;
-    transition: border-color 0.2s;
+    transition: all 0.2s;
 }
 
-.topbar-search input:focus { border-color: var(--primary); }
+.topbar-search input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    width: 350px;
+}
 
 .topbar-action {
     color: var(--text-muted);
@@ -197,27 +220,32 @@ a { text-decoration: none; color: var(--primary); }
 }
 .topbar-action:hover { color: var(--primary); }
 
+/* --- Integrated User Pill --- */
 .user-pill {
     display: flex;
     align-items: center;
     background: var(--bg-body);
     border: 1px solid var(--border);
     border-radius: 50px;
-    padding: 4px 15px 4px 4px;
-    gap: 12px; /* This gap now applies between the profile link and the logout button */
+    padding: 4px 6px 4px 4px;
+    transition: border-color 0.2s, background 0.2s;
 }
 
-/* --- NEW: Styling for the clickable profile link --- */
-.user-profile-link {
+.user-pill:hover {
+    background: var(--border);
+}
+
+.profile-link {
     display: flex;
     align-items: center;
-    gap: 12px;
-    color: inherit;
+    gap: 8px;
     text-decoration: none;
+    color: var(--text-main);
+    padding-right: 8px;
     transition: opacity 0.2s;
 }
 
-.user-profile-link:hover {
+.profile-link:hover {
     opacity: 0.8;
 }
 
@@ -239,12 +267,20 @@ a { text-decoration: none; color: var(--primary); }
     color: var(--text-main);
 }
 
-.logout-btn {
-    color: var(--text-muted);
-    border-left: 1px solid var(--border);
-    padding-left: 12px;
+.pill-divider {
+    width: 1px;
+    height: 20px;
+    background: #cbd5e1;
+    margin: 0 4px;
 }
-.logout-btn:hover { color: var(--danger); }
+
+.logout-link {
+    color: var(--text-muted);
+    padding: 4px 8px;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+.logout-link:hover { color: var(--danger); }
 
 /* --- Dynamic Content Area (Cards) --- */
 .admin-content {
@@ -262,6 +298,11 @@ section {
     margin-bottom: 25px;
 }
 
+/* Typography Overrides */
+h1.h1_underscore, .h2_underscore, h1, h2 {
+    display: flex;
+    align-items: center;
+}
 h1.h1_underscore {
     font-size: 22px;
     font-weight: 700;
@@ -269,10 +310,19 @@ h1.h1_underscore {
     border-bottom: 1px solid var(--border);
     padding-bottom: 15px;
     margin-bottom: 20px;
-    display: flex;
-    align-items: center;
 }
-h1.h1_underscore i { margin-right: 10px; color: var(--text-muted); }
+.h1_underscore i, .h2_underscore i, h1 i, h2 i,
+.h1_underscore svg, .h2_underscore svg, h1 svg, h2 svg {
+    margin-right: 12px;
+    color: var(--primary);
+    vertical-align: text-bottom;
+}
+ul li i, ul li svg {
+    margin-right: 10px;
+    color: var(--text-muted);
+    width: 20px;
+    text-align: center;
+}
 
 /* --- Forms & Buttons --- */
 .form-group { margin-bottom: 20px; }
@@ -314,15 +364,24 @@ h1.h1_underscore i { margin-right: 10px; color: var(--text-muted); }
 .btn-primary:hover { background: var(--primary-hover); }
 .btn-secondary { background: var(--secondary); color: #fff; }
 .btn-secondary:hover { background: var(--secondary-hover); }
+.btn-outline { background: var(--bg-body); border: 1px solid var(--border); color: var(--text-main); }
+.btn-outline:hover { background: var(--border); }
 .btn-red { background: #fee2e2; color: var(--danger); }
 .btn-red:hover { background: #fecaca; }
 .btn-green { background: #d1fae5; color: var(--success); }
 .btn-full { width: 100%; }
 
-/* Buttons inside sections (float right) */
+/* Form Change Detection & Disabled Buttons */
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+    filter: grayscale(100%);
+}
+
 .btn-r { float: right; margin-top: -55px; position: relative; z-index: 10; }
 
-/* Message Boxes */
+/* --- Global Feedback UI --- */
 .msgbox {
     padding: 12px 15px;
     border-radius: 8px;
@@ -336,6 +395,20 @@ h1.h1_underscore i { margin-right: 10px; color: var(--text-muted); }
 .msgbox-success { background: #f0fdf4; border: 1px solid #bbf7d0; color: #15803d; }
 .msgbox-warning { background: #fffbeb; border: 1px solid #fde68a; color: #b45309; }
 
+.admin-maint-banner {
+    background: #fee2e2;
+    color: #991b1b;
+    padding: 14px 20px;
+    border-radius: 8px;
+    border: 1px solid #fecaca;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    font-weight: 500;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+.admin-maint-icon { font-size: 20px; margin-right: 15px; }
+
 /* --- Login Screen Specifics --- */
 body.login-page {
     background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
@@ -346,13 +419,22 @@ body.login-page {
 }
 
 .login-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
     width: 100%;
-    max-width: 420px;
-    padding: 20px;
+    background-color: var(--bg-body);
+    margin: 0; 
+    position: absolute;
+    top: 0;
+    left: 0;
 }
 
 .login-card {
     background: rgba(255, 255, 255, 0.8);
+    width: 100%;
+    max-width: 380px;
     backdrop-filter: blur(20px);
     border: 1px solid var(--border);
     border-radius: 16px;
@@ -360,19 +442,10 @@ body.login-page {
     padding: 40px;
 }
 
-.login-header {
-    text-align: center;
-    margin-bottom: 30px;
-}
-.login-header .brand-icon {
-    display: inline-block;
-    margin: 0 auto 15px auto;
-    font-size: 18px;
-    padding: 10px 15px;
-}
+.login-header { text-align: center; margin-bottom: 30px; }
+.login-header .brand-icon { display: inline-block; margin: 0 auto 15px auto; font-size: 18px; padding: 10px 15px; }
 .login-header h2 { font-weight: 700; color: #0f172a; }
 .login-header p { color: var(--text-muted); margin-top: 5px; }
-
 
 /* --- Quill WYSIWYG Editor Adjustments --- */
 .ql-toolbar.ql-snow {
@@ -388,36 +461,6 @@ body.login-page {
     border-bottom-right-radius: 8px;
     font-family: var(--font) !important;
     font-size: 15px !important;
-}
-
-
-/* --- FontAwesome SVG Layout Fixes --- */
-.topbar-search i, .topbar-search svg {
-    position: absolute;
-    left: 12px;
-    color: var(--text-muted);
-    z-index: 10;
-}
-
-.menu-item i, .menu-item svg {
-    width: 20px;
-    margin-right: 12px;
-    font-size: 16px;
-    text-align: center;
-}
-
-.h1_underscore i, .h2_underscore i, h1 i, h2 i,
-.h1_underscore svg, .h2_underscore svg, h1 svg, h2 svg {
-    margin-right: 12px;
-    color: var(--primary);
-    vertical-align: text-bottom;
-}
-
-ul li i, ul li svg {
-    margin-right: 10px;
-    color: var(--text-muted);
-    width: 20px;
-    text-align: center;
 }
 
 /* --- Admin Data Tables --- */
@@ -443,47 +486,19 @@ ul li i, ul li svg {
 }
 .admin-table tr:hover td { background: #f8fafc; }
 
-.badge {
-    padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600;
-}
+.badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; }
 .badge-blue { background: #eef5ff; color: #2563eb; border: 1px solid #d7e2ff; }
 .badge-gray { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
 .badge-green { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
 .badge-red { background: #fcdcdc; color: #651616; border: 1px solid #f7bbbb; }
 .badge-purple { background: #f2dcfc; color: #551665; border: 1px solid #edbbf7; }
 .badge-yellow { background: #fcfbdc; color: #656516; border: 1px solid #f7f1bb; }
-.bage-noborder { border-width:0; }
 
-.table-actions a { 
-    color: var(--text-muted); 
-    margin-left: 15px; 
-    font-size: 16px; 
-    transition: color 0.2s; 
-}
+.table-actions a { color: var(--text-muted); margin-left: 15px; font-size: 16px; transition: color 0.2s; }
 .table-actions a:hover { color: var(--primary); }
 .table-actions a.delete:hover { color: var(--danger); }
 
-/* --- Collapsible Sidebar Styling --- */
-.desktop-menu-btn {
-    display: none; /* Hidden on mobile by default */
-    background: none;
-    border: none;
-    font-size: 20px;
-    color: var(--text-muted);
-    cursor: pointer;
-    transition: color 0.2s;
-}
-.desktop-menu-btn:hover { color: var(--primary); }
-
-/* --- Form Change Detection & Disabled Buttons --- */
-.btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    pointer-events: none;
-    filter: grayscale(100%);
-}
-
-/* --- Password Strength Meter --- */
+/* --- Password Strength Meter & Profile Forms --- */
 .strength-meter {
     height: 6px;
     background: var(--border);
@@ -498,16 +513,10 @@ ul li i, ul li svg {
     background: var(--danger);
     transition: width 0.3s ease, background-color 0.3s ease;
 }
-.strength-text {
-    font-size: 12px;
-    font-weight: 600;
-    display: block;
-}
+.strength-text { font-size: 12px; font-weight: 600; display: block; }
 
-/* --- Password Requirements Checklist --- */
 .password-reqs {
     list-style: none;
-    padding: 0;
     margin: 15px 0 0 0;
     font-size: 13px;
     background: #f8fafc;
@@ -523,26 +532,12 @@ ul li i, ul li svg {
     margin-bottom: 6px;
     transition: color 0.2s;
 }
-.password-reqs li:last-child {
-    margin-bottom: 0;
-}
-.icon-container {
-    width: 16px;
-    text-align: center;
-}
-.password-reqs li.req-met {
-    color: var(--success);
-}
-.password-reqs li.req-unmet {
-    color: var(--danger);
-}
+.password-reqs li:last-child { margin-bottom: 0; }
+.icon-container { width: 16px; text-align: center; }
+.password-reqs li.req-met { color: var(--success); }
+.password-reqs li.req-unmet { color: var(--danger); }
 
-/* --- Required Field Asterisk --- */
-.req-ast {
-    color: var(--danger);
-    margin-left: 3px;
-    font-weight: bold;
-}
+.req-ast { color: var(--danger); margin-left: 3px; font-weight: bold; }
 
 /* --- Hover Tooltips --- */
 .tooltip-icon {
@@ -561,11 +556,7 @@ ul li i, ul li svg {
     position: relative;
     vertical-align: middle;
 }
-.tooltip-icon:hover {
-    background: var(--text-main);
-    color: var(--bg-body);
-    border-color: var(--text-main);
-}
+.tooltip-icon:hover { background: var(--text-main); color: var(--bg-body); border-color: var(--text-main); }
 .tooltip-icon:hover::after {
     content: attr(data-tooltip);
     position: absolute;
@@ -599,30 +590,23 @@ ul li i, ul li svg {
 }
 
 /* --- Ticket System UI --- */
-
-/* 1. Layout Panels */
 .ticket-page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
 .ticket-page-header h1 { margin: 0; font-size: 22px; color: var(--color-heading); }
 
-/* REVERTED: Grey Header */
 .ticket-details-panel { background: var(--bg-body); padding: 25px; border-radius: 8px 8px 0 0; border: 1px solid var(--border); border-bottom: none; display: flex; justify-content: space-between; align-items: flex-start; }
 .ticket-details-title { margin: 0 0 5px 0; font-size: 20px; color: var(--color-heading); }
 .ticket-details-meta { color: var(--text-muted); font-size: 14px; }
 .ticket-details-meta a { color: var(--primary); margin-left: 5px; text-decoration: none; font-weight: 500; }
 
-/* REVERTED: White Thread Area */
 .ticket-thread-panel { background: var(--bg-surface); padding: 30px 25px; border: 1px solid var(--border); }
-
-/* REVERTED: Grey Reply Footer */
 .ticket-reply-panel { background: var(--bg-body); padding: 25px; border-radius: 0 0 8px 8px; border: 1px solid var(--border); border-top: none; }
 
-/* 2. Chat Thread & Bubbles */
 .ticket-system-msg { text-align: center; margin: 15px 0; }
 .ticket-system-msg span { color: var(--text-muted); font-size: 13px; }
 
 .ticket-msg-wrapper { max-width: 80%; margin-bottom: 25px; }
-.ticket-msg-wrapper.admin { margin-left: auto; } /* Right Aligned */
-.ticket-msg-wrapper.client { margin-right: auto; } /* Left Aligned */
+.ticket-msg-wrapper.admin { margin-left: auto; }
+.ticket-msg-wrapper.client { margin-right: auto; }
 
 .ticket-msg-header { font-size: 12px; color: var(--text-muted); margin-bottom: 5px; }
 .ticket-msg-wrapper.admin .ticket-msg-header { text-align: right; }
@@ -630,12 +614,10 @@ ul li i, ul li svg {
 
 .ticket-bubble { padding: 15px 20px; border-radius: 10px; line-height: 1.6; font-size: 15px; white-space: pre-wrap; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
 
-/* Admin Bubbles (Blue with Solid Grey-ish attachment buttons) */
 .ticket-msg-wrapper.admin .ticket-bubble { background: var(--primary); color: #fff; border: none; }
 .ticket-msg-wrapper.admin .ticket-attachment-btn { background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; }
 .ticket-msg-wrapper.admin .ticket-attachment-btn:hover { background: #e2e8f0; color: #0f172a; }
 
-/* Client Bubbles (Grey with White/Blue attachment buttons) */
 .ticket-msg-wrapper.client .ticket-bubble { background: var(--bg-body); color: var(--text-main); border: 1px solid var(--border); }
 .ticket-msg-wrapper.client .ticket-attachment-btn { background: var(--bg-surface); color: var(--primary); border: 1px solid var(--border); }
 .ticket-msg-wrapper.client .ticket-attachment-btn:hover { background: var(--border); }
@@ -645,7 +627,6 @@ ul li i, ul li svg {
 .ticket-msg-wrapper.client .ticket-attachments { justify-content: flex-start; }
 .ticket-attachment-btn { display: inline-flex; align-items: center; padding: 6px 14px; border-radius: 6px; text-decoration: none; font-size: 12px; font-weight: 600; white-space: nowrap; transition: background 0.2s; }
 
-/* 3. Reply Form Elements */
 .ticket-form-label { display: block; font-weight: 600; margin-bottom: 8px; color: var(--color-heading); }
 .ticket-file-drop { width: 100%; padding: 10px; border: 2px dashed var(--border); border-radius: 6px; background: var(--bg-surface); font-size: 13px; color: var(--text-main); transition: border-color 0.2s; cursor: pointer; }
 .ticket-file-drop:hover { border-color: var(--primary); }
@@ -656,28 +637,21 @@ ul li i, ul li svg {
 .ticket-status-group label { margin-right: 15px; font-weight: 600; color: var(--text-muted); }
 .ticket-status-group select { width: 260px; cursor: pointer; }
 
-/* File Upload Preview UI */
 .file-preview-item { display: inline-flex; align-items: center; background: var(--bg-surface); padding: 6px 12px; border-radius: 4px; font-size: 13px; border: 1px solid var(--border); width: max-content; margin-top: 8px; color: var(--text-main); }
 .file-preview-item i { margin-left: 10px; cursor: pointer; color: var(--danger); padding: 2px; }
 
 /* --- Admin Settings Tabs UI (Vertical) --- */
 .settings-layout { display: flex; gap: 30px; align-items: flex-start; }
-
-/* CHANGED: Background changed to bg-body for contrast, margin-top explicitly 0 for perfect alignment */
 .settings-sidebar { width: 260px; flex-shrink: 0; background: var(--bg-body); padding: 15px; border-radius: 8px; border: 1px solid var(--border); position: sticky; top: 0; margin-top: 0; }
 .settings-content { flex-grow: 1; min-width: 0; margin-top: 0; }
 
 .admin-tabs-nav { display: flex; flex-direction: column; gap: 5px; margin: 0; padding: 0; }
 .admin-tab-btn { background: transparent; border: none; padding: 12px 16px; font-size: 14px; font-weight: 600; color: var(--text-muted); cursor: pointer; border-radius: 6px; transition: all 0.2s ease; text-align: left; display: flex; align-items: center; gap: 10px; width: 100%; }
-
-/* Adjusted hover/active states for the darker background */
 .admin-tab-btn:hover { background: var(--border); color: var(--primary); }
 .admin-tab-btn.active { background: var(--primary); color: #fff; box-shadow: var(--shadow-sm); }
 
-/* CHANGED: Background changed to bg-body */
 .admin-tab-pane { display: none; animation: tabFadeIn 0.3s ease forwards; background: var(--bg-body); padding: 30px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 30px; margin-top: 0; }
 .admin-tab-pane.active { display: block; }
-
 .settings-form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 20px; }
 
 @keyframes tabFadeIn { 
@@ -685,17 +659,16 @@ ul li i, ul li svg {
     to { opacity: 1; transform: translateY(0); } 
 }
 
-/* Floating Save Bar (High Glassmorphism) */
 .settings-save-bar { 
     position: sticky; 
     bottom: 20px; 
-    background: rgba(255, 255, 255, 0.55); /* More transparent to let colors through */
-    backdrop-filter: blur(24px); /* Double the blur for a thick glass look */
+    background: rgba(255, 255, 255, 0.55);
+    backdrop-filter: blur(24px); 
     -webkit-backdrop-filter: blur(24px); 
     padding: 15px 25px; 
     border-radius: 8px; 
-    border: 1px solid rgba(255, 255, 255, 0.4); /* White frosted edge */
-    border-top: 1px solid rgba(255, 255, 255, 0.8); /* Stronger light reflection on top */
+    border: 1px solid rgba(255, 255, 255, 0.4); 
+    border-top: 1px solid rgba(255, 255, 255, 0.8); 
     box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.05); 
     display: flex; 
     justify-content: space-between; 
@@ -704,100 +677,9 @@ ul li i, ul li svg {
     transition: all 0.3s ease;
 }
 
-/* Disabled State Styling */
-.settings-save-bar button:disabled {
-    background: var(--text-muted);
-    cursor: not-allowed;
-    opacity: 0.6;
-    box-shadow: none;
-}
+.settings-save-bar button:disabled { background: var(--text-muted); cursor: not-allowed; opacity: 0.6; box-shadow: none; }
 
-/* Responsive break to horizontal stacking and FAB on mobile */
-@media screen and (max-width: 768px) {
-    .settings-layout { flex-direction: column; }
-    .settings-sidebar { width: 100%; position: static; }
-    
-    /* Transform Save Bar into a Floating Action Button (FAB) */
-    .settings-save-bar {
-        position: fixed;
-        bottom: 30px;
-        right: 30px;
-        background: transparent;
-        border: none;
-        box-shadow: none;
-        padding: 0;
-        width: auto;
-    }
-    
-    .save-info-text { display: none; } /* Hide the helper text */
-    
-    .settings-save-bar button {
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        padding: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
-    }
-    
-    .settings-save-bar button span { display: none; } /* Hide button text */
-    .settings-save-bar button i { margin: 0; font-size: 22px; } /* Center icon */
-}
-
-
-/* --- Floating Sidebar Tooltips (Collapsed State) --- */
-.admin-wrapper.collapsed .admin-sidebar, 
-.admin-wrapper.collapsed .sidebar-menu { 
-    overflow: visible !important; 
-}
-
-.admin-wrapper.collapsed .menu-item {
-    position: relative;
-}
-
-.admin-wrapper.collapsed .menu-item span {
-    position: absolute;
-    left: calc(100% + 5px); /* Detach it slightly from the menu */
-    top: 50%;
-    transform: translateY(-50%);
-    background: #0f172a; /* Sleek dark tooltip background */
-    color: #ffffff;
-    padding: 6px 12px;
-    border-radius: 6px;
-    font-size: 13px;
-    font-weight: 500;
-    white-space: nowrap;
-    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
-    pointer-events: none;
-    opacity: 0;
-    visibility: hidden;
-    width: auto !important;
-    height: auto !important;
-    transition: all 0.2s ease;
-    z-index: 1000;
-}
-
-/* The little triangle pointer */
-.admin-wrapper.collapsed .menu-item span::before {
-    content: '';
-    position: absolute;
-    right: 100%;
-    top: 50%;
-    transform: translateY(-50%);
-    border: 5px solid transparent;
-    border-right-color: #0f172a;
-}
-
-/* The slide-in hover effect */
-.admin-wrapper.collapsed .menu-item:hover span {
-    opacity: 1;
-    visibility: visible;
-    left: calc(100% + 20px);
-}
-
-/* --- Professional Menu Builder --- */
+/* --- Menu Builder --- */
 .menu-header-bar {
     background: var(--bg-surface);
     border: 1px solid var(--border);
@@ -810,12 +692,8 @@ ul li i, ul li svg {
     box-shadow: 0 2px 10px rgba(0,0,0,0.02);
 }
 
-.menu-manager-grid {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 30px;
-    align-items: start;
-}
+.menu-manager-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 30px; align-items: start; }
+@media (max-width: 900px) { .menu-manager-grid { grid-template-columns: 1fr; } }
 
 .menu-structure-panel, .menu-form-panel {
     background: var(--bg-surface);
@@ -836,19 +714,10 @@ ul li i, ul li svg {
     gap: 15px;
     transition: all 0.2s ease;
 }
-
-.menu-item-row:hover {
-    border-color: var(--color-primary);
-    border-style: dashed;
-}
-
+.menu-item-row:hover { border-color: var(--color-primary); border-style: dashed; }
 .menu-item-row.draggable { cursor: grab; }
 .menu-item-row.draggable:active { cursor: grabbing; }
-.menu-item-row.dragging {
-    opacity: 0.5;
-    border: 2px dashed var(--color-primary);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
+.menu-item-row.dragging { opacity: 0.5; border: 2px dashed var(--color-primary); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
 
 .menu-item-drag-handle { color: var(--text-muted); font-size: 16px; cursor: grab; }
 .menu-item-details { flex: 1; }
@@ -857,22 +726,27 @@ ul li i, ul li svg {
 .menu-item-actions { display: flex; gap: 8px; }
 
 .action-icon-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 6px;
-    border-radius: 4px;
-    transition: 0.2s;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+    background: none; border: none; cursor: pointer; padding: 6px; border-radius: 4px;
+    transition: 0.2s; display: inline-flex; align-items: center; justify-content: center;
 }
 .action-icon-btn.edit { color: var(--color-primary); }
 .action-icon-btn.edit:hover { background: rgba(var(--color-primary-rgb), 0.1); }
 .action-icon-btn.delete { color: #ef4444; }
 .action-icon-btn.delete:hover { background: rgba(239, 68, 68, 0.1); }
 
-/* Modal Styling */
+/* Menu Radio Toggles */
+.radio-toggle-group { display: flex; gap: 10px; }
+.radio-toggle-group label {
+    flex: 1; text-align: center; padding: 10px 15px;
+    background: var(--bg-body); border: 1px solid var(--border);
+    border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500;
+    color: var(--text-muted); transition: all 0.2s; user-select: none;
+}
+.radio-toggle-group label:hover { background: var(--bg-surface); border-color: var(--secondary); color: var(--secondary); }
+.radio-toggle-group input[type="radio"] { display: none; }
+.radio-toggle-group input[type="radio"]:checked + label { background: var(--secondary); color: #fff; border-color: var(--secondary); }
+
+/* Modals */
 .admin-modal-overlay {
     display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
     background: rgba(0,0,0,0.6); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(4px);
@@ -887,36 +761,84 @@ ul li i, ul li svg {
 }
 .admin-modal-close:hover { color: var(--color-heading); }
 
-@media (max-width: 900px) {
-    .menu-manager-grid { grid-template-columns: 1fr; }
+/* --- Phase 4.2 & 4.3: Page Management & Polish --- */
+.admin-header-row { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    margin-bottom: 20px; 
+    border-bottom: 1px solid var(--border); 
+    padding-bottom: 15px; 
+}
+.admin-header-title { 
+    margin: 0; 
+    font-size: 22px; 
+    color: var(--text-main); 
+    display: flex; 
+    align-items: center; 
 }
 
-/* --- Modern Radio Toggles --- */
-.radio-toggle-group {
-    display: flex; gap: 10px;
+/* Updated Quill Editor Heights */
+.editor-wrap { 
+    height: auto; 
+    background: var(--bg-surface); 
+    border-bottom-left-radius: 8px; 
+    border-bottom-right-radius: 8px; 
 }
-.radio-toggle-group label {
-    flex: 1; text-align: center; padding: 10px 15px;
-    background: var(--bg-body); border: 1px solid var(--border);
-    border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500;
-    color: var(--text-muted); transition: all 0.2s;
-    user-select: none;
-}
-.radio-toggle-group label:hover {
-    background: var(--bg-surface);
-    border-color: var(--secondary);
-    color: var(--secondary);
-}
-.radio-toggle-group input[type="radio"] { display: none; }
-.radio-toggle-group input[type="radio"]:checked + label {
-    background: var(--secondary); 
-    color: #fff; 
-    border-color: var(--secondary);
+.ql-container.ql-snow {
+    min-height: 120px !important;
+    max-height: 500px;
+    overflow-y: auto;
 }
 
+.action-disabled { 
+    display: inline-flex; 
+    align-items: center;
+    opacity: 0.3; 
+    cursor: not-allowed; 
+    color: var(--text-muted); 
+}
+
+/* Fixed Utilities with !important to override base CSS */
+.ml-10 { margin-left: 10px !important; }
+.ml-15 { margin-left: 15px !important; }
+.d-inline { display: inline !important; }
+
+/* Fixed Grid for forms */
+.grid-2-col { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
+    gap: 20px; 
+}
+
+/* Standardized Table Action Buttons */
+.action-icon-btn {
+    background: none; 
+    border: none; 
+    cursor: pointer; 
+    padding: 6px; 
+    border-radius: 4px;
+    transition: 0.2s; 
+    display: inline-flex; 
+    align-items: center; 
+    justify-content: center;
+    text-decoration: none;
+    font-size: 16px; 
+    color: var(--text-muted);
+}
+.action-icon-btn.view:hover { background: #e2e8f0; color: var(--text-main); }
+.action-icon-btn.edit { color: var(--primary); }
+.action-icon-btn.edit:hover { background: rgba(37, 99, 235, 0.1); }
+.action-icon-btn.delete { color: var(--danger); }
+.action-icon-btn.delete:hover { background: rgba(239, 68, 68, 0.1); }
+
+/* 3. Quill Editor Minimum Height Fix */
+.ql-container.ql-snow {
+    min-height: 400px;
+}
+
+/* --- Desktop Logic (Collapsible Sidebar) --- */
 @media screen and (min-width: 769px) {
-    .desktop-menu-btn { display: block; }
-    
     /* Smooth opacity transitions for text */
     .brand-text, .menu-item span, .menu-label {
         transition: opacity 0.2s ease;
@@ -927,58 +849,87 @@ ul li i, ul li svg {
     .admin-wrapper.collapsed .admin-sidebar { width: 80px; }
     
     .admin-wrapper.collapsed .brand-text { 
-        opacity: 0;
-        pointer-events: none;
-        width: 0;
-        overflow: hidden;
+        opacity: 0; pointer-events: none; width: 0; overflow: hidden;
     }
     
     .admin-wrapper.collapsed .menu-label { 
-        opacity: 0; 
-        height: 0; 
-        margin: 0; 
-        padding: 0;
+        opacity: 0; height: 0; margin: 0; padding: 0;
     }
     
     .admin-wrapper.collapsed .menu-item { 
-        justify-content: center; 
-        padding: 12px 0; 
+        justify-content: center; padding: 12px 0; 
     }
     
     .admin-wrapper.collapsed .menu-item span { 
-        opacity: 0; 
-        display: inline-block; 
-        width: 0; 
-        pointer-events: none;
-        overflow: hidden;
+        opacity: 0; display: inline-block; width: 0; pointer-events: none; overflow: hidden;
     }
     
     .admin-wrapper.collapsed .menu-item i, 
     .admin-wrapper.collapsed .menu-item svg { 
-        margin-right: 0; 
-        font-size: 20px; 
+        margin-right: 0; font-size: 20px; 
     }
-}
 
-/* --- Mobile Overlay --- */
-.mobile-overlay {
-    display: none;
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(15, 23, 42, 0.4); /* Dark translucent slate */
-    z-index: 998; /* Just below the sidebar */
-    opacity: 0;
-    transition: opacity 0.3s ease;
+    /* Floating Tooltips for Collapsed Menu */
+    .admin-wrapper.collapsed .admin-sidebar, 
+    .admin-wrapper.collapsed .sidebar-menu { 
+        overflow: visible !important; 
+    }
+
+    .admin-wrapper.collapsed .menu-item { position: relative; }
+    
+    .admin-wrapper.collapsed .menu-item span {
+        position: absolute;
+        left: calc(100% + 5px);
+        top: 50%;
+        transform: translateY(-50%);
+        background: #0f172a;
+        color: #ffffff;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 500;
+        white-space: nowrap;
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        pointer-events: none;
+        opacity: 0;
+        visibility: hidden;
+        width: auto !important;
+        height: auto !important;
+        
+        /* FIX: Instantly hide when collapsing to prevent the dark flash */
+        transition: none; 
+        z-index: 1000;
+    }
+
+    .admin-wrapper.collapsed .menu-item span::before {
+        content: '';
+        position: absolute;
+        right: 100%;
+        top: 50%;
+        transform: translateY(-50%);
+        border: 5px solid transparent;
+        border-right-color: #0f172a;
+    }
+
+    .admin-wrapper.collapsed .menu-item:hover span {
+        opacity: 1;
+        visibility: visible;
+        left: calc(100% + 20px);
+        
+        /* FIX: Only animate the tooltip when hovering in */
+        transition: all 0.2s ease; 
+    }
 }
 
 /* --- Mobile Responsiveness --- */
 @media screen and (max-width: 768px) {
+    /* Sidebar goes off-canvas */
     .admin-sidebar {
         position: fixed;
         left: 0;
         top: 0;
         height: 100%;
-        transform: translateX(-110%); /* Pushed further left to hide the bleeding shadow */
+        transform: translateX(-110%);
         box-shadow: none;
         z-index: 999;
         transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -987,18 +938,55 @@ ul li i, ul li svg {
         transform: translateX(0);
         box-shadow: 4px 0 24px rgba(0, 0, 0, 0.1);
     }
+    
+    /* Overlay toggles */
+    .mobile-overlay {
+        display: none;
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(15, 23, 42, 0.4); 
+        z-index: 998; 
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
     .mobile-overlay.active {
         display: block;
         opacity: 1;
     }
     
-    .admin-sidebar.sidebar-open { transform: translateX(0); }
-    
+    /* Topbar adjustments */
     .mobile-menu-btn { display: block; }
-    
-    .topbar-search { display: none; } /* Hide search on mobile to save space */
+    .sidebar-toggle { display: none; }
+    .topbar-search { display: none; }
     
     .admin-content { padding: 15px; }
-    
     .btn-r { float: none; margin-top: 15px; display: inline-flex; width: 100%; margin-bottom: 20px; }
+    
+    /* Settings Tabs Mobile adjustments */
+    .settings-layout { flex-direction: column; }
+    .settings-sidebar { width: 100%; position: static; }
+    
+    .settings-save-bar {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        padding: 0;
+        width: auto;
+    }
+    .save-info-text { display: none; } 
+    .settings-save-bar button {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+    }
+    .settings-save-bar button span { display: none; }
+    .settings-save-bar button i { margin: 0; font-size: 22px; }
 }
