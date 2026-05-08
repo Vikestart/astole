@@ -12,7 +12,7 @@ require_once __DIR__ . '/../components/nav.php';
 <section id="view-list">
     <div class="admin-header-row">
         <h1 class="admin-header-title"><i class="fa-solid fa-file-lines mr-10"></i> Page Management</h1>
-        <button class="btn btn-primary" onclick="showForm(0)"><i class="fa-solid fa-plus mr-10"></i> Create New</button>
+        <button class="btn btn-primary" onclick="showForm(0)"><i class="fa-solid fa-plus"></i> Create New</button>
     </div>
 
     <div style="overflow-x: auto;">
@@ -37,7 +37,10 @@ require_once __DIR__ . '/../components/nav.php';
 <section id="view-form" style="display: none;">
     <div class="admin-header-row">
         <h1 class="admin-header-title" id="form-view-title"></h1>
-        <button class="btn btn-secondary" onclick="showList()"><i class="fa-solid fa-arrow-left mr-10"></i> Back to List</button>
+        <div class="d-flex gap-10">
+            <button class="btn btn-secondary" onclick="showList()"><i class="fa-solid fa-arrow-left"></i> Back to List</button>
+            <button class="btn btn-red" id="header-delete-page-btn" style="display: none;"><i class="fa-solid fa-trash-alt"></i> Delete Page</button>
+        </div>
     </div>
 
     <form autocomplete="off" id="page-form">
@@ -83,11 +86,13 @@ require_once __DIR__ . '/../components/nav.php';
 <div class="admin-modal-overlay" id="delete-modal">
     <div class="admin-modal-content" style="text-align: center; padding: 40px 25px;">
         <i class="fa-solid fa-triangle-exclamation" style="font-size: 48px; color: var(--danger); margin-bottom: 20px;"></i>
-        <h2 style="margin-bottom: 10px; color: var(--color-heading);">Are you sure?</h2>
+        
+        <h2 style="margin-bottom: 10px; color: var(--color-heading); justify-content: center;">Are you sure?</h2>
+        
         <p style="color: var(--text-muted); margin-bottom: 30px;">This will permanently delete this page. This action cannot be undone.</p>
         <div style="display: flex; justify-content: center; gap: 15px;">
             <button class="btn btn-outline" onclick="closeDeleteModal()">Cancel</button>
-            <button class="btn btn-red" id="confirm-delete-btn"><i class="fa-solid fa-trash-alt mr-10"></i> Yes, Delete Page</button>
+            <button class="btn btn-red" id="confirm-delete-btn"><i class="fa-solid fa-trash-alt mr-10"></i> Delete</button>
         </div>
     </div>
 </div>

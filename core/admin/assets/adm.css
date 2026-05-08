@@ -366,8 +366,8 @@ ul li i, ul li svg {
 .btn-secondary:hover { background: var(--secondary-hover); }
 .btn-outline { background: var(--bg-body); border: 1px solid var(--border); color: var(--text-main); }
 .btn-outline:hover { background: var(--border); }
-.btn-red { background: #fee2e2; color: var(--danger); }
-.btn-red:hover { background: #fecaca; }
+.btn-red { background: var(--danger); color: #ffffff; }
+.btn-red:hover { background: #dc2626; }
 .btn-green { background: #d1fae5; color: var(--success); }
 .btn-full { width: 100%; }
 
@@ -836,6 +836,19 @@ body.login-page {
 .ql-container.ql-snow {
     min-height: 400px;
 }
+
+/* --- Phase 4.4: Structural Utility Classes --- */
+.w-100 { width: 100% !important; }
+.justify-center { justify-content: center !important; }
+.justify-between { justify-content: space-between !important; }
+.text-center { text-align: center !important; }
+.text-muted { color: var(--text-muted) !important; }
+.mb-15 { margin-bottom: 15px !important; }
+.mb-20 { margin-bottom: 20px !important; }
+.mt-0 { margin-top: 0 !important; }
+.mr-5 { margin-right: 5px !important; }
+.mr-10 { margin-right: 10px !important; }
+.p-20 { padding: 20px !important; }
 
 /* --- Desktop Logic (Collapsible Sidebar) --- */
 @media screen and (min-width: 769px) {

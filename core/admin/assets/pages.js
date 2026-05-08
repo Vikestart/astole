@@ -63,14 +63,21 @@ document.addEventListener('DOMContentLoaded', () => {
             .substring(0, 40);
     };
 
-    inputSlug.addEventListener('input', function() {
-        if (this.value.trim() === '') { autoGenerateSlug = true; } 
-        else { autoGenerateSlug = false; }
+    inputSlug.addEventListener('input', function(e) {
+        // FIX: e.isTrusted ensures this only triggers when a REAL HUMAN types in the box
+        if (e.isTrusted) {
+            if (this.value.trim() === '') { 
+                autoGenerateSlug = true; 
+            } else { 
+                autoGenerateSlug = false; 
+            }
+        }
     });
 
     inputTitle.addEventListener('input', function() {
         if (autoGenerateSlug) {
             inputSlug.value = generateSlug(this.value);
+            // Tell the form tracker that the value changed, without triggering the human-check above
             inputSlug.dispatchEvent(new Event('input', { bubbles: true }));
         }
     });
@@ -94,19 +101,24 @@ document.addEventListener('DOMContentLoaded', () => {
         viewForm.style.display = 'block';
         msgBox.style.display = 'none';
         
+        const headerDelBtn = document.getElementById('header-delete-page-btn');
+        
         if (pageId === 0) {
             formTitle.innerHTML = '<i class="fa-solid fa-file-circle-plus mr-10"></i> Create New Page';
+            headerDelBtn.style.display = 'none'; // Hide delete button on new pages
             pageForm.reset();
             inputId.value = 0;
             quill.root.innerHTML = '';
             typeSelector.dispatchEvent(new Event('change'));
             autoGenerateSlug = true; 
             
-            // Cleanly update URL without refreshing
             window.history.pushState({}, '', '/adm/pages?action=new');
         } 
         else {
             formTitle.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-10"></i> Loading...';
+            headerDelBtn.style.display = 'inline-flex'; // Show delete button
+            headerDelBtn.onclick = () => window.deletePage(pageId); // Attach ID
+            
             window.history.pushState({}, '', `/adm/pages?action=edit&p=${pageId}`);
             
             const formData = new FormData();
@@ -201,8 +213,9 @@ document.addEventListener('DOMContentLoaded', () => {
             closeDeleteModal();
             btn.innerHTML = originalHtml;
             btn.disabled = false;
+            // Inside the fetch response for confirm-delete-btn:
             showMsg(data.status, data.message);
-            if (data.status === 'success') loadList();
+            if (data.status === 'success') showList(); // Go back to list on success
         });
     });
 
