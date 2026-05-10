@@ -850,6 +850,52 @@ body.login-page {
 .mr-10 { margin-right: 10px !important; }
 .p-20 { padding: 20px !important; }
 
+/* --- Phase 4.5: Menu Builder Polish --- */
+@keyframes successPulse {
+    /* Made the pulse a stronger, more prominent green */
+    0% { background-color: rgba(34, 197, 94, 0.4); } 
+    100% { background-color: transparent; }
+}
+.pulse-success {
+    animation: successPulse 1.5s ease-out;
+}
+.drop-zone-active {
+    box-shadow: inset 0 0 0 2px var(--primary) !important;
+    background-color: rgba(37, 99, 235, 0.05) !important;
+    border-radius: 6px;
+}
+
+/* Enhanced Chevron Toggle with Background Hover & Larger Hitbox */
+.menu-collapse-btn {
+    background: transparent; 
+    border: none; 
+    cursor: pointer; 
+    color: var(--color-heading); 
+    width: 32px;  /* Increased hitbox */
+    height: 32px; /* Increased hitbox */
+    display: inline-flex; 
+    align-items: center; 
+    justify-content: center;
+    border-radius: 6px;
+    transition: transform 0.25s ease, background 0.2s ease;
+    font-size: 16px;
+}
+.menu-collapse-btn:hover { 
+    background: rgba(0, 0, 0, 0.06); /* Beautiful subtle hover effect */
+}
+.menu-collapse-btn.collapsed { transform: rotate(-90deg); }
+.menu-collapse-btn.hidden-chevron { visibility: hidden; pointer-events: none; }
+
+/* Smooth Child Item Animations */
+.menu-item-row.is-sub-item {
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    transform-origin: top left;
+}
+.menu-item-row.is-sub-item.hiding {
+    opacity: 0 !important;
+    transform: scaleY(0.9) translateY(-5px) !important;
+}
+
 /* --- Desktop Logic (Collapsible Sidebar) --- */
 @media screen and (min-width: 769px) {
     /* Smooth opacity transitions for text */

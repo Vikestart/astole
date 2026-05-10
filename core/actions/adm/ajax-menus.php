@@ -178,18 +178,25 @@ if ($action === 'get_builder_data') {
                 $fetched_title = $item['fetched_page_title'] ?? 'Unknown';
                 
                 $link_display = !empty($item['page_id']) ? "Page: " . htmlspecialchars($fetched_title) : htmlspecialchars($url);
-                $target_badge = $target === '_blank' ? '<span class="badge badge-gray" style="font-size: 10px; margin-right:5px;"><i class="fa-solid fa-external-link-alt"></i></span>' : '';
+                $target_badge = $target === '_blank' ? '<span class="badge badge-gray"><i class="fa-solid fa-external-link-alt"></i></span>' : '';
                 $hier_class = is_null($item['parent_id']) ? 'is-top-item' : 'is-sub-item';
+                
+                // Add a chevron button only to top-level items
+                $chevron = is_null($item['parent_id']) ? "<button type='button' class='menu-collapse-btn'><i class='fa-solid fa-chevron-down'></i></button>" : "";
                 
                 $data_attrs = "data-id='{$item['id']}' data-title='".htmlspecialchars($title, ENT_QUOTES)."' data-target='{$target}' data-parent='".($item['parent_id'] ?? '')."' data-page='".($item['page_id'] ?? '')."' data-url='".htmlspecialchars($url, ENT_QUOTES)."'";
 
                 $html .= "
                 <div class='menu-item-row draggable {$hier_class}' draggable='true' data-id='{$item['id']}' style='margin-left: {$indent}px;'>
                     <div class='menu-item-drag-handle'><i class='fa-solid fa-grip-vertical'></i></div>
+                    
+                    {$chevron}
+                    
                     <div class='menu-item-details'>
                         <span class='menu-item-title'>".htmlspecialchars($title)."</span>
                         <span class='menu-item-url'>{$link_display}</span>
                     </div>
+                    
                     <div class='menu-item-actions'>
                         {$target_badge}
                         <button type='button' class='action-icon-btn edit ajax-edit-btn' {$data_attrs} title='Edit'><i class='fa-solid fa-pen'></i></button>

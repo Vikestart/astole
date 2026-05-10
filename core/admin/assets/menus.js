@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const activeMenuInput = document.getElementById('active-menu-id');
     const sortableContainer = document.getElementById('sortable-menu');
     const saveOrderBtn = document.getElementById('ajax-save-order-btn');
+    const expandedParentIds = new Set();
 
     // Helper: Show Feedback Message
     function showMsg(type, msg) {
@@ -109,11 +110,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const currentDeleteType = deleteType;
         const currentId = idToDelete;
 
-        // OPTIMISTIC UI UPDATE: Close modal and vanish the item instantly!
+        // OPTIMISTIC UI UPDATE: Smoothly fade and shrink the item!
         closeDeleteModal();
         if (currentDeleteType === 'item') {
             const itemRow = document.querySelector(`.menu-item-row[data-id="${currentId}"]`);
-            if (itemRow) itemRow.style.display = 'none';
+            if (itemRow) {
+                itemRow.style.transition = 'all 0.3s ease-out';
+                itemRow.style.opacity = '0';
+                itemRow.style.transform = 'scale(0.95)';
+                // Wait for the animation to finish before snapping the layout shut
+                setTimeout(() => { itemRow.style.display = 'none'; }, 300);
+            }
         }
 
         const formData = new FormData();
@@ -158,8 +165,8 @@ document.addEventListener('DOMContentLoaded', () => {
         loadBuilderData(false); // First load shows spinner
     };
 
-    // FIX: Added 'silent' parameter to prevent flickering!
-    function loadBuilderData(silent = false) {
+    // FIX: Added 'pulseId' to the parameter list to prevent the ReferenceError
+    function loadBuilderData(silent = false, pulseId = null) {
         if (!silent) {
             sortableContainer.innerHTML = '<div class="text-center p-20 text-muted"><i class="fa-solid fa-spinner fa-spin mr-10"></i> Loading structure...</div>';
         }
@@ -176,7 +183,41 @@ document.addEventListener('DOMContentLoaded', () => {
                 builderTitle.innerHTML = `<i class="fa-solid fa-list-ul mr-10"></i> Builder: ${data.menu_name}`;
                 sortableContainer.innerHTML = data.html;
                 bindDragEvents();
-                // Update dropdowns silently
+                
+                if (pulseId) {
+                    const editedRow = document.querySelector(`.menu-item-row[data-id="${pulseId}"]`);
+                    if (editedRow) editedRow.classList.add('pulse-success');
+                }
+
+                // NEW: Smart Chevron & Collapse Logic
+                document.querySelectorAll('.is-top-item').forEach(parentRow => {
+                    const rowId = parentRow.dataset.id;
+                    const chevron = parentRow.querySelector('.menu-collapse-btn');
+                    const next = parentRow.nextElementSibling;
+                    const hasChildren = next && next.classList.contains('is-sub-item');
+
+                    if (chevron) {
+                        // Hide chevron but keep alignment if no children
+                        if (!hasChildren) {
+                            chevron.classList.add('hidden-chevron');
+                        } else {
+                            chevron.classList.remove('hidden-chevron');
+                            // Apply Default Collapsed State (Unless user previously opened it)
+                            if (expandedParentIds.has(rowId)) {
+                                chevron.classList.remove('collapsed');
+                            } else {
+                                chevron.classList.add('collapsed');
+                                let nextRow = parentRow.nextElementSibling;
+                                while (nextRow && nextRow.classList.contains('is-sub-item')) {
+                                    nextRow.style.display = 'none';
+                                    nextRow.classList.add('hiding');
+                                    nextRow = nextRow.nextElementSibling;
+                                }
+                            }
+                        }
+                    }
+                });
+
                 document.querySelectorAll('.dynamic-parent-select').forEach(select => {
                     const currentVal = select.value;
                     select.innerHTML = data.parent_opts;
@@ -208,39 +249,78 @@ document.addEventListener('DOMContentLoaded', () => {
     setupRadioToggles('ajax-add-item-form', 'link_type', 'wrapper-url', 'wrapper-page');
     setupRadioToggles('ajax-edit-item-form', 'link_type', 'edit-wrapper-url', 'edit-wrapper-page');
 
-    // Add Item (Optimistic "Ghost Row" UX)
+    // Add Item (Optimistic "Ghost Row" UX with Smart Placement)
     const addItemForm = document.getElementById('ajax-add-item-form');
     if (addItemForm) {
         addItemForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const formData = new FormData(addItemForm);
             
-            // 1. Capture the title for the Ghost Row
+            // 1. Capture data for Ghost Row
             const newTitle = formData.get('title');
+            const parentId = formData.get('parent_id');
             
-            // 2. Instantly reset the form so the user can rapidly add multiple links
+            // 2. Instantly reset the form
             addItemForm.reset();
             document.getElementById('add_type_url').checked = true;
             document.getElementById('add_type_url').dispatchEvent(new Event('change'));
 
-            // 3. Inject a temporary "Ghost" row into the UI instantly
+            // 3. Create the Ghost Row
             const ghostRow = document.createElement('div');
-            ghostRow.className = 'menu-item-row';
+            ghostRow.className = 'menu-item-row is-top-item'; 
             ghostRow.style.opacity = '0.5';
-            ghostRow.style.pointerEvents = 'none'; // Prevent dragging before it has an ID
+            ghostRow.style.pointerEvents = 'none';
             ghostRow.innerHTML = `
                 <div class='menu-item-drag-handle'><i class='fa-solid fa-spinner fa-spin text-muted'></i></div>
                 <div class='menu-item-details'>
                     <span class='menu-item-title'>${newTitle}</span>
-                    <span class='menu-item-url text-muted'>Saving to database...</span>
+                    <span class='menu-item-url text-muted'>Saving new link...</span>
                 </div>
             `;
-            sortableContainer.appendChild(ghostRow);
 
-            // Scroll to the bottom to see the new item
-            sortableContainer.scrollTop = sortableContainer.scrollHeight;
+            // 4. SMART PLACEMENT LOGIC
+            if (parentId) {
+                const parentRow = document.querySelector(`.menu-item-row[data-id="${parentId}"]`);
+                if (parentRow) {
+                    // NEW: Instantly reveal and auto-expand the chevron so we see the new item!
+                    const parentChevron = parentRow.querySelector('.menu-collapse-btn');
+                    if (parentChevron) {
+                        parentChevron.classList.remove('hidden-chevron');
+                        if (parentChevron.classList.contains('collapsed')) parentChevron.click(); 
+                    }
 
-            // 4. Send the actual data to the server
+                    ghostRow.classList.replace('is-top-item', 'is-sub-item');
+                    
+                    // Indent the ghost row 30px deeper than its parent
+                    const parentIndent = parseInt(parentRow.style.marginLeft || '0', 10);
+                    ghostRow.style.marginLeft = (parentIndent + 30) + 'px';
+
+                    // Find the absolute bottom of this parent's specific children tree
+                    let insertAfterNode = parentRow;
+                    let nextNode = parentRow.nextElementSibling;
+                    
+                    // Keep skipping forward as long as the next row is indented deeper than the parent
+                    while (nextNode && nextNode.classList.contains('menu-item-row')) {
+                        const nextIndent = parseInt(nextNode.style.marginLeft || '0', 10);
+                        if (nextIndent <= parentIndent) break; // We hit the next top-level sibling
+                        insertAfterNode = nextNode;
+                        nextNode = nextNode.nextElementSibling;
+                    }
+                    
+                    // Insert the ghost row safely after the last child
+                    insertAfterNode.parentNode.insertBefore(ghostRow, insertAfterNode.nextSibling);
+                } else {
+                    sortableContainer.appendChild(ghostRow); // Fallback
+                }
+            } else {
+                // It's a top-level item, just append to the very bottom
+                sortableContainer.appendChild(ghostRow);
+            }
+
+            // Smoothly scroll the screen to wherever the ghost row just spawned
+            ghostRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            // 5. Send the actual data to the server
             formData.append('action', 'add_item');
             formData.append('menu_id', activeMenuInput.value);
             formData.append('csrf_token', csrfToken);
@@ -250,17 +330,15 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(data => {
                 showMsg(data.status, data.message);
                 if (data.status === 'success') {
-                    // Silent reload swaps the ghost row with the real, draggable row
-                    loadBuilderData(true); 
+                    loadBuilderData(true); // Silent reload replaces ghost with real row
                 } else {
-                    // If it failed, remove the ghost row
-                    ghostRow.remove(); 
+                    ghostRow.remove(); // Remove ghost if server rejected it
                 }
             });
         });
     }
 
-    // Edit Item
+    // Edit Item (Optimistic UI Update)
     const editItemForm = document.getElementById('ajax-edit-item-form');
     if (editItemForm) {
         editItemForm.addEventListener('submit', (e) => {
@@ -269,30 +347,74 @@ document.addEventListener('DOMContentLoaded', () => {
             formData.append('action', 'edit_item');
             formData.append('csrf_token', csrfToken);
 
+            // OPTIMISTIC UPDATE: Instant save & pulse
+            const editedId = document.getElementById('edit-item-id').value;
+            const newTitle = document.getElementById('edit-title').value;
+            
+            // Instantly close modal
+            document.getElementById('edit-item-modal').style.display = 'none';
+
+            // Instantly update title and trigger pulse!
+            const rowToPulse = document.querySelector(`.menu-item-row[data-id="${editedId}"]`);
+            if (rowToPulse) {
+                const titleEl = rowToPulse.querySelector('.menu-item-title');
+                if (titleEl) titleEl.innerText = newTitle;
+                
+                rowToPulse.classList.remove('pulse-success');
+                void rowToPulse.offsetWidth; // Force browser to restart animation
+                rowToPulse.classList.add('pulse-success');
+            }
+
+            // Sync with server in the background
             fetch('/core/actions/adm/ajax-menus.php', { method: 'POST', body: formData })
             .then(res => res.json())
             .then(data => {
                 showMsg(data.status, data.message);
                 if (data.status === 'success') {
-                    document.getElementById('edit-item-modal').style.display = 'none';
-                    loadBuilderData(true); // Silent reload
+                    // Silent reload to ensure URLs/Pages are perfectly synced
+                    // Note: We don't pass pulseId here anymore, because we already pulsed it manually!
+                    loadBuilderData(true); 
                 }
             });
         });
     }
 
-    // FIX: Combined Item Click Delegation (Edit AND Delete logic)
+    // Delegated Clicks (Edit, Delete, Collapse)
     if (sortableContainer) {
         sortableContainer.addEventListener('click', (e) => {
             const editBtn = e.target.closest('.ajax-edit-btn');
             const delBtn = e.target.closest('.ajax-delete-btn');
+            const collapseBtn = e.target.closest('.menu-collapse-btn');
             
-            // Delete Logic
-            if (delBtn) {
-                window.deleteItem(delBtn.dataset.id);
+            if (delBtn) window.deleteItem(delBtn.dataset.id);
+
+            // Animated Collapse
+            if (collapseBtn) {
+                const parentRow = collapseBtn.closest('.menu-item-row');
+                const rowId = parentRow.dataset.id;
+                collapseBtn.classList.toggle('collapsed');
+                const isCollapsed = collapseBtn.classList.contains('collapsed');
+                
+                if (isCollapsed) expandedParentIds.delete(rowId);
+                else expandedParentIds.add(rowId);
+
+                let nextRow = parentRow.nextElementSibling;
+                while (nextRow && nextRow.classList.contains('is-sub-item')) {
+                    if (isCollapsed) {
+                        nextRow.classList.add('hiding');
+                        const rowToHide = nextRow; 
+                        setTimeout(() => { 
+                            if (collapseBtn.classList.contains('collapsed')) rowToHide.style.display = 'none'; 
+                        }, 250);
+                    } else {
+                        nextRow.style.display = 'flex';
+                        nextRow.offsetHeight; // Reflow
+                        nextRow.classList.remove('hiding');
+                    }
+                    nextRow = nextRow.nextElementSibling;
+                }
             }
 
-            // Edit Logic
             if (editBtn) {
                 const ds = editBtn.dataset;
                 document.getElementById('edit-item-id').value = ds.id;
@@ -315,7 +437,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Auto-Save Order Logic
+    // Drag & Drop
     function saveMenuOrder() {
         const rows = document.querySelectorAll('.menu-item-row');
         const newOrder = [];
@@ -339,8 +461,23 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(res => res.json())
         .then(data => {
             showMsg(data.status, data.message);
-            if (data.status === 'success') {
-                loadBuilderData(true); // Silent reload
+            if (data.status === 'success') loadBuilderData(true); 
+        });
+    }
+
+    if (sortableContainer) {
+        sortableContainer.addEventListener('dragover', e => {
+            e.preventDefault();
+            
+            const hoveringRow = e.target.closest('.menu-item-row:not(.dragging)');
+            document.querySelectorAll('.drop-zone-active').forEach(r => r.classList.remove('drop-zone-active'));
+            if (hoveringRow) hoveringRow.classList.add('drop-zone-active');
+
+            const afterElement = getDragAfterElement(sortableContainer, e.clientY);
+            const draggable = document.querySelector('.dragging');
+            if (draggable) {
+                if (afterElement == null) { sortableContainer.appendChild(draggable); } 
+                else { sortableContainer.insertBefore(draggable, afterElement); }
             }
         });
     }
@@ -365,6 +502,8 @@ document.addEventListener('DOMContentLoaded', () => {
             
             draggable.addEventListener('dragend', () => {
                 draggable.classList.remove('dragging');
+                document.querySelectorAll('.drop-zone-active').forEach(r => r.classList.remove('drop-zone-active'));
+                
                 let refNode = draggable;
                 draggedChildren.forEach(child => {
                     child.style.display = 'flex'; 
@@ -375,18 +514,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 // OPTIMISTIC AUTO-SAVE: Fire the save logic the second they drop it!
                 saveMenuOrder();
             });
-        });
-    }
-
-    if (sortableContainer) {
-        sortableContainer.addEventListener('dragover', e => {
-            e.preventDefault();
-            const afterElement = getDragAfterElement(sortableContainer, e.clientY);
-            const draggable = document.querySelector('.dragging');
-            if (draggable) {
-                if (afterElement == null) { sortableContainer.appendChild(draggable); } 
-                else { sortableContainer.insertBefore(draggable, afterElement); }
-            }
         });
     }
 
