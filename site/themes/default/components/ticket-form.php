@@ -24,7 +24,7 @@ if (isset($tkt_settings['ticket_system_enabled']) && $tkt_settings['ticket_syste
 <div class="ticket-portal-wrapper mt-20">
     
     <div class="text-center mb-30">
-        <h2 class="portal-title">Support Portal</h2>
+        <h2 class="portal-title">Ticket Portal</h2>
         <p class="portal-subtitle">Open a new ticket or check the status of an existing one.</p>
     </div>
 
@@ -55,7 +55,7 @@ if (isset($tkt_settings['ticket_system_enabled']) && $tkt_settings['ticket_syste
         </div>
         
         <?php if ($tkt_settings['ticket_creation_enabled'] == '1'): ?>
-            <form action="/core/actions/process-ticket.php" method="POST" enctype="multipart/form-data">
+            <form action="/core/actions/front/process-ticket.php" method="POST" enctype="multipart/form-data">
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>">
                 <input type="hidden" name="action" value="new_ticket">
                 <input type="hidden" name="return_url" value="<?php echo htmlspecialchars($route ?? 'home'); ?>">

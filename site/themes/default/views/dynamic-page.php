@@ -13,24 +13,21 @@ $panelClass = ($pageType === 'ticket_portal') ? 'glass-panel ticket-main-panel' 
     <?php if ($isHome): ?>
         <div class="hero-section">
             <div class="hero-badge">
-                <i class="fa-solid fa-chart-line mr-5"></i> Technical Consultant & Developer
+                <i class="fa-solid fa-chart-line"></i> Technical Consultant & Developer
             </div>
             <h1 class="hero-title">Bridging Business Strategy<br>with <span>Modern Technology</span>.</h1>
             <p class="hero-subtitle">Specializing in ERP solutions, business controlling, and scalable web experiences.</p>
         </div>
     <?php else: ?>
-        <div class="hero-section ticket-hero">
+        <div class="hero-section">
             <div class="hero-badge">
-                <i class="fa-solid fa-chart-line mr-5"></i> Technical Consultant & Developer
+                <i class="fa-solid fa-chart-line"></i> Technical Consultant & Developer
             </div>
+            <h1 class="hero-title"><?php echo htmlspecialchars($page['page_title'], ENT_QUOTES, 'UTF-8'); ?></h1>
         </div>
     <?php endif; ?>
 
     <section class="<?php echo $panelClass; ?>">
-        
-        <div class="panel-header">
-            <h2 class="panel-title"><?php echo htmlspecialchars($page['page_title'], ENT_QUOTES, 'UTF-8'); ?></h2>
-        </div>
 
         <div class="page-content">
             <?php 

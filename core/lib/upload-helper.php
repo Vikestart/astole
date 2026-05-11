@@ -1,4 +1,6 @@
 <?php
+// /core/lib/upload-helper.php
+
 function processMultipleAttachments($file_array, $upload_dir) {
     if (!isset($file_array['name'])) { return null; }
 
@@ -9,7 +11,6 @@ function processMultipleAttachments($file_array, $upload_dir) {
 
     if (!is_dir($upload_dir)) { @mkdir($upload_dir, 0755, true); }
 
-    // Normalize input so it safely handles both single and multiple file arrays
     $names = is_array($file_array['name']) ? $file_array['name'] : [$file_array['name']];
     $tmp_names = is_array($file_array['tmp_name']) ? $file_array['tmp_name'] : [$file_array['tmp_name']];
     $sizes = is_array($file_array['size']) ? $file_array['size'] : [$file_array['size']];
@@ -27,7 +28,6 @@ function processMultipleAttachments($file_array, $upload_dir) {
         if ($file_size > $max_size) { continue; }
         if (!in_array($file_ext, $allowed_exts)) { continue; }
 
-        // Only check MIME if the server supports finfo
         if (function_exists('finfo_open')) {
             $finfo = finfo_open(FILEINFO_MIME_TYPE);
             $mime_type = finfo_file($finfo, $file_tmp);
@@ -43,4 +43,3 @@ function processMultipleAttachments($file_array, $upload_dir) {
     
     return !empty($uploaded_files) ? json_encode($uploaded_files) : null;
 }
-?>

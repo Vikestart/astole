@@ -91,15 +91,27 @@
         $stmt_nav->close();
     }
 
-    function buildFrontendMenu($items, $parent_id = null, $current_route = '') {
+    function buildFrontendMenu($items, $parent_id = null, $current_uri = '/') {
         $html = '';
+        $current_route = trim(parse_url($current_uri, PHP_URL_PATH), '/'); // Get clean current path
+
         foreach ($items as $item) {
             if ($item['parent_id'] == $parent_id) {
                 $has_children = false;
                 foreach ($items as $sub) { if ($sub['parent_id'] == $item['id']) { $has_children = true; break; } }
                 
-                $route_match = trim(str_replace('/', '', $item['final_url']));
-                $active_class = ($current_route === $route_match || ($current_route === '' && $route_match === 'home')) ? 'active' : '';
+                // Get clean path of the menu item
+                $item_route = trim(parse_url($item['final_url'], PHP_URL_PATH), '/');
+                
+                // Determine if active
+                $is_active = false;
+                if ($current_route === $item_route) {
+                    $is_active = true; // Exact match
+                } else if ($current_route === '' && ($item_route === '' || $item_route === 'home')) {
+                    $is_active = true; // Both are pointing to the root/home
+                }
+                
+                $active_class = $is_active ? 'active' : '';
                 $target = ($item['target'] === '_blank') ? ' target="_blank" rel="noopener noreferrer"' : '';
                 
                 if ($has_children) {
@@ -109,7 +121,7 @@
                     $html .= '<button class="submenu-toggle" aria-label="Toggle Submenu"><i class="fa-solid fa-chevron-down"></i></button>';
                     $html .= '</div>';
                     $html .= '<div class="nav-dropdown-menu">';
-                    $html .= buildFrontendMenu($items, $item['id'], $current_route);
+                    $html .= buildFrontendMenu($items, $item['id'], $current_uri); // Pass URI down to children
                     $html .= '</div></div>';
                 } else {
                     $html .= '<a href="'.htmlspecialchars($item['final_url']).'" class="nav-item '.$active_class.'"'.$target.'>'.htmlspecialchars($item['title']).'</a>';
@@ -159,7 +171,10 @@
 				</a>
 				
 				<nav class="nav-links">
-					<?php echo buildFrontendMenu($nav_items, null, $route ?? ''); ?>
+					<?php 
+                        $actual_uri = $_SERVER['REQUEST_URI'] ?? '/';
+                        echo buildFrontendMenu($nav_items, null, $actual_uri); 
+                    ?>
 				</nav>
 				
 				<button class="mobile-toggle"><i class="fa-solid fa-bars"></i></button>

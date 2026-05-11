@@ -126,7 +126,7 @@ $this->component('header', ['page_title' => $page_title]);
             <div class="ticket-reply-container">
                 <h3 class="ticket-reply-title">Send a Reply</h3>
                 
-                <form action="/core/actions/process-ticket.php" method="POST" enctype="multipart/form-data">
+                <form action="/core/actions/front/process-ticket.php" method="POST" enctype="multipart/form-data">
                     <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
                     <input type="hidden" name="action" value="reply_ticket">
                     <input type="hidden" name="ticket_id" value="<?php echo $ticket['id']; ?>">
@@ -153,7 +153,7 @@ $this->component('header', ['page_title' => $page_title]);
                         <button type="submit" class="ticket-btn-primary">Send Reply</button>
                 </form>
 
-                <form action="/core/actions/process-ticket.php" method="POST" class="confirm-close-form">
+                <form action="/core/actions/front/process-ticket.php" method="POST" class="confirm-close-form">
                     <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
                     <input type="hidden" name="action" value="client_close">
                     <input type="hidden" name="ticket_id" value="<?php echo $ticket['id']; ?>">
