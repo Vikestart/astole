@@ -100,15 +100,19 @@
                 $has_children = false;
                 foreach ($items as $sub) { if ($sub['parent_id'] == $item['id']) { $has_children = true; break; } }
                 
-                // Get clean path of the menu item
-                $item_route = trim(parse_url($item['final_url'], PHP_URL_PATH), '/');
+                $final_url = $item['final_url'];
+                $item_route = trim(parse_url($final_url, PHP_URL_PATH), '/');
                 
                 // Determine if active
                 $is_active = false;
-                if ($current_route === $item_route) {
-                    $is_active = true; // Exact match
-                } else if ($current_route === '' && ($item_route === '' || $item_route === 'home')) {
-                    $is_active = true; // Both are pointing to the root/home
+                
+                // Prevent placeholder links (#) and external domains from falsely matching the homepage route
+                if ($final_url !== '#' && !preg_match('~^(?:f|ht)tps?://~i', $final_url)) {
+                    if ($current_route === $item_route && $current_route !== '') {
+                        $is_active = true; // Exact match for internal pages
+                    } else if ($current_route === '' && ($item_route === '' || $item_route === 'home')) {
+                        $is_active = true; // Homepage match
+                    }
                 }
                 
                 $active_class = $is_active ? 'active' : '';
@@ -117,14 +121,14 @@
                 if ($has_children) {
                     $html .= '<div class="nav-dropdown">';
                     $html .= '<div class="nav-dropdown-trigger">';
-                    $html .= '<a href="'.htmlspecialchars($item['final_url']).'" class="nav-item '.$active_class.'"'.$target.'>'.htmlspecialchars($item['title']).'</a>';
+                    $html .= '<a href="'.htmlspecialchars($final_url).'" class="nav-item '.$active_class.'"'.$target.'>'.htmlspecialchars($item['title']).'</a>';
                     $html .= '<button class="submenu-toggle" aria-label="Toggle Submenu"><i class="fa-solid fa-chevron-down"></i></button>';
                     $html .= '</div>';
                     $html .= '<div class="nav-dropdown-menu">';
-                    $html .= buildFrontendMenu($items, $item['id'], $current_uri); // Pass URI down to children
+                    $html .= buildFrontendMenu($items, $item['id'], $current_uri);
                     $html .= '</div></div>';
                 } else {
-                    $html .= '<a href="'.htmlspecialchars($item['final_url']).'" class="nav-item '.$active_class.'"'.$target.'>'.htmlspecialchars($item['title']).'</a>';
+                    $html .= '<a href="'.htmlspecialchars($final_url).'" class="nav-item '.$active_class.'"'.$target.'>'.htmlspecialchars($item['title']).'</a>';
                 }
             }
         }
